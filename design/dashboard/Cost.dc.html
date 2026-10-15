@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cost</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.seg{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;font:inherit;font-weight:500;color:#4A505C;cursor:pointer}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+.num{font-variant-numeric:tabular-nums}
+th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#646B78;text-align:left;padding:10px 16px;border-bottom:1px solid #E2E5EA;white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid #EEF0F3;font-size:14px}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html" class="on" aria-current="page">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 20px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="label">All projects</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Cost</h1>
+        </div>
+        <div style="display: flex; gap: 8px" role="group" aria-label="Period">
+          <sc-for list="{{periods}}" as="p" hint-placeholder-count="2">
+            <button type="button" class="seg" aria-pressed="{{p.sel}}" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}; border-color: {{p.bd}}">{{p.name}}</button>
+          </sc-for>
+        </div>
+      </header>
+
+      <section class="card" style="display: flex; flex-wrap: wrap" aria-labelledby="tot-h">
+        <div style="flex: 2 1 380px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0">
+          <span class="label">{{d.when}}</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline">
+            <h2 id="tot-h" class="num" style="margin: 0; font-size: 30px; line-height: 1.1; font-weight: 600">{{d.total}}</h2>
+            <span style="color: #4A505C">{{d.of}}</span>
+          </div>
+          <div style="position: relative; height: 8px; border-radius: 4px; background: #E2E5EA" aria-hidden="true">
+            <span style="position: absolute; left: 0; top: 0; height: 8px; border-radius: 4px; background: #2546C8; width: {{d.pct}}"></span>
+            <span style="position: absolute; top: -4px; width: 2px; height: 16px; background: #15171C; left: {{d.proj}}"></span>
+          </div>
+          <span style="font-size: 13px; color: #4A505C">{{d.note}}</span>
+        </div>
+        <div style="flex: 1 1 180px; padding: 18px 20px; border-left: 1px solid #EEF0F3; display: flex; flex-direction: column; gap: 2px"><span class="label">Projected month end</span><span class="num" style="font-size: 20px; font-weight: 600">$2,010</span><span style="font-size: 13px; color: #4A505C">Budget $2,000</span></div>
+        <div style="flex: 1 1 180px; padding: 18px 20px; border-left: 1px solid #EEF0F3; display: flex; flex-direction: column; gap: 2px"><span class="label">Avg cost per slice</span><span class="num" style="font-size: 20px; font-weight: 600">$34</span><span style="font-size: 13px; color: #11602F">Down from $41 in Sep</span></div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <section class="card" style="flex: 3 1 480px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 18px" aria-labelledby="bp-h">
+          <h2 id="bp-h" class="label" style="margin: 0">By project, against budget</h2>
+          <sc-for list="{{d.projects}}" as="p" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px">
+                <span style="font-weight: 600">{{p.name}}</span>
+                <span class="num" style="color: {{p.fg}}">{{p.text}}</span>
+              </div>
+              <div style="height: 8px; border-radius: 4px; background: #EEF0F3" aria-hidden="true">
+                <span style="display: block; height: 8px; border-radius: 4px; width: {{p.w}}; background: {{p.bar}}"></span>
+              </div>
+            </div>
+          </sc-for>
+          <p style="margin: 0; font-size: 13px; color: #646B78">Budgets show a dashboard warning at 90%. Nothing is ever paused automatically.</p>
+        </section>
+
+        <section class="card" style="flex: 2 1 300px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 12px" aria-labelledby="bs-h">
+          <h2 id="bs-h" class="label" style="margin: 0">By source</h2>
+          <div style="display: flex; flex-direction: column">
+            <sc-for list="{{d.sources}}" as="s" hint-placeholder-count="5">
+              <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF0F3; font-size: 14px"><span>{{s.name}}</span><span class="num" style="font-weight: 600">{{s.v}}</span></div>
+            </sc-for>
+          </div>
+          <p style="margin: 0; font-size: 13px; color: #646B78">The Claude subscription is shared across projects by each project's share of tokens.</p>
+        </section>
+      </div>
+
+      <section style="display: flex; flex-direction: column; gap: 12px" aria-labelledby="sl-h">
+        <h2 id="sl-h" class="label" style="margin: 0">Slices that cost the most</h2>
+        <div class="card" style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; min-width: 640px">
+            <thead><tr><th scope="col">Slice</th><th scope="col">Project</th><th scope="col">Estimate</th><th scope="col">Actual</th><th scope="col">Why</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">SL-04</span> Invoice approval</td><td>Acme</td><td class="num">$38</td><td class="num" style="color: #8A4307; font-weight: 600">$62 so far</td><td style="color: #4A505C">Second code review round; approval rules were missed first time</td></tr>
+              <tr><td><span class="mono">SL-01</span> Tracer bullet</td><td>Acme</td><td class="num">$45</td><td class="num">$41</td><td style="color: #4A505C">Sets up the whole pipeline end to end</td></tr>
+              <tr><td><span class="mono">SL-04</span> Retry failed syncs</td><td>Ledger Sync</td><td class="num">$30</td><td class="num">$33</td><td style="color: #4A505C">Contract test setup for the Xero sandbox</td></tr>
+              <tr><td><span class="mono">ISS-22</span> Webhook fix</td><td>Harbour</td><td class="num">$12</td><td class="num">$9</td><td style="color: #4A505C">Small fix, fast review</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #646B78">Estimate versus actual feeds the learning agent, which recalibrates future estimates.</p>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { p: 1 };
+  }
+  renderVals() {
+    var self = this;
+    var mkProj = function (name, spent, budget) {
+      var pct = Math.round(spent / budget * 100);
+      var warn = pct >= 90;
+      return {
+        name: name,
+        text: '$' + spent + ' of $' + budget + ' · ' + pct + '%',
+        w: Math.min(pct, 100) + '%',
+        bar: warn ? '#B45309' : '#2546C8',
+        fg: warn ? '#8A4307' : '#4A505C'
+      };
+    };
+    var data = [
+      {
+        when: 'This week · 12 to 18 Oct', total: '$318', of: 'of about $460 a week to stay on budget', pct: '69%', proj: '72%',
+        note: 'On pace. Most of this week went to Acme SL-04 and SL-05.',
+        projects: [mkProj('Acme Ops Portal', 141, 140), mkProj('Ledger Sync', 82, 115), mkProj('Harbour Bookings', 64, 140), { name: 'Factory overhead', text: '$31 · evals, learning, kit', w: '22%', bar: '#9AA3B2', fg: '#4A505C' }],
+        sources: [{ name: 'Claude subscription share', v: '$204' }, { name: 'Vercel', v: '$42' }, { name: 'GitHub Actions', v: '$16' }, { name: 'Observability tools', v: '$37' }, { name: 'Other services', v: '$19' }]
+      },
+      {
+        when: 'October so far · day 15 of 31', total: '$1,284', of: 'of $2,000', pct: '64%', proj: '99.5%',
+        note: 'Projected month end: about $2,010, right on budget. Acme is the one to watch.',
+        projects: [mkProj('Acme Ops Portal', 552, 600), mkProj('Ledger Sync', 318, 500), mkProj('Harbour Bookings', 296, 600), { name: 'Factory overhead', text: '$118 · evals, learning, kit', w: '20%', bar: '#9AA3B2', fg: '#4A505C' }],
+        sources: [{ name: 'Claude subscription share', v: '$820' }, { name: 'Vercel', v: '$172' }, { name: 'GitHub Actions', v: '$64' }, { name: 'Observability tools', v: '$148' }, { name: 'Other services', v: '$80' }]
+      }
+    ];
+    var names = ['Week', 'Month'];
+    var p = this.state.p;
+    return {
+      periods: names.map(function (n, i) {
+        var on = i === p;
+        return { name: n, sel: on ? 'true' : 'false', bg: on ? '#15171C' : '#fff', fg: on ? '#fff' : '#4A505C', bd: on ? '#15171C' : '#D5D9E0', pick: function () { self.setState({ p: i }); } };
+      }),
+      d: data[p]
+    };
+  }
+}
+</script>
+</body>
+</html>

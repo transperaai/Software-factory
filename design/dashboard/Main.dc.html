@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1240px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500;font-size:15px}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.btn.quiet{border-color:transparent;background:transparent;color:#2546C8}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.cardh{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #EEF0F3}
+.cardh h2{margin:0;font-size:15px;font-weight:600}
+.stat{display:flex;flex-direction:column;gap:4px;padding:16px 18px}
+.statv{font-size:24px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html" class="on" aria-current="page">Overview <span class="count">{{count}}</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 24px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="color: #646B78; font-size: 13px">Thursday 15 October</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Overview</h1>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="btn">Drop in a source</button>
+          <button type="button" class="btn primary">New project</button>
+        </div>
+      </header>
+
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
+        <div class="stat"><span class="label">Decisions waiting</span><span class="statv">{{count}}</span><span style="font-size: 13px; color: #A3200F">1 urgent</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Slices in progress</span><span class="statv">5</span><span style="font-size: 13px; color: #4A505C">across 3 projects</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Ready to test</span><span class="statv">2</span><span style="font-size: 13px; color: #4A505C">Ledger Sync · ~15 min</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Open issues</span><span class="statv">3</span><span style="font-size: 13px; color: #4A505C">1 Sev-2 · Harbour</span></div>
+        <a href="Cost.dc.html" class="stat" style="border-left: 1px solid #EEF0F3; color: #15171C; text-decoration: none"><span class="label">October spend</span><span class="statv">$1,284</span><span style="font-size: 13px; color: #8A4307">Acme at 92% of budget</span></a>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+        <div style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+          <section class="card" aria-labelledby="ny-h">
+            <div class="cardh"><h2 id="ny-h">Needs you</h2><span style="font-size: 13px; color: #646B78">Ordered by urgency</span></div>
+
+            <sc-if value="{{allClear}}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 32px 18px; color: #4A505C">Nothing needs you right now. {{doneCount}} decisions made today.</div>
+            </sc-if>
+
+            <sc-if value="{{hasTop}}" hint-placeholder-val="{{ true }}">
+              <div style="padding: 18px; display: flex; flex-direction: column; gap: 12px; background: #FAFBFF; border-bottom: 1px solid #EEF0F3">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+                  <sc-if value="{{top.urgent}}" hint-placeholder-val="{{ true }}">
+                    <span class="chip" style="background: #FDECEA; color: #A3200F">Urgent</span>
+                  </sc-if>
+                  <span class="chip">{{top.kind}}</span>
+                  <span style="color: #646B78; font-size: 13px">{{top.project}} · {{top.age}} ago</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <h3 style="margin: 0; font-size: 17px; line-height: 1.35; font-weight: 600">{{top.title}}</h3>
+                  <p style="margin: 0; color: #4A505C; max-width: 72ch">{{top.why}}</p>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+                  <span style="font-size: 12px; color: #646B78; margin-right: 2px">Traces to</span>
+                  <sc-for list="{{top.refs}}" as="r" hint-placeholder-count="3">
+                    <a href="Thread.dc.html" class="chip mono" style="text-decoration: none">{{r}}</a>
+                  </sc-for>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                  <button type="button" class="btn primary" onClick="{{decide}}">{{top.primary}}</button>
+                  <button type="button" class="btn">{{top.secondary}}</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <ul style="list-style: none; margin: 0; padding: 0">
+              <sc-for list="{{rest}}" as="d" hint-placeholder-count="3">
+                <li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 18px; border-top: {{d.border}}">
+                  <span class="chip" style="min-width: 0">{{d.kind}}</span>
+                  <span style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column">
+                    <span style="font-weight: 500">{{d.title}}</span>
+                    <span style="font-size: 12px; color: #646B78">{{d.project}} · {{d.age}} ago</span>
+                  </span>
+                  <button type="button" class="btn" onClick="{{d.open}}" aria-label="Review: {{d.title}}">Review</button>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+
+          <section class="card" aria-labelledby="act-h">
+            <div class="cardh"><h2 id="act-h">Recent activity</h2><a href="#" style="font-size: 13px; font-weight: 600">View all</a></div>
+            <ul style="list-style: none; margin: 0; padding: 4px 0">
+              <sc-for list="{{activity}}" as="a" hint-placeholder-count="6">
+                <li style="display: flex; gap: 14px; align-items: baseline; padding: 9px 18px">
+                  <span class="mono" style="color: #646B78; min-width: 40px">{{a.t}}</span>
+                  <span style="flex: 1; min-width: 0"><span style="font-weight: 500">{{a.who}}</span> <span style="color: #4A505C">{{a.what}}</span></span>
+                  <span style="font-size: 12px; color: #646B78; white-space: nowrap">{{a.proj}}</span>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </div>
+
+        <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+          <section class="card" aria-labelledby="proj-h">
+            <div class="cardh"><h2 id="proj-h">Projects</h2><a href="Project.dc.html" style="font-size: 13px; font-weight: 600">All</a></div>
+            <div style="padding: 6px 6px">
+              <sc-for list="{{projects}}" as="p" hint-placeholder-count="3">
+                <a href="Project.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 8px; color: #15171C; text-decoration: none">
+                  <span style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+                    <span style="font-weight: 600">{{p.name}}</span>
+                    <span style="display: flex; gap: 6px; align-items: center; font-size: 12px; color: #4A505C"><span class="dot" style="background: {{p.health}}" aria-hidden="true"></span>{{p.profile}}</span>
+                  </span>
+                  <span style="display: flex; gap: 3px" aria-hidden="true">
+                    <sc-for list="{{p.segs}}" as="s" hint-placeholder-count="8">
+                      <span style="flex: 1; height: 5px; border-radius: 3px; background: {{s.bg}}"></span>
+                    </sc-for>
+                  </span>
+                  <span style="font-size: 12px; color: #4A505C">{{p.status}}</span>
+                </a>
+              </sc-for>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="run-h">
+            <div class="cardh"><h2 id="run-h">Agents running</h2><span style="font-size: 13px; color: #646B78">6</span></div>
+            <ul style="list-style: none; margin: 0; padding: 6px 0">
+              <sc-for list="{{running}}" as="a" hint-placeholder-count="6">
+                <li style="display: flex; gap: 10px; align-items: flex-start; padding: 8px 18px">
+                  <span class="dot" style="background: #2546C8; margin-top: 7px" aria-hidden="true"></span>
+                  <span style="display: flex; flex-direction: column; min-width: 0">
+                    <span style="font-weight: 500">{{a.agent}}</span>
+                    <span style="font-size: 12px; color: #4A505C">{{a.what}}</span>
+                  </span>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { done: [], order: ['d2', 'd5', 'd1', 'd6', 'd3', 'd4'] };
+  }
+  renderVals() {
+    var all = {
+      d1: { project: 'Ledger Sync', kind: 'Approve stories', age: '2h', title: 'Approve 4 stories for retrying failed invoice syncs', why: 'Written from BR-07 and the 3 Sep workshop with the finance team. Approving lets the slice planner plan SL-06.', refs: ['LEDGER:BR-07', 'UC-03', 'US-12', 'US-13', 'US-14', 'US-15'], primary: 'Approve all 4', secondary: 'Review one by one' },
+      d2: { urgent: true, project: 'Harbour Bookings', kind: 'Production fix', age: '12m', title: 'Deploy the fix for failing payment webhooks', why: '4.1% of payment webhooks have failed since 09:40. The fix is on staging and 31 automated checks passed.', refs: ['HARB:ISS-22', 'PR #188', 'TC-140'], primary: 'Approve deploy', secondary: 'See the fix' },
+      d3: { project: 'Acme Ops Portal', kind: 'Confirm speaker', age: '1d', title: 'Who is Speaker 2 in the 14 Oct workshop recording?', why: '12 claims from this recording are waiting for a name before they can be attributed.', refs: ['ACME:SRC-031'], primary: 'Choose a person', secondary: 'Add new stakeholder' },
+      d5: { project: 'Acme Ops Portal', kind: 'Coder question', age: '40m', title: 'Unreadable PDFs: reject them, or queue them for manual entry?', why: 'US-19 doesn’t say. SL-06 is paused until you answer. Your answer is added to the story so it stays traceable.', refs: ['ACME:US-19', 'SL-06'], primary: 'Answer', secondary: 'Open the story' },
+      d6: { project: 'Acme Ops Portal', kind: 'Privacy decision', age: '1h', title: 'Audit export includes staff names. Keep exports for 7 years?', why: 'Raised by the security agent before SL-09 is built. Sets the retention rule in the privacy module.', refs: ['ACME:SEC-04', 'NFR-07', 'SL-09'], primary: 'Decide', secondary: 'See details' },
+      d4: { project: 'Factory', kind: 'Integration change', age: '3h', title: 'Xero Payroll API v1 retires in 28 days', why: 'Ledger Sync calls 3 of the affected endpoints. A change request is drafted: about one slice of work.', refs: ['FAC:CR-09', 'LEDGER:INT-02'], primary: 'Approve change request', secondary: 'Open the digest' }
+    };
+    var self = this;
+    var remaining = this.state.order.filter(function (id) { return self.state.done.indexOf(id) < 0; });
+    var top = remaining.length ? all[remaining[0]] : null;
+    var rest = remaining.slice(1).map(function (id, i) {
+      var d = all[id];
+      return {
+        project: d.project, kind: d.kind, title: d.title, age: d.age,
+        border: '1px solid #EEF0F3',
+        open: function () {
+          var o = self.state.order.filter(function (x) { return x !== id; });
+          o.unshift(id);
+          self.setState({ order: o });
+        }
+      };
+    });
+    var segs = function (done) {
+      var out = [];
+      for (var i = 0; i < 8; i++) out.push({ bg: i < done ? '#2546C8' : (i === done ? '#9DB0EE' : '#E2E5EA') });
+      return out;
+    };
+    return {
+      count: remaining.length,
+      allClear: remaining.length === 0,
+      hasTop: !!top,
+      top: top || { refs: [] },
+      rest: rest,
+      doneCount: this.state.done.length,
+      decide: function () {
+        if (!remaining.length) return;
+        self.setState({ done: self.state.done.concat([remaining[0]]) });
+      },
+      activity: [
+        { t: '12:20', who: 'Code reviewer', what: 'sent SL-04 back for round 2: role check missing on second approval', proj: 'Acme' },
+        { t: '11:58', who: 'Maintenance planner', what: 'opened ISS-22: payment webhook failures above threshold', proj: 'Harbour' },
+        { t: '11:31', who: 'You', what: 'approved KPI baselines for BR-07', proj: 'Ledger Sync' },
+        { t: '10:47', who: 'QA explorer', what: 'found 2 edge cases in SL-05; both fixed and re-tested', proj: 'Ledger Sync' },
+        { t: '09:12', who: 'Coder', what: 'started SL-05 Supplier search', proj: 'Acme' },
+        { t: '08:30', who: 'Integration watch', what: 'weekly digest ready: 3 changes matter to us', proj: 'Factory' }
+      ],
+      running: [
+        { agent: 'Coder', what: 'Acme · SL-05 Supplier search · 112k of ~190k tokens' },
+        { agent: 'Code reviewer', what: 'Acme · SL-04 Invoice approval · round 2 of 3' },
+        { agent: 'QA explorer', what: 'Ledger Sync · SL-05 · exploring edge cases' },
+        { agent: 'Docs writer', what: 'Harbour · patch notes for REL-2.4' },
+        { agent: 'Maintenance planner', what: 'Harbour · weekly dependency scan' },
+        { agent: 'Learning agent', what: 'Weekly batch · 41 signals' }
+      ],
+      projects: [
+        { name: 'Acme Ops Portal', profile: 'Client', health: '#B45309', segs: segs(4), status: 'Develop · 3 of 9 slices accepted · budget 92%' },
+        { name: 'Ledger Sync', profile: 'Headless', health: '#157A3E', segs: segs(5), status: 'Test · 2 slices ready for you' },
+        { name: 'Harbour Bookings', profile: 'SaaS', health: '#B42318', segs: segs(7), status: 'Operate · 1 open Sev-2 issue' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

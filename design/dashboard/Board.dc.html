@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Slice board: Acme Ops Portal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1400px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500;font-size:15px}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.sm{min-height:34px;padding:0 12px;font-size:13px}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.seg{min-height:36px;padding:0 14px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;font:inherit;font-weight:500;color:#4A505C;cursor:pointer}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 16px}
+.statv{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.col{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:#ECEEF2;min-width:200px}
+.colh{margin:0 0 2px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;padding:0 2px}
+.slice{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:10px;background:#fff;border:1px solid #E2E5EA;color:#15171C;text-decoration:none}
+.slice:hover{border-color:#B9C2D0;color:#15171C}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html" class="on" aria-current="page">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 20px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="color: #646B78; font-size: 13px">Acme Ops Portal · REL-1.0 · target 6 Nov</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Slice board</h1>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap" role="group" aria-label="Release">
+          <button type="button" class="seg" aria-pressed="true" style="background: #15171C; border-color: #15171C; color: #fff">REL-1.0</button>
+          <button type="button" class="seg" aria-pressed="false">Later</button>
+        </div>
+      </header>
+
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+        <div class="stat"><span class="label">Accepted</span><span class="statv">3 of 9</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Building</span><span class="statv">2 of 4 slots</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Needs you</span><span class="statv" style="color: #8A4307">2</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Avg review rounds</span><span class="statv">1.4</span></div>
+        <div class="stat" style="border-left: 1px solid #EEF0F3"><span class="label">Release</span><span class="statv" style="color: #11602F">On track</span></div>
+      </div>
+
+      <div style="overflow-x: auto; margin: 0 -4px; padding: 0 4px 8px">
+        <div style="display: grid; grid-template-columns: repeat(6, minmax(200px, 1fr)); gap: 10px; align-items: start; min-width: 1260px">
+
+          <section class="col" aria-labelledby="c1">
+            <h2 id="c1" class="colh">Planned <span style="color: #646B78; font-weight: 500">3</span></h2>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-07</span>
+              <span style="font-weight: 600">Monthly spend report</span>
+              <span class="mono" style="color: #4A505C">US-30 · US-31 · FR-19</span>
+              <span><span class="chip">reporting</span></span>
+            </a>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-08</span>
+              <span style="font-weight: 600">Supplier onboarding emails</span>
+              <span class="mono" style="color: #4A505C">US-24 · FR-16 · INT-03</span>
+              <span><span class="chip">notifications</span></span>
+            </a>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-09</span>
+              <span style="font-weight: 600">Audit log export</span>
+              <span class="mono" style="color: #4A505C">US-38 · NFR-07 · SEC-04</span>
+              <span><span class="chip">audit</span></span>
+            </a>
+          </section>
+
+          <section class="col" aria-labelledby="c2">
+            <h2 id="c2" class="colh">Building <span style="color: #646B78; font-weight: 500">2 of 4</span></h2>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-05</span>
+              <span style="font-weight: 600">Supplier search</span>
+              <span class="mono" style="color: #4A505C">US-21 · US-22 · FR-14</span>
+              <span><span class="chip">suppliers</span></span>
+              <span style="display: flex; flex-direction: column; gap: 4px; padding-top: 2px">
+                <span style="display: flex; justify-content: space-between; font-size: 12px; color: #4A505C"><span>Coder</span><span>112k / ~190k</span></span>
+                <span style="height: 4px; border-radius: 2px; background: #E2E5EA" aria-hidden="true"><span style="display: block; width: 59%; height: 4px; border-radius: 2px; background: #2546C8"></span></span>
+              </span>
+            </a>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-06</span>
+              <span style="font-weight: 600">Upload invoice PDFs</span>
+              <span class="mono" style="color: #4A505C">US-17 · US-19 · FR-11</span>
+              <span><span class="chip">invoice-intake</span></span>
+              <span style="display: flex; gap: 6px; align-items: center; font-size: 12px; color: #8A4307"><span class="dot" style="background: #B45309" aria-hidden="true"></span>Paused: waiting on your answer</span>
+            </a>
+          </section>
+
+          <section class="col" aria-labelledby="c3" style="background: #FEF3E2; outline: 1px solid #E8B27A; outline-offset: -1px">
+            <h2 id="c3" class="colh" style="color: #7A3A06">Needs you <span class="count">2</span></h2>
+            <article class="slice" style="border-color: #F1D3AE">
+              <span style="display: flex; justify-content: space-between; align-items: center"><span class="mono" style="color: #646B78">SL-06</span><span class="chip" style="background: #FEF3E2; color: #8A4307">Question</span></span>
+              <span style="font-weight: 600">Unreadable PDFs: reject them, or queue them for manual entry?</span>
+              <span style="font-size: 12px; color: #4A505C">From the coder. US-19 doesn't say. Blocks SL-06.</span>
+              <span style="display: flex; gap: 6px; flex-wrap: wrap; padding-top: 2px"><button type="button" class="btn sm primary">Answer</button><a href="Thread.dc.html" class="btn sm">See US-19</a></span>
+            </article>
+            <article class="slice" style="border-color: #F1D3AE">
+              <span style="display: flex; justify-content: space-between; align-items: center"><span class="mono" style="color: #646B78">SL-09</span><span class="chip" style="background: #FEF3E2; color: #8A4307">Approval</span></span>
+              <span style="font-weight: 600">Audit export includes staff names. Keep exports for 7 years?</span>
+              <span style="font-size: 12px; color: #4A505C">From the security agent. Privacy decision before build.</span>
+              <span style="display: flex; gap: 6px; flex-wrap: wrap; padding-top: 2px"><button type="button" class="btn sm primary">Decide</button><button type="button" class="btn sm">Details</button></span>
+            </article>
+            <span style="font-size: 12px; color: #7A3A06; padding: 0 2px">Questions, approvals and escalations after 3 review rounds land here.</span>
+          </section>
+
+          <section class="col" aria-labelledby="c4">
+            <h2 id="c4" class="colh">Agent review <span style="color: #646B78; font-weight: 500">1</span></h2>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-04</span>
+              <span style="font-weight: 600">Invoice approval</span>
+              <span class="mono" style="color: #4A505C">US-12 · US-13 · RULE-05</span>
+              <span><span class="chip">approvals</span></span>
+              <span style="display: flex; flex-direction: column; gap: 3px; padding-top: 2px; font-size: 12px">
+                <span style="display: flex; gap: 8px; align-items: center"><span class="dot" style="background: #157A3E" aria-hidden="true"></span>Security passed</span>
+                <span style="display: flex; gap: 8px; align-items: center"><span class="dot" style="background: #157A3E" aria-hidden="true"></span>UX and accessibility passed</span>
+                <span style="display: flex; gap: 8px; align-items: center"><span class="dot" style="background: #2546C8" aria-hidden="true"></span>Code review round 2 of 3</span>
+              </span>
+            </a>
+          </section>
+
+          <section class="col" aria-labelledby="c5">
+            <h2 id="c5" class="colh">Ready to test <span style="color: #646B78; font-weight: 500">0 of 2 units</span></h2>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 10px; background: #fff; border: 1px dashed #B9C2D0">
+              <span style="font-weight: 600">Next: SL-04 + SL-05 as one batch</span>
+              <span style="font-size: 12px; color: #4A505C">Expected Monday · about 20 minutes of UAT</span>
+            </div>
+            <span style="font-size: 12px; color: #646B78; padding: 0 2px">New work pauses when 2 units are waiting to test.</span>
+          </section>
+
+          <section class="col" aria-labelledby="c6">
+            <h2 id="c6" class="colh">Accepted <span style="color: #646B78; font-weight: 500">3</span></h2>
+            <a href="Thread.dc.html" class="slice">
+              <span style="display: flex; justify-content: space-between"><span class="mono" style="color: #646B78">SL-01</span><span class="chip" style="background: #E6F4EA; color: #11602F">Tracer</span></span>
+              <span style="font-weight: 600">Log in and see the invoice list</span>
+              <span style="font-size: 12px; color: #4A505C">30 Sep</span>
+            </a>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-02</span>
+              <span style="font-weight: 600">Filter and sort invoices</span>
+              <span style="font-size: 12px; color: #4A505C">6 Oct</span>
+            </a>
+            <a href="Thread.dc.html" class="slice">
+              <span class="mono" style="color: #646B78">SL-03</span>
+              <span style="font-weight: 600">Invoice detail and history</span>
+              <span style="font-size: 12px; color: #4A505C">10 Oct</span>
+            </a>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

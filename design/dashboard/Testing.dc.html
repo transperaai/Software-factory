@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Testing: UAT checklist</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.pass{background:#157A3E;border-color:#157A3E;color:#fff}
+.btn.pass:hover{background:#0F5F30;color:#fff}
+.btn.fail{color:#A3200F;border-color:#E9B3AB}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+textarea{font:inherit;padding:12px;border-radius:8px;border:1px solid #B9C2D0;min-height:88px;resize:vertical;width:100%;box-sizing:border-box}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html" class="on" aria-current="page">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 24px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="label">Ledger Sync · Batch A · SL-04 and SL-05</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Retry failed invoice syncs</h1>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button type="button" class="btn" style="min-height: 44px">Open as document</button>
+        </div>
+      </header>
+
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px"><span class="label">Ready to test</span><span style="font-size: 20px; font-weight: 600">2 slices</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Accepted this week</span><span style="font-size: 20px; font-weight: 600">4</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Open defects</span><span style="font-size: 20px; font-weight: 600">1</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Avg time per checklist</span><span style="font-size: 20px; font-weight: 600">14 min</span></div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+        <section style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px" aria-label="Checklist">
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px; color: #4A505C"><span>{{progressText}}</span><span>About 15 minutes</span></div>
+            <div style="display: flex; gap: 4px" aria-hidden="true">
+              <sc-for list="{{pips}}" as="p" hint-placeholder-count="7">
+                <span style="flex: 1; height: 6px; border-radius: 3px; background: {{p.bg}}"></span>
+              </sc-for>
+            </div>
+          </div>
+
+          <sc-if value="{{running}}" hint-placeholder-val="{{ true }}">
+            <article class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 18px">
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+                <span class="label" style="color: #1A3496">Step {{stepNo}}</span>
+                <span class="chip mono">{{cur.ref}}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <span class="label">Do this</span>
+                <p style="margin: 0; font-size: 18px; line-height: 1.45; font-weight: 500">{{cur.doThis}}</p>
+                <sc-if value="{{cur.hasAccount}}" hint-placeholder-val="{{ false }}">
+                  <a href="Accounts.dc.html" style="display: inline-flex; gap: 10px; align-items: center; align-self: flex-start; padding: 10px 14px; border-radius: 8px; background: #F4F5F7; color: #15171C; text-decoration: none; font-size: 14px">
+                    <span style="font-weight: 600">Test account:</span><span class="mono">finance.tester@ledger.test</span><span style="color: #2546C8; font-weight: 600">Copy login</span>
+                  </a>
+                </sc-if>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: 10px; background: #F4F5F7">
+                <span class="label">You should see</span>
+                <p style="margin: 0; font-size: 15px">{{cur.expect}}</p>
+              </div>
+
+              <sc-if value="{{failing}}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <label for="what" style="font-weight: 600">What did you see instead?</label>
+                  <textarea id="what" placeholder="Describe it in your own words. A screenshot is attached automatically."></textarea>
+                  <span style="font-size: 13px; color: #4A505C">This raises a defect linked to the step, the story and the acceptance criterion. The coder picks it up straight away.</span>
+                </div>
+              </sc-if>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 12px">
+                <sc-if value="{{notFailing}}" hint-placeholder-val="{{ true }}">
+                  <button type="button" class="btn pass" onClick="{{pass}}">Pass</button>
+                  <button type="button" class="btn fail" onClick="{{startFail}}">Fail</button>
+                  <button type="button" class="btn">Add a comment</button>
+                </sc-if>
+                <sc-if value="{{failing}}" hint-placeholder-val="{{ false }}">
+                  <button type="button" class="btn primary" onClick="{{fail}}">Raise defect and continue</button>
+                  <button type="button" class="btn" onClick="{{cancelFail}}">Cancel</button>
+                </sc-if>
+              </div>
+            </article>
+          </sc-if>
+
+          <sc-if value="{{finished}}" hint-placeholder-val="{{ false }}">
+            <article class="card" style="padding: 32px; display: flex; flex-direction: column; gap: 16px">
+              <span class="label" style="color: #157A3E">Checklist complete</span>
+              <h2 style="margin: 0; font-size: 20px; font-weight: 600">{{summary}}</h2>
+              <p style="margin: 0; color: #4A505C">{{summaryDetail}}</p>
+              <div style="display: flex; flex-wrap: wrap; gap: 12px">
+                <button type="button" class="btn primary">{{acceptLabel}}</button>
+                <button type="button" class="btn" onClick="{{restart}}">Start again</button>
+              </div>
+            </article>
+          </sc-if>
+
+          <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+            <sc-for list="{{list}}" as="s" hint-placeholder-count="7">
+              <li style="display: flex; gap: 12px; align-items: baseline; padding: 8px 4px; font-size: 14px; color: {{s.color}}">
+                <span style="min-width: 52px; font-weight: 600; font-size: 12px">{{s.mark}}</span>
+                <span>{{s.short}}</span>
+              </li>
+            </sc-for>
+          </ol>
+        </section>
+
+        <aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+          <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px" aria-labelledby="done-h">
+            <h2 id="done-h" class="label" style="margin: 0">Already checked by agents</h2>
+            <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+              <li style="display: flex; gap: 10px"><span class="dot" style="background: #157A3E; margin-top: 7px" aria-hidden="true"></span><span>58 automated tests passed, covering every acceptance criterion</span></li>
+              <li style="display: flex; gap: 10px"><span class="dot" style="background: #157A3E; margin-top: 7px" aria-hidden="true"></span><span>Security review and scans passed</span></li>
+              <li style="display: flex; gap: 10px"><span class="dot" style="background: #157A3E; margin-top: 7px" aria-hidden="true"></span><span>Contract tests against the Xero sandbox passed</span></li>
+              <li style="display: flex; gap: 10px"><span class="dot" style="background: #157A3E; margin-top: 7px" aria-hidden="true"></span><span>QA explorer tried 23 edge cases; 2 issues found and fixed</span></li>
+            </ul>
+          </section>
+          <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px" aria-labelledby="you-h">
+            <h2 id="you-h" class="label" style="margin: 0">Only you can judge</h2>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A505C">
+              <li>Does the retry email make sense to the finance team?</li>
+              <li>Is a 5-minute retry wait acceptable at month end?</li>
+            </ul>
+          </section>
+          <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 8px" aria-labelledby="q-h">
+            <h2 id="q-h" class="label" style="margin: 0">Up next</h2>
+            <span style="font-weight: 600">Acme Ops Portal · Batch B</span>
+            <span style="font-size: 14px; color: #4A505C">SL-04 and SL-05 · expected Monday · about 20 minutes</span>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 2, results: ['pass', 'pass'], failing: false };
+  }
+  renderVals() {
+    var self = this;
+    var steps = [
+      { ref: 'US-12 · AC1', short: 'Log in to the test Xero organisation', doThis: 'Log in to the test Xero organisation with the finance tester account.', expect: 'Demo Company (AU) opens, with no invoices from today.', hasAccount: true },
+      { ref: 'US-12 · AC1', short: 'Check sync status is healthy', doThis: 'In the Ledger Sync admin, open Sync status.', expect: 'Last sync is green with 0 failures.' },
+      { ref: 'US-12 · AC2', short: 'Simulate an outage and create INV-2041', doThis: 'Press Simulate Xero outage (2 minutes), then create invoice INV-2041 for $1,280.00 in the source system.', expect: 'INV-2041 shows Waiting to retry, with the next retry time.' },
+      { ref: 'US-12 · AC3', short: 'Wait for the retry to sync INV-2041', doThis: 'Wait for the outage to end, then refresh Sync status.', expect: 'Within 5 minutes INV-2041 is in Xero for $1,280.00 and shows Synced.' },
+      { ref: 'US-14 · AC1', short: 'Check the retry email', doThis: 'Open the test mailbox.', expect: 'One email: 1 invoice synced after retry. No duplicates.' },
+      { ref: 'US-13 · AC2', short: 'Create INV-2042 with an unknown customer', doThis: 'Create INV-2042 for a customer that does not exist in Xero.', expect: 'Needs attention, with the reason Customer not found in Xero. It does not keep retrying.' },
+      { ref: 'US-15 · AC1', short: 'Check the audit log', doThis: 'Open the audit log.', expect: 'Every retry is listed with its time and result.' }
+    ];
+    var i = this.state.i, res = this.state.results;
+    var n = steps.length;
+    var finished = i >= n;
+    var cur = finished ? steps[n - 1] : steps[i];
+    var fails = res.filter(function (r) { return r === 'fail'; }).length;
+    var passes = res.filter(function (r) { return r === 'pass'; }).length;
+    var next = function (r) { self.setState({ results: res.concat([r]), i: i + 1, failing: false }); };
+    return {
+      running: !finished,
+      finished: finished,
+      stepNo: (i + 1) + ' of ' + n,
+      progressText: finished ? 'All ' + n + ' steps done' : 'Step ' + (i + 1) + ' of ' + n,
+      pips: steps.map(function (s, k) {
+        var r = res[k];
+        return { bg: r === 'pass' ? '#157A3E' : (r === 'fail' ? '#B42318' : (k === i ? '#2546C8' : '#E2E5EA')) };
+      }),
+      list: steps.map(function (s, k) {
+        var r = res[k];
+        return {
+          short: s.short,
+          mark: r === 'pass' ? 'PASS' : (r === 'fail' ? 'FAIL' : (k === i ? 'NOW' : (k + 1) + '')),
+          color: r === 'pass' ? '#11602F' : (r === 'fail' ? '#A3200F' : (k === i ? '#1A3496' : '#4A505C'))
+        };
+      }),
+      cur: cur,
+      failing: this.state.failing,
+      notFailing: !this.state.failing,
+      pass: function () { next('pass'); },
+      fail: function () { next('fail'); },
+      startFail: function () { self.setState({ failing: true }); },
+      cancelFail: function () { self.setState({ failing: false }); },
+      restart: function () { self.setState({ i: 0, results: [], failing: false }); },
+      summary: fails ? passes + ' passed, ' + fails + ' failed' : 'All ' + n + ' steps passed',
+      summaryDetail: fails ? fails + ' defect' + (fails > 1 ? 's' : '') + ' raised and sent to the coder. You can accept the rest now or wait for the fix.' : 'Accepting merges SL-04 and SL-05 to main and records your approval against every story.',
+      acceptLabel: fails ? 'Send back with defects' : 'Accept batch'
+    };
+  }
+}
+</script>
+</body>
+</html>

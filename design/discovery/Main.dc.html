@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Discovery workspace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0;background:#F4F4F2}
+a{color:#1A1A1A}a:hover{color:#000}
+button,select{font:inherit}
+button{cursor:pointer}
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'DM Sans', sans-serif; color: #1A1A1A; background: #F4F4F2;">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 28px; background: #FFFFFF; border-bottom: 1px solid #E2E2DE;">
+<div style="font-weight: 700; font-size: 17px;">Factory</div>
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: #5C5C57;">
+<span>Acme Logistics</span><span aria-hidden="true">/</span><span>Ops Portal</span><span aria-hidden="true">/</span><span style="color: #1A1A1A; font-weight: 600;">Discovery</span>
+</nav>
+<div style="flex-grow: 1;"></div>
+<span style="font-size: 13px; padding: 5px 10px; border-radius: 999px; background: #F0EFEA; color: #44443F;">Profile: Client · Mode: Handover</span>
+</header>
+
+<div style="background: #FFFFFF; border-bottom: 1px solid #E2E2DE; padding: 10px 28px; overflow-x: auto;">
+<ol aria-label="Lifecycle phases" style="display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; font-size: 13px; white-space: nowrap;">
+<li style="padding: 5px 12px; border-radius: 999px; background: #1A1A1A; color: #FFFFFF;">1 Discovery</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">2 Analysis</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">3 Requirements</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">4 Design</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">5 Build</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">6 Test</li>
+<li style="padding: 5px 12px; border-radius: 999px; background: #F0EFEA; color: #44443F;">7 Release</li>
+</ol>
+</div>
+
+<div style="max-width: 1440px; margin: 0 auto; padding: 24px 28px 56px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start;">
+
+<aside aria-label="Discovery artefacts" style="flex: 1 1 240px; max-width: 290px; display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.06em;">Discovery artefacts</h2>
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 6px;">
+<sc-for list="{{artefacts}}" as="a" hint-placeholder-count="10">
+<div style="display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px;">
+<span style="flex-grow: 1; font-size: 14px;">{{a.name}}<span style="display: block; font-size: 12px; color: #6B6B66;">{{a.ref}}</span></span>
+<span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{a.bg}}; color: {{a.ink}};">{{a.label}}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 12px; color: #5C5C57; line-height: 1.5;">Each row is a living record from your templates. Complete meets the minimum standard; Thin is a risk; Missing blocks approval.</p>
+</aside>
+
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 18px;">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;">
+<div style="flex: 1 1 360px;">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Discovery</h1>
+<p style="margin: 0; font-size: 14px; color: #5C5C57;">Round 2 of client sessions · 5 sources · {{claimCount}} claims · {{needsYou}} need you</p>
+</div>
+<div role="tablist" aria-label="Discovery views" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<button type="button" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}" style="min-height: 44px; padding: 9px 14px; border-radius: 10px; border: {{t.border}}; background: {{t.bg}}; color: {{t.ink}}; font-size: 14px; font-weight: 600;">{{t.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{onInbox}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Sources inbox" style="display: flex; flex-direction: column; gap: 14px;">
+<div style="border: 1px dashed #B9B9B3; border-radius: 12px; background: #FFFFFF; padding: 22px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
+<div style="flex: 1 1 320px;">
+<div style="font-size: 16px; font-weight: 600;">Add a source</div>
+<div style="font-size: 14px; color: #5C5C57; margin-top: 4px;">Drop call recordings or transcripts, typed notes, emails, documents, screenshots or spreadsheets. Stored untouched; claims are extracted with a link back to the exact spot.</div>
+</div>
+<span style="display: inline-block; padding: 11px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Choose files</span>
+<span style="display: inline-block; padding: 11px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Paste text</span>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px;">
+<thead>
+<tr style="text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C5C57;">
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Source</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">People</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Trust</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Result</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{sources}}" as="s" hint-placeholder-count="5">
+<tr>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5C5C57;">{{s.id}}</span><span style="display: block; font-weight: 600;">{{s.name}}</span><span style="display: block; font-size: 12px; color: #6B6B66;">{{s.meta}}</span></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;">{{s.people}}</td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;"><span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{s.tbg}}; color: {{s.tink}};">{{s.trust}}</span></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;">
+<sc-if value="{{s.canExtract}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{extract}}" style="min-height: 44px; padding: 8px 14px; border-radius: 8px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 13px; font-weight: 600;">Extract claims</button></sc-if>
+<sc-if value="{{s.done}}" hint-placeholder-val="{{ true }}">{{s.result}}</sc-if>
+</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{onReview}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Review" style="display: flex; flex-direction: column; gap: 14px;">
+
+<sc-if value="{{speakerPending}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
+<div style="flex: 1 1 380px;">
+<div style="font-size: 12px; font-weight: 600; color: #7A4A00; text-transform: uppercase; letter-spacing: 0.05em;">Unlabelled speaker · needs your confirmation</div>
+<div style="font-size: 16px; font-weight: 600; margin-top: 4px;">"Speaker 2" in SRC-01 kickoff call is probably Priya Nair, Operations lead (SH-02)</div>
+<div style="font-size: 14px; color: #5C5C57; margin-top: 4px;">Matched on role mentions and topic. 4 claims wait on this, including the evidence for BR-02.</div>
+</div>
+<button type="button" onClick="{{confirmSpeaker}}" style="min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 14px; font-weight: 600;">Confirm Priya</button>
+<span style="display: inline-block; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Someone else</span>
+</div>
+</sc-if>
+
+<sc-if value="{{mikePending}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
+<div style="flex: 1 1 380px;">
+<div style="font-size: 12px; font-weight: 600; color: #7A4A00; text-transform: uppercase; letter-spacing: 0.05em;">New person found</div>
+<div style="font-size: 16px; font-weight: 600; margin-top: 4px;">Mike Torres · Warehouse manager · Acme Logistics</div>
+<div style="font-size: 14px; color: #5C5C57; margin-top: 4px;">Sender of SRC-03. Talks about warehouse delays on priority jobs. Not in the stakeholder register.</div>
+</div>
+<button type="button" onClick="{{addMike}}" style="min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 14px; font-weight: 600;">Add as stakeholder</button>
+<span style="display: inline-block; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Merge</span>
+<button type="button" onClick="{{ignoreMike}}" style="min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; background: #FFFFFF; color: #1A1A1A; font-size: 14px; font-weight: 600;">Ignore</button>
+</div>
+</sc-if>
+
+<sc-if value="{{conflictOpen}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+<div style="font-size: 12px; font-weight: 600; color: #8F1D12; text-transform: uppercase; letter-spacing: 0.05em;">Conflict between stakeholders · blocks glossary term "Priority item"</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+<div style="border: 1px solid #E2E2DE; border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5;">"Priority means Tier A in the CRM."<span style="display: block; font-size: 12px; color: #5C5C57; margin-top: 4px;">Sarah Kim, Sponsor · SRC-01 at 22:10</span></div>
+<div style="border: 1px solid #E2E2DE; border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5;">"Priority is whatever is on my ops list."<span style="display: block; font-size: 12px; color: #5C5C57; margin-top: 4px;">Priya Nair, Ops lead · SRC-02 notes</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+<button type="button" onClick="{{resolveConflict}}" style="min-height: 44px; padding: 10px 16px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 14px; font-weight: 600;">Record decision: ops list is authoritative</button>
+<span style="display: inline-block; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Add to session prep</span>
+<span style="font-size: 13px; color: #5C5C57;">Logged as DEC-01 in 3.7 with who decided.</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{allClear}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="background: #E7F3EA; border: 1px solid #B9DCC2; border-radius: 12px; padding: 14px 16px; color: #1D4A2A; font-size: 14px;">Nothing waiting on you. Every claim is attributed.</div>
+</sc-if>
+
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px;">
+<thead>
+<tr style="text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C5C57;">
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Claim</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Type</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Said by</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Status</th>
+<th style="padding: 12px 14px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Feeds</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{claims}}" as="c" hint-placeholder-count="8">
+<tr>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA; max-width: 360px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #5C5C57;">{{c.id}} · {{c.src}}</span><span style="display: block;">{{c.text}}</span></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;">{{c.type}}</td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;">{{c.by}}</td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA;"><span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{c.bg}}; color: {{c.ink}}; white-space: nowrap;">{{c.status}}</span></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEEEEA; font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{c.feeds}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{onPrep}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Session prep" style="display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+<div style="flex: 1 1 380px;">
+<div style="font-size: 16px; font-weight: 600;">Next session: Thu 16 Oct · Sarah Kim, Priya Nair{{prepMike}}</div>
+<div style="font-size: 14px; color: #5C5C57; margin-top: 4px;">Questions are ordered by what they unblock in the Brief. Ask them yourself; the answers come back in through the inbox.</div>
+</div>
+<span style="display: inline-block; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Copy as agenda</span>
+<span style="display: inline-block; padding: 10px 16px; border-radius: 10px; border: 1px solid #D6D6D1; font-size: 14px; font-weight: 600;">Make questionnaire</span>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;">
+<sc-for list="{{questions}}" as="q" hint-placeholder-count="5">
+<li style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;">
+<span style="flex: 0 0 28px; height: 28px; border-radius: 50%; background: #F0EFEA; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center;">{{q.n}}</span>
+<span style="flex: 1 1 420px;"><span style="display: block; font-size: 12px; font-weight: 600; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.05em;">Ask {{q.who}}</span><span style="display: block; font-size: 15px; line-height: 1.5; margin-top: 2px;">{{q.text}}</span></span>
+<span style="flex: 0 1 260px; font-size: 13px; padding: 8px 10px; border-radius: 8px; background: {{q.bg}}; color: {{q.ink}}; line-height: 1.4;">Unblocks: {{q.unblocks}}</span>
+</li>
+</sc-for>
+</ol>
+</section>
+</sc-if>
+
+<sc-if value="{{onBrief}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Brief" style="display: flex; flex-direction: column; gap: 14px;">
+
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
+<div style="flex: 1 1 380px;">
+<div style="font-size: 18px; font-weight: 700;">Brief · Ops Portal · v0.{{briefVersion}}</div>
+<div style="font-size: 14px; color: #5C5C57; margin-top: 4px;">{{briefSummary}}</div>
+</div>
+<sc-if value="{{canApprove}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{notApproved}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{approve}}" style="min-height: 48px; padding: 12px 18px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 15px; font-weight: 600;">Approve Brief ({{thinCount}} risks accepted)</button>
+</sc-if>
+</sc-if>
+<sc-if value="{{blocked}}" hint-placeholder-val="{{ true }}">
+<button type="button" disabled style="min-height: 48px; padding: 12px 18px; border-radius: 10px; border: 0; background: #E2E2DE; color: #5C5C57; font-size: 15px; font-weight: 600;">Approve blocked: {{missingCount}} missing</button>
+</sc-if>
+</div>
+
+<sc-if value="{{approved}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="background: #E7F3EA; border: 1px solid #B9DCC2; border-radius: 12px; padding: 14px 16px; color: #1D4A2A; font-size: 14px; line-height: 1.5;"><strong>Brief approved · v1.0</strong> · Austin Smith (delivery lead), 14 Oct 2026. Client approval requested from Sarah Kim (sponsor). Analysis can start; {{thinCount}} accepted risks stay on the attention list.</div>
+</sc-if>
+
+<sc-for list="{{sections}}" as="sec" hint-placeholder-count="10">
+<article style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700; flex-grow: 1;">{{sec.n}}. {{sec.title}}</h2>
+<span style="font-size: 12px; color: #6B6B66;">{{sec.ref}}</span>
+<span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{sec.bg}}; color: {{sec.ink}};">{{sec.label}}</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.55;">{{sec.body}}</p>
+<sc-if value="{{sec.hasNote}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: {{sec.ink}};">{{sec.note}}</p></sc-if>
+<sc-if value="{{sec.isBR}}" hint-placeholder-val="{{ false }}">
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px;">
+<thead><tr style="text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C5C57;">
+<th style="padding: 8px 10px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">ID</th>
+<th style="padding: 8px 10px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Requirement</th>
+<th style="padding: 8px 10px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Evidence</th>
+<th style="padding: 8px 10px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Owner</th>
+<th style="padding: 8px 10px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Status</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{brs}}" as="b" hint-placeholder-count="3">
+<tr>
+<td style="padding: 10px; border-bottom: 1px solid #EEEEEA; font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{b.id}}</td>
+<td style="padding: 10px; border-bottom: 1px solid #EEEEEA;">{{b.text}}<span style="display: block; font-size: 12px; color: #6B6B66;">{{b.priority}} · {{b.value}}</span></td>
+<td style="padding: 10px; border-bottom: 1px solid #EEEEEA; font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{b.evidence}}</td>
+<td style="padding: 10px; border-bottom: 1px solid #EEEEEA;">
+<sc-if value="{{b.hasOwner}}" hint-placeholder-val="{{ true }}">{{b.owner}}</sc-if>
+<sc-if value="{{b.needsOwner}}" hint-placeholder-val="{{ false }}">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #8F1D12; font-weight: 600;">Owner required
+<select value="{{br3Owner}}" onChange="{{setOwner}}" style="font-size: 14px; padding: 8px 10px; border-radius: 8px; border: 1px solid #D6A39C; background: #FFFFFF; color: #1A1A1A;">
+<sc-for list="{{ownerOptions}}" as="o" hint-placeholder-count="3"><option value="{{o.value}}">{{o.label}}</option></sc-for>
+</select>
+</label>
+</sc-if>
+</td>
+<td style="padding: 10px; border-bottom: 1px solid #EEEEEA;"><span style="font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{b.bg}}; color: {{b.ink}}; white-space: nowrap;">{{b.label}}</span><span style="display: block; font-size: 12px; color: #6B6B66; margin-top: 4px;">{{b.why}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+</article>
+</sc-for>
+</section>
+</sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+var C = {
+  complete: { label: 'Complete', bg: '#E7F3EA', ink: '#1D4A2A' },
+  thin: { label: 'Thin', bg: '#FDF3E1', ink: '#7A4A00' },
+  missing: { label: 'Missing', bg: '#FBE9E7', ink: '#8F1D12' },
+  info: { label: '', bg: '#F0EFEA', ink: '#44443F' }
+};
+function chip(k) { return C[k]; }
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'review', speaker: false, mike: 'pending', conflict: false, extracted: false, br3Owner: '', approved: false };
+  }
+  renderVals() {
+    var self = this; var s = this.state;
+    var set = function (o) { return function () { self.setState(o); }; };
+
+    var speakerPending = !s.speaker;
+    var mikePending = s.mike === 'pending';
+    var conflictOpen = !s.conflict;
+    var needsYou = (speakerPending ? 1 : 0) + (mikePending ? 1 : 0) + (conflictOpen ? 1 : 0);
+    var owner = s.br3Owner;
+
+    var brStatus = !owner ? 'missing' : (speakerPending ? 'thin' : 'complete');
+    var stakeStatus = (speakerPending || mikePending) ? 'thin' : 'complete';
+    var glossStatus = conflictOpen ? 'missing' : 'complete';
+    var claimsStatus = needsYou > 0 ? 'thin' : 'complete';
+    var missingCount = (owner ? 0 : 1) + (conflictOpen ? 1 : 0);
+    var thinCount = 3 + (speakerPending ? 1 : 0) + (mikePending ? 1 : 0);
+    var briefStatus = missingCount > 0 ? 'missing' : 'thin';
+
+    var art = [
+      ['Sources', 'Inbox · SRC-', 'complete'],
+      ['Claims ledger', 'Attributed claims', claimsStatus],
+      ['Stakeholders', '1.6 register + interaction log', stakeStatus],
+      ['Pain points', '1.4 pain log', 'complete'],
+      ['Root cause', '1.3 5 Whys + fishbone', 'thin'],
+      ['Business requirements', '1.2 BR register', brStatus],
+      ['KPIs', '1.5 success measures', 'thin'],
+      ['Personas', '1.7 evidence-backed', 'complete'],
+      ['Glossary', '1.8 domain terms', glossStatus],
+      ['Decisions and rules', '3.7 append-only log', 'complete'],
+      ['Brief', '1.1 + 1.2 + 1.3 combined', briefStatus]
+    ];
+    var artefacts = art.map(function (a) { var c = chip(a[2]); return { name: a[0], ref: a[1], label: c.label, bg: c.bg, ink: c.ink }; });
+
+    var tabDefs = [['inbox', 'Inbox'], ['review', 'Review' + (needsYou ? ' (' + needsYou + ')' : '')], ['prep', 'Session prep'], ['brief', 'Brief']];
+    var tabs = tabDefs.map(function (t) { var on = s.tab === t[0];
+      return { label: t[1], sel: on ? 'true' : 'false', border: on ? '1px solid #1A1A1A' : '1px solid #D6D6D1', bg: on ? '#1A1A1A' : '#FFFFFF', ink: on ? '#FFFFFF' : '#1A1A1A', pick: set({ tab: t[0] }) }; });
+
+    var strong = { tbg: '#E7F3EA', tink: '#1D4A2A' }, med = { tbg: '#F0EFEA', tink: '#44443F' }, weak = { tbg: '#FDF3E1', tink: '#7A4A00' };
+    var sources = [
+      { id: 'SRC-01', name: 'Kickoff call · recorded transcript', meta: '2 Oct · 45 min', people: 'Sarah Kim, ' + (s.speaker ? 'Priya Nair' : 'Speaker 2 (unconfirmed)') + ', you', trust: 'Strong', t: strong, result: '11 claims' },
+      { id: 'SRC-02', name: 'Shadowing the ops lead · typed notes', meta: '4 Oct · your notes', people: 'Priya Nair', trust: 'Medium', t: med, result: '9 claims' },
+      { id: 'SRC-03', name: 'Email: "Warehouse holdups"', meta: '6 Oct · forwarded', people: s.mike === 'added' ? 'Mike Torres' : (s.mike === 'ignored' ? 'Ignored sender' : 'Unknown sender'), trust: 'Unverified', t: weak, result: '3 claims' },
+      { id: 'SRC-04', name: 'Work items Jan–Jun.csv', meta: '7 Oct · data export, supplied by you', people: 'Supplied by you', trust: 'Strong', t: strong, result: '4 measures' },
+      { id: 'SRC-05', name: 'Ops portal wishlist.docx', meta: '14 Oct · rough document', people: 'Supplied by Sarah Kim', trust: 'Unverified', t: weak, result: s.extracted ? '6 claims · 4 parked as asks without evidence' : '' }
+    ].map(function (x, i) { return { id: x.id, name: x.name, meta: x.meta, people: x.people, trust: x.trust, tbg: x.t.tbg, tink: x.t.tink,
+      canExtract: i === 4 && !s.extracted, done: !(i === 4 && !s.extracted), result: x.result }; });
+
+    function cl(id, src, text, type, by, st, feeds) { var c = st === 'Confirmed' ? chip('complete') : (st === 'Parked' ? chip('info') : (st === 'Conflict' ? chip('missing') : chip('thin')));
+      return { id: id, src: src, text: text, type: type, by: by, status: st, bg: c.bg, ink: c.ink, feeds: feeds }; }
+    var claims = [
+      cl('C-03', 'SRC-01 12:40', 'We lost Northwind after a priority job took three days.', 'Fact', 'Sarah Kim', 'Confirmed', 'PP-01, BR-01'),
+      cl('C-07', 'SRC-01 18:05', 'Requesters ring me three or four times a day asking where things are.', 'Fact', s.speaker ? 'Priya Nair' : 'Speaker 2', s.speaker ? 'Confirmed' : 'Needs speaker', 'PP-04, BR-02'),
+      cl('C-05', 'SRC-02', 'I keep my own priority tab because the CRM tiers are wrong.', 'Fact', 'Priya Nair', 'Confirmed', 'Root cause'),
+      cl('C-08', 'SRC-01 22:10', 'Priority means Tier A in the CRM.', 'Opinion', 'Sarah Kim', s.conflict ? 'Superseded' : 'Conflict', 'Glossary'),
+      cl('C-09', 'SRC-02', 'Priority is whatever is on my ops list.', 'Opinion', 'Priya Nair', s.conflict ? 'Confirmed' : 'Conflict', 'Glossary, DEC-01'),
+      cl('C-11', 'SRC-02', 'We need a Kanban board.', 'Ask', 'Priya Nair', 'Parked', 'Parked: solution'),
+      cl('C-12', 'SRC-03', 'Warehouse delays push priority jobs late.', 'Fact', s.mike === 'added' ? 'Mike Torres' : 'Unknown', s.mike === 'added' ? 'Unverified' : 'Needs person', 'PP-03'),
+      cl('C-14', 'SRC-04', '41% of priority items met the 4-hour target, Jan–Jun (n = 612).', 'Measure', 'Supplied by you', 'Confirmed', 'KPI-02 baseline')
+    ];
+
+    var green = { bg: '#E7F3EA', ink: '#1D4A2A' }, amber = { bg: '#FDF3E1', ink: '#7A4A00' };
+    var questions = [
+      { who: 'Priya', text: 'How long from submission to first acknowledgement today? Last month’s figures if you have them.', unblocks: 'KPI-03 baseline (Thin)', c: amber },
+      { who: 'Sarah', text: 'What did losing Northwind cost in annual revenue, and how many priority customers are at similar risk?', unblocks: 'Business value: dollar figure (Thin)', c: amber },
+      { who: 'Priya', text: 'Who maintains the ops priority list, and how often does it disagree with CRM tiers?', unblocks: 'Root cause: why #4 evidence (Thin)', c: amber },
+      { who: s.mike === 'added' ? 'Mike' : 'Sarah', text: s.mike === 'added' ? 'Do warehouse delays hit priority items, or only standard ones? Can you share last month’s holdups?' : 'Who is Mike Torres and should he be involved?', unblocks: s.mike === 'added' ? 'PP-03 evidence (Unverified)' : 'Stakeholder register', c: amber },
+      { who: 'Sarah', text: 'Confirm assumption A-02: delays happen at intake, not in the work step.', unblocks: 'Vision & scope assumption', c: green }
+    ].map(function (q, i) { return { n: i + 1, who: q.who, text: q.text, unblocks: q.unblocks, bg: q.c.bg, ink: q.c.ink }; });
+
+    var brs = [
+      { id: 'BR-01', text: 'Priority items are identified at submission without human judgement', priority: 'Must', value: 'Protects priority revenue', evidence: 'PP-01, C-03, C-14', owner: 'Sarah Kim', st: 'complete', why: '' },
+      { id: 'BR-02', text: 'Requesters can see the status of every item without chasing', priority: 'Must', value: '~6 ops hours a week', evidence: 'PP-04, C-07', owner: 'Priya Nair', st: speakerPending ? 'thin' : 'complete', why: speakerPending ? 'Evidence from an unconfirmed speaker' : '' },
+      { id: 'BR-03', text: 'Specialists receive complete work items at intake', priority: 'Should', value: '28% of items need clarification', evidence: 'PP-02 (sample of 30)', owner: owner, st: owner ? 'complete' : 'missing', why: owner ? '' : 'No owner' }
+    ].map(function (b) { var c = chip(b.st); return { id: b.id, text: b.text, priority: b.priority, value: b.value, evidence: b.evidence, owner: b.owner,
+      hasOwner: !!b.owner && b.id !== 'BR-03' || (b.id === 'BR-03' && !!owner), needsOwner: b.id === 'BR-03' && !owner, label: c.label, bg: c.bg, ink: c.ink, why: b.why }; });
+    var ownerOptions = [{ value: '', label: 'Choose an owner' }, { value: 'Sarah Kim', label: 'Sarah Kim (Sponsor)' }, { value: 'Priya Nair', label: 'Priya Nair (Ops lead)' }];
+    if (s.mike === 'added') ownerOptions.push({ value: 'Mike Torres', label: 'Mike Torres (Warehouse)' });
+
+    function sec(n, title, ref, st, body, note, isBR) { var c = chip(st); return { n: n, title: title, ref: ref, label: c.label, bg: c.bg, ink: c.ink, body: body, note: note, hasNote: !!note, isBR: !!isBR }; }
+    var sections = [
+      sec(1, 'Summary', 'Generated', 'complete', 'Acme lost a key customer after a priority job took three days. Only 41% of priority items meet the 4-hour target because nothing identifies priority at intake. Ops Portal gives every item a clear priority and status from the moment it is submitted.', ''),
+      sec(2, 'Vision and scope', '1.1', 'complete', 'Priority items completed within 4 business hours, standard within 2 days, without anyone chasing. In scope: intake, triage, queue, status. Out of scope: content authoring, final approval rules, replacing the CRM.', 'Assumption A-02 is unvalidated; it is on the session prep list.'),
+      sec(3, 'Problem and root cause', '1.3', 'thin', 'Only 41% of priority items meet the 4-hour target (SRC-04, n = 612). Root cause: no authoritative definition of priority and no single prioritised intake.', 'Why #4 has no evidence yet. Risk: the root cause may be wrong.'),
+      sec(4, 'Current state', '1.4', 'complete', 'PP-01 priority misses: 41% within target, median 9 h. PP-02 incomplete items: 28% need clarification (sample of 30). PP-04 status chasing: 3–4 calls a day to the ops lead.', ''),
+      sec(5, 'Business requirements', '1.2', brStatus, 'Each requirement states an outcome and links to confirmed evidence.', '', true),
+      sec(6, 'Value', '1.2 value', 'thin', 'About 6 ops-lead hours a week saved on chasing and triage; priority on-time rate 41% → 90%.', 'No dollar figure for revenue protected. Risk: the business case is time-only.'),
+      sec(7, 'Success measures', '1.5', 'thin', 'KPI-02 priority items within target: baseline 41%, target 90%. KPI-03 time to acknowledge: target under 15 min.', 'KPI-03 has no baseline. Risk: the improvement cannot be proven.'),
+      sec(8, 'Stakeholders and approvers', '1.6', stakeStatus, 'Sarah Kim, Sponsor (approver). Priya Nair, Ops lead (process owner). ' + (s.mike === 'added' ? 'Mike Torres, Warehouse manager.' : ''), stakeStatus === 'thin' ? 'Unconfirmed people in the review queue.' : ''),
+      sec(9, 'Parked asks', '1.2 parked', 'complete', 'Kanban board for specialists (a solution, no evidence it fixes PP-01; revisit at design). Mobile app (no evidence; raised in SRC-05).', ''),
+      sec(10, 'Open questions and risks', 'Generated', thinCount ? 'thin' : 'complete', thinCount + ' Thin items above, each with an owner on the session prep list.' + (conflictOpen ? ' Glossary term "Priority item" is Missing until the stakeholder conflict is decided.' : ' DEC-01: the ops list is authoritative for priority.'), '')
+    ];
+
+    return {
+      tabs: tabs, artefacts: artefacts, sources: sources, claims: claims, questions: questions, sections: sections, brs: brs, ownerOptions: ownerOptions,
+      onInbox: s.tab === 'inbox', onReview: s.tab === 'review', onPrep: s.tab === 'prep', onBrief: s.tab === 'brief',
+      speakerPending: speakerPending, mikePending: mikePending, conflictOpen: conflictOpen, allClear: needsYou === 0,
+      needsYou: needsYou, claimCount: s.extracted ? 33 : 27, prepMike: s.mike === 'added' ? ', Mike Torres' : '',
+      br3Owner: owner, missingCount: missingCount, thinCount: thinCount,
+      canApprove: missingCount === 0, blocked: missingCount > 0, approved: s.approved, notApproved: !s.approved,
+      briefVersion: 3 + (s.speaker ? 1 : 0) + (s.conflict ? 1 : 0) + (owner ? 1 : 0),
+      briefSummary: missingCount > 0 ? missingCount + ' Missing item(s) block approval. ' + thinCount + ' Thin items will show as accepted risks.' : 'Ready to approve. ' + thinCount + ' Thin items will be recorded as accepted risks.',
+      confirmSpeaker: set({ speaker: true, approved: false }), addMike: set({ mike: 'added', approved: false }), ignoreMike: set({ mike: 'ignored', approved: false }),
+      resolveConflict: set({ conflict: true, approved: false }), extract: set({ extracted: true }),
+      setOwner: function (e) { self.setState({ br3Owner: e.target.value, approved: false }); },
+      approve: set({ approved: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

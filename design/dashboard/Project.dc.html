@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Project overview: Acme Ops Portal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+.phase{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:44px;padding:12px;border-radius:10px;border:1px solid transparent;background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.phase:hover{background:#F4F5F7}
+.rec a{display:flex;justify-content:space-between;gap:12px;min-height:40px;align-items:center;padding:0 12px;margin:0 -12px;border-radius:8px;color:#15171C;text-decoration:none}
+.rec a:hover{background:#F4F5F7}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html" class="on" aria-current="page">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 20px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div class="label">Project · ACME-OPS</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Acme Ops Portal</h1>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span class="chip">Client</span>
+            <span class="chip">Handover at the end</span>
+            <span class="chip">ASVS Level 2</span>
+            <span class="chip">AU Privacy Act</span>
+            <span class="chip">Data in Sydney</span>
+          </div>
+        </div>
+        <button type="button" class="btn">Switch project</button>
+      </header>
+
+      <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 18px" aria-labelledby="ph-h">
+        <h2 id="ph-h" class="label" style="margin: 0">Where it's at</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 6px">
+          <sc-for list="{{phases}}" as="p" hint-placeholder-count="8">
+            <button type="button" class="phase" onClick="{{p.pick}}" aria-pressed="{{p.pressed}}" style="border-color: {{p.ring}}; background: {{p.fill}}">
+              <span style="width: 100%; height: 6px; border-radius: 3px; background: {{p.bar}}" aria-hidden="true"></span>
+              <span style="font-weight: 600; font-size: 14px">{{p.name}}</span>
+              <span style="font-size: 12px; color: #4A505C">{{p.state}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid #E2E5EA">
+          <div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 17px; font-weight: 600">{{sel.name}}: {{sel.headline}}</span>
+            <span style="color: #4A505C">{{sel.detail}}</span>
+          </div>
+          <sc-if value="{{sel.hasAction}}" hint-placeholder-val="{{ true }}">
+            <a href="Main.dc.html" class="btn primary">{{sel.action}}</a>
+          </sc-if>
+        </div>
+      </section>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px">
+        <a href="Thread.dc.html" class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #15171C; text-decoration: none">
+          <span class="label">Trace coverage</span>
+          <span style="font-size: 22px; font-weight: 600">96%</span>
+          <span style="font-size: 14px; color: #4A505C">2 gaps: US-19 has no test yet, FR-11 has no code.</span>
+        </a>
+        <a href="Cost.dc.html" class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #15171C; text-decoration: none">
+          <span class="label">October spend</span>
+          <span style="font-size: 22px; font-weight: 600">$552 <span style="font-size: 16px; font-weight: 400; color: #646B78">of $600</span></span>
+          <span style="font-size: 14px; color: #8A4307; display: flex; gap: 8px; align-items: center"><span class="dot" style="background: #B45309" aria-hidden="true"></span>92% used. Warning only.</span>
+        </a>
+        <a href="Board.dc.html" class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 6px; color: #15171C; text-decoration: none">
+          <span class="label">Next release</span>
+          <span style="font-size: 22px; font-weight: 600">6 Nov</span>
+          <span style="font-size: 14px; color: #4A505C">REL-1.0 · 5 slices to go · on track</span>
+        </a>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+        <section class="card" style="flex: 1 1 380px; min-width: 0" aria-labelledby="open-h">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #EEF0F3"><h2 id="open-h" style="margin: 0; font-size: 15px; font-weight: 600">Open items</h2><span style="font-size: 13px; color: #646B78">4</span></div>
+          <ul style="list-style: none; margin: 0; padding: 4px 0">
+            <li style="display: flex; gap: 12px; align-items: baseline; padding: 10px 18px"><span class="chip" style="background: #FEF3E2; color: #8A4307">Question</span><span style="flex: 1">Unreadable PDFs: reject or queue? <span style="color: #646B78">SL-06 paused</span></span></li>
+            <li style="display: flex; gap: 12px; align-items: baseline; padding: 10px 18px; border-top: 1px solid #EEF0F3"><span class="chip" style="background: #FEF3E2; color: #8A4307">Decision</span><span style="flex: 1">Retention for audit exports <span style="color: #646B78">before SL-09</span></span></li>
+            <li style="display: flex; gap: 12px; align-items: baseline; padding: 10px 18px; border-top: 1px solid #EEF0F3"><span class="chip">Gap</span><span style="flex: 1">US-19 has no test for AC2 <span style="color: #646B78">test author assigned</span></span></li>
+            <li style="display: flex; gap: 12px; align-items: baseline; padding: 10px 18px; border-top: 1px solid #EEF0F3"><span class="chip">Risk</span><span style="flex: 1">Budget at 92% with 6 slices to go <span style="color: #646B78">warning only</span></span></li>
+          </ul>
+        </section>
+        <section class="card" style="flex: 1 1 380px; min-width: 0" aria-labelledby="pa-h">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #EEF0F3"><h2 id="pa-h" style="margin: 0; font-size: 15px; font-weight: 600">Recent activity</h2><a href="#" style="font-size: 13px; font-weight: 600">View all</a></div>
+          <ul style="list-style: none; margin: 0; padding: 4px 0">
+            <li style="display: flex; gap: 14px; align-items: baseline; padding: 9px 18px"><span class="mono" style="color: #646B78; min-width: 44px">12:20</span><span><strong style="font-weight: 500">Code reviewer</strong> <span style="color: #4A505C">sent SL-04 back: role check missing</span></span></li>
+            <li style="display: flex; gap: 14px; align-items: baseline; padding: 9px 18px"><span class="mono" style="color: #646B78; min-width: 44px">11:44</span><span><strong style="font-weight: 500">Coder</strong> <span style="color: #4A505C">asked a question on SL-06</span></span></li>
+            <li style="display: flex; gap: 14px; align-items: baseline; padding: 9px 18px"><span class="mono" style="color: #646B78; min-width: 44px">09:12</span><span><strong style="font-weight: 500">Coder</strong> <span style="color: #4A505C">started SL-05 Supplier search</span></span></li>
+            <li style="display: flex; gap: 14px; align-items: baseline; padding: 9px 18px"><span class="mono" style="color: #646B78; min-width: 44px">Tue</span><span><strong style="font-weight: 500">You</strong> <span style="color: #4A505C">accepted SL-03 Invoice detail and history</span></span></li>
+          </ul>
+        </section>
+      </div>
+
+      <section style="display: flex; flex-direction: column; gap: 12px" aria-labelledby="rec-h">
+        <h2 id="rec-h" class="label" style="margin: 0">Project records</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 16px">
+          <div class="card rec" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+            <h3 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Understand</h3>
+            <a href="#">Brief <span class="chip">Approved</span></a>
+            <a href="#">Stakeholders <span class="chip">9</span></a>
+            <a href="#">Pain points and KPIs <span class="chip">7 · 4</span></a>
+            <a href="#">Sources inbox <span class="chip">23</span></a>
+            <a href="#">Glossary <span class="chip">31</span></a>
+          </div>
+          <div class="card rec" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+            <h3 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Specify</h3>
+            <a href="#">Business requirements <span class="chip">18</span></a>
+            <a href="#">Use cases and workflows <span class="chip">9 · 6</span></a>
+            <a href="#">Stories <span class="chip">41</span></a>
+            <a href="#">Rules and decisions <span class="chip">14 · 11</span></a>
+            <a href="#">Non-functional <span class="chip">12</span></a>
+          </div>
+          <div class="card rec" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+            <h3 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Design</h3>
+            <a href="#">Architecture and ADRs <span class="chip">8</span></a>
+            <a href="#">Data and CRUD matrix <span class="chip">11 entities</span></a>
+            <a href="#">Interfaces <span class="chip">3</span></a>
+            <a href="#">Threats and security <span class="chip">16</span></a>
+            <a href="#">Design kit <span class="chip">Approved</span></a>
+          </div>
+          <div class="card rec" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+            <h3 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Deliver</h3>
+            <a href="Board.dc.html">Slice board <span class="chip">9 slices</span></a>
+            <a href="Testing.dc.html">Testing <span class="chip">1 ready</span></a>
+            <a href="Accounts.dc.html">Test accounts <span class="chip">6</span></a>
+            <a href="#">Releases and patch notes <span class="chip">0</span></a>
+            <a href="#">Developer docs <span class="chip">Current</span></a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1320}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 4 };
+  }
+  renderVals() {
+    var self = this;
+    var data = [
+      { name: 'Discovery', state: 'Done 2 Sep', headline: 'brief approved', detail: '9 stakeholders, 23 sources, 7 pain points and 4 KPIs with baselines.' },
+      { name: 'Analysis', state: 'Done 12 Sep', headline: 'fit-gap done', detail: 'Starting from the Next.js boilerplate plus 3 kit modules: auth, approvals, audit log.' },
+      { name: 'Requirements', state: 'Done 19 Sep', headline: '41 stories approved', detail: '18 business requirements traced to 9 use cases and 41 stories with acceptance criteria.' },
+      { name: 'Architecture', state: 'Done 26 Sep', headline: '8 ADRs agreed', detail: 'Threat model, privacy module and scaling path signed off. 9 slices planned, SL-01 tracer first.' },
+      { name: 'Develop', state: '3 of 9 accepted', headline: '2 slices building, 1 in review', detail: 'SL-04 Invoice approval is in code review round 2. Two items on the board need you: a coder question on SL-06 and a privacy decision for SL-09.', action: 'Answer the SL-06 question' },
+      { name: 'Test', state: 'Batches as ready', headline: 'runs per batch', detail: 'Next batch for you: SL-04 and SL-05 together, expected Monday.' },
+      { name: 'Release', state: 'Target 6 Nov', headline: 'REL-1.0 planned', detail: 'Hypercare for 2 weeks after release, then handover pack.' },
+      { name: 'Handover', state: 'After hypercare', headline: 'not started', detail: 'Repo, docs, runbook and final report go to the client.' }
+    ];
+    var phases = data.map(function (d, i) {
+      var cur = i === 4;
+      var done = i < 4;
+      var picked = i === self.state.sel;
+      return {
+        name: d.name, state: d.state,
+        bar: done ? '#2546C8' : (cur ? '#9DB0EE' : '#E2E5EA'),
+        ring: picked ? '#2546C8' : 'transparent',
+        fill: picked ? '#F5F7FE' : 'transparent',
+        pressed: picked ? 'true' : 'false',
+        pick: function () { self.setState({ sel: i }); }
+      };
+    });
+    var s = data[this.state.sel];
+    return {
+      phases: phases,
+      sel: { name: s.name, headline: s.headline, detail: s.detail, hasAction: !!s.action, action: s.action || '' }
+    };
+  }
+}
+</script>
+</body>
+</html>

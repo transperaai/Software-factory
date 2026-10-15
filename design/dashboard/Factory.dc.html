@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Factory: lessons</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.btn.quiet{border-color:transparent;background:transparent;color:#2546C8}
+.tab{min-height:44px;padding:0 16px;border:0;border-bottom:2px solid transparent;background:transparent;font:inherit;font-weight:600;color:#4A505C;cursor:pointer}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html" class="on" aria-current="page">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 24px">
+
+      <header style="display: flex; flex-direction: column; gap: 6px">
+        <div class="label">Across all projects</div>
+        <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Factory</h1>
+      </header>
+
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px"><span class="label">Lessons adopted</span><span class="num" style="font-size: 20px; font-weight: 600">12</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">In trial</span><span class="num" style="font-size: 20px; font-weight: 600">1</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Avg review rounds</span><span class="num" style="font-size: 20px; font-weight: 600">1.4 <span style="font-size: 13px; font-weight: 500; color: #11602F">from 2.3 in Aug</span></span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Estimate accuracy</span><span class="num" style="font-size: 20px; font-weight: 600">±18%</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Eval suite</span><span class="num" style="font-size: 20px; font-weight: 600">38 / 38</span></div>
+      </div>
+
+      <div role="tablist" aria-label="Factory sections" style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #E2E5EA">
+        <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+          <button type="button" role="tab" class="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}" style="color: {{t.color}}; border-bottom-color: {{t.line}}">{{t.name}}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{isLessons}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 28px">
+
+          <article class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px" aria-labelledby="les-h">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+              <span class="chip" style="background: #E8EDFC; color: #1A3496">{{stateLabel}}</span>
+              <span class="mono" style="color: #646B78">LES-017</span>
+              <span style="font-size: 14px; color: #646B78">Coder skill v14 to v15</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <h2 id="les-h" style="margin: 0; font-size: 18px; line-height: 1.35; font-weight: 600">Coder forgets loading states on buttons that start slow work</h2>
+              <p style="margin: 0; color: #4A505C; max-width: 72ch">Seen 7 times in 3 projects over 3 weeks: 5 from the UX reviewer and 2 from your own edits. Each one cost an extra review round.</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: 10px; background: #F4F5F7">
+              <span class="label">The one change</span>
+              <p style="margin: 0">Add to the coder's checklist: every button that starts slow work shows a loading state and can't be pressed twice.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px">
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span class="label">Target eval</span>
+                <span class="num" style="font-size: 18px; font-weight: 600">4/10 <span style="color: #646B78; font-weight: 400">to</span> 10/10</span>
+                <span style="font-size: 13px; color: #4A505C">Built from the 7 real cases, anonymised</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span class="label">Everything else</span>
+                <span class="num" style="font-size: 18px; font-weight: 600">38/38</span>
+                <span style="font-size: 13px; color: #4A505C">No other eval got worse</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span class="label">Token cost</span>
+                <span class="num" style="font-size: 18px; font-weight: 600">+60</span>
+                <span style="font-size: 13px; color: #4A505C">tokens per slice, under 1 cent</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span class="label">Client data</span>
+                <span style="font-size: 18px; font-weight: 600">None</span>
+                <span style="font-size: 13px; color: #4A505C">Scrubbed and checked</span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 12px">
+              <sc-if value="{{pending}}" hint-placeholder-val="{{ true }}">
+                <button type="button" class="btn primary" onClick="{{approve}}">Approve 2-week trial</button>
+                <button type="button" class="btn" onClick="{{reject}}">Reject</button>
+              </sc-if>
+              <sc-if value="{{decided}}" hint-placeholder-val="{{ false }}">
+                <button type="button" class="btn" onClick="{{undo}}">Undo</button>
+              </sc-if>
+              <button type="button" class="btn quiet">See the 7 cases and evals</button>
+            </div>
+          </article>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px">
+            <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px" aria-labelledby="tr-h">
+              <h2 id="tr-h" class="label" style="margin: 0">In trial</h2>
+              <span style="font-weight: 600">Story writer adds an abuse case for every file upload</span>
+              <span style="font-size: 14px; color: #4A505C">Day 9 of 14 · missing abuse cases down from 5 to 1</span>
+              <div style="height: 6px; border-radius: 3px; background: #EEF0F3" aria-hidden="true"><span style="display: block; width: 64%; height: 6px; border-radius: 3px; background: #2546C8"></span></div>
+            </section>
+            <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px" aria-labelledby="ad-h">
+              <h2 id="ad-h" class="label" style="margin: 0">Adopted this month</h2>
+              <span style="font-weight: 600">Slice planner puts database migrations in their own slice</span>
+              <span style="font-size: 14px; color: #4A505C">Average review rounds down from 2.1 to 1.3</span>
+            </section>
+            <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px" aria-labelledby="rt-h">
+              <h2 id="rt-h" class="label" style="margin: 0">Retired</h2>
+              <span style="font-weight: 600">Reminder about an old framework caching quirk</span>
+              <span style="font-size: 14px; color: #4A505C">Hasn't fired since the upgrade. Removed to keep the coder skill lean.</span>
+            </section>
+          </div>
+
+          <section class="card" style="padding: 20px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between" aria-labelledby="mem-h">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <h2 id="mem-h" style="margin: 0; font-size: 16px; font-weight: 600">Project memory</h2>
+              <span style="font-size: 14px; color: #4A505C">23 notes across 3 projects. Learning is on for all three.</span>
+            </div>
+            <button type="button" class="btn">View and edit notes</button>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isOther}}" hint-placeholder-val="{{ false }}">
+        <section class="card" style="padding: 32px; display: flex; flex-direction: column; gap: 8px">
+          <h2 style="margin: 0; font-size: 22px; font-weight: 600">{{other.title}}</h2>
+          <p style="margin: 0; color: #4A505C; max-width: 70ch">{{other.body}}</p>
+        </section>
+      </sc-if>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 0, decision: null };
+  }
+  renderVals() {
+    var self = this;
+    var names = ['Lessons', 'Kit', 'Design library', 'Metrics'];
+    var others = [
+      null,
+      { title: 'Kit', body: 'Boilerplates and modules with their version, which projects use them, and updates waiting to be offered. Designed in the next pass.' },
+      { title: 'Design library', body: 'Components, palettes, type and kits from approved sources, live in your kit, with licence, Add to kit, Copy code and Generate. This is the kit prototype canvas, which gets its mix-and-match update next.' },
+      { title: 'Metrics', body: 'Across projects: review rounds per slice, escalations, estimate accuracy, defects found by you versus by agents, and cost per slice over time.' }
+    ];
+    var t = this.state.tab, d = this.state.decision;
+    return {
+      tabs: names.map(function (n, i) {
+        var on = i === t;
+        return { name: n, sel: on ? 'true' : 'false', color: on ? '#15171C' : '#4A505C', line: on ? '#2546C8' : 'transparent', pick: function () { self.setState({ tab: i }); } };
+      }),
+      isLessons: t === 0,
+      isOther: t !== 0,
+      other: others[t] || { title: '', body: '' },
+      pending: d === null,
+      decided: d !== null,
+      stateLabel: d === 'yes' ? 'In trial until 29 Oct' : (d === 'no' ? 'Rejected' : 'Waiting for you'),
+      approve: function () { self.setState({ decision: 'yes' }); },
+      reject: function () { self.setState({ decision: 'no' }); },
+      undo: function () { self.setState({ decision: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

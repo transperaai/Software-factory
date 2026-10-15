@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design kit — choose and tweak</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Poppins:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Public+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&amp;family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&amp;family=Space+Grotesk:wght@400;500;600&amp;family=Manrope:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#F4F4F2}
+a{color:#1A1A1A}a:hover{color:#000}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; font-family: 'DM Sans', sans-serif; color: #1A1A1A; background: #F4F4F2;">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 28px; background: #FFFFFF; border-bottom: 1px solid #E2E2DE;">
+<div style="font-weight: 700; font-size: 17px; letter-spacing: -0.01em;">Factory</div>
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: #5C5C57;">
+<span>Acme Logistics</span><span aria-hidden="true">/</span><span>Ops Portal</span><span aria-hidden="true">/</span><span style="color: #1A1A1A; font-weight: 600;">Design kit</span>
+</nav>
+<div style="flex-grow: 1;"></div>
+<span style="font-size: 13px; padding: 5px 10px; border-radius: 999px; background: #F0EFEA; color: #44443F;">Profile: Client · Mode: Handover</span>
+</header>
+
+<div style="max-width: 1440px; margin: 0 auto; padding: 24px 28px 48px; box-sizing: border-box;">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 20px;">
+<div style="flex: 1 1 420px;">
+<h1 style="margin: 0 0 6px; font-size: 28px; letter-spacing: -0.02em; font-weight: 700;">Choose the design kit</h1>
+<p style="margin: 0; font-size: 15px; color: #5C5C57; max-width: 680px; line-height: 1.5;">Three kits were suggested from the approved Brief and personas. Pick one, tweak it, then approve. The approved kit becomes this project&#39;s tokens and every screen is built from it.</p>
+</div>
+<ol aria-label="Steps" style="display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; font-size: 13px;">
+<li style="padding: 6px 12px; border-radius: 999px; background: #1A1A1A; color: #FFFFFF;">1 Choose</li>
+<li style="padding: 6px 12px; border-radius: 999px; background: #1A1A1A; color: #FFFFFF;">2 Tweak</li>
+<li style="padding: 6px 12px; border-radius: 999px; background: {{stepBg}}; color: {{stepInk}};">3 Approve</li>
+</ol>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+
+<section aria-label="Kits" style="flex: 1 1 270px; max-width: 340px; display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 0 2px; font-size: 13px; font-weight: 600; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.06em;">Kits</h2>
+<sc-for list="{{kits}}" as="item" hint-placeholder-count="5">
+<button type="button" onClick="{{item.pick}}" aria-pressed="{{item.pressed}}" style="text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 12px; border: {{item.border}}; background: #FFFFFF; color: #1A1A1A;">
+<span style="display: flex; align-items: center; gap: 8px; width: 100%;">
+<span style="font-weight: 600; font-size: 15px; flex-grow: 1;">{{item.name}}</span>
+<span style="font-size: 12px; padding: 3px 8px; border-radius: 999px; background: {{item.tagBg}}; color: {{item.tagInk}};">{{item.tag}}</span>
+</span>
+<span style="display: flex; align-items: center; gap: 6px;">
+<span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 50%; background: {{item.primary}};"></span>
+<span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 50%; background: {{item.secondary}};"></span>
+<span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 50%; background: {{item.ink}};"></span>
+<span aria-hidden="true" style="width: 18px; height: 18px; border-radius: 50%; background: {{item.ground}}; border: 1px solid #D6D6D1;"></span>
+<span style="margin-left: 6px; font-size: 13px; color: #5C5C57; font-family: {{item.family}};">Aa {{item.fontName}}</span>
+</span>
+<span style="font-size: 13px; line-height: 1.45; color: #5C5C57;">{{item.reason}}</span>
+</button>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #5C5C57; padding: 4px 2px;"><span>Browse full catalogue (12 kits)</span><a href="Import.dc.html" style="font-weight: 600;">Import a ready-made kit</a></div>
+</section>
+
+<section aria-label="Live preview" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<h2 style="margin: 0; font-size: 13px; font-weight: 600; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.06em; flex-grow: 1;">Live preview · Work list screen</h2>
+<span style="font-size: 12px; color: #5C5C57;">Text contrast: {{k.contrast}}</span>
+</div>
+
+<div style="border-radius: 14px; border: 1px solid #DEDED9; overflow: hidden; background: {{k.ground}}; font-family: {{k.font}}; color: {{k.ink}};">
+<div style="display: flex; align-items: center; gap: 14px; padding: 12px 20px; background: #FFFFFF; border-bottom: 1px solid {{k.line}};">
+<span style="font-weight: 600; font-family: {{k.head}};">Ops Portal</span>
+<span style="font-size: 14px; color: {{k.primary}}; font-weight: 600;">Work list</span>
+<span style="font-size: 14px; color: {{k.muted}};">Submit</span>
+<span style="font-size: 14px; color: {{k.muted}};">Reports</span>
+<span style="flex-grow: 1;"></span>
+<span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 50%; background: {{k.soft}}; color: {{k.primary}}; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;">JS</span>
+</div>
+
+<div style="padding: {{k.pagePad}}; display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+<h3 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; font-family: {{k.head}}; flex-grow: 1;">Work list</h3>
+<span style="display: inline-block; padding: {{k.btnPad}}; border-radius: {{k.r}}; border: 1px solid {{k.line}}; background: #FFFFFF; color: {{k.ink}}; font-size: 14px; font-weight: 500;">Export</span>
+<span style="display: inline-block; padding: {{k.btnPad}}; border-radius: {{k.r}}; background: {{k.primary}}; color: #FFFFFF; font-size: 14px; font-weight: 600;">New work item</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 14px; border-radius: {{k.r}}; background: {{k.soft}}; border: 1px solid {{k.softLine}}; font-size: 14px;">
+<span style="font-weight: 600; color: {{k.primary}};">2 priority items due today.</span>
+<span style="color: {{k.ink}};">Both are assigned and on track.</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<label style="display: flex; flex-direction: column; gap: 6px; flex: 1 1 240px; font-size: 13px; font-weight: 500;">Search work items
+<input type="text" value="" placeholder="Item, party or ID" style="font: inherit; font-size: 14px; padding: {{k.inputPad}}; border-radius: {{k.r}}; border: 1px solid {{k.line}}; background: #FFFFFF; color: {{k.ink}};">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; flex: 0 1 180px; font-size: 13px; font-weight: 500;">Priority
+<select style="font: inherit; font-size: 14px; padding: {{k.inputPad}}; border-radius: {{k.r}}; border: 1px solid {{k.line}}; background: #FFFFFF; color: {{k.ink}};"><option>All</option><option>Priority</option><option>Standard</option></select>
+</label>
+</div>
+
+<div style="overflow-x: auto; border-radius: {{k.r}}; border: 1px solid {{k.line}}; background: #FFFFFF;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px;">
+<thead>
+<tr style="text-align: left; color: {{k.muted}}; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+<th style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}}; font-weight: 600;">Item</th>
+<th style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}}; font-weight: 600;">Party</th>
+<th style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}}; font-weight: 600;">Priority</th>
+<th style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}}; font-weight: 600;">Due</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="font-weight: 600;">WI-104</span> Contract review</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">Account A</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="padding: 3px 9px; border-radius: 999px; background: {{k.secSoft}}; color: {{k.secInk}}; font-size: 12px; font-weight: 600;">Priority</span></td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">in 2 h</td>
+</tr>
+<tr>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="font-weight: 600;">WI-099</span> Pricing approval</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">Account B</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="padding: 3px 9px; border-radius: 999px; background: {{k.secSoft}}; color: {{k.secInk}}; font-size: 12px; font-weight: 600;">Priority</span></td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">in 5 h</td>
+</tr>
+<tr>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="font-weight: 600;">WI-103</span> Supplier onboarding</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">Northwind</td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};"><span style="padding: 3px 9px; border-radius: 999px; background: {{k.stdBg}}; color: {{k.muted}}; font-size: 12px; font-weight: 600;">Standard</span></td>
+<td style="padding: {{k.rowPad}}; border-bottom: 1px solid {{k.line}};">2 days</td>
+</tr>
+<tr>
+<td style="padding: {{k.rowPad}};"><span style="font-weight: 600;">WI-101</span> Policy update</td>
+<td style="padding: {{k.rowPad}};">Contoso</td>
+<td style="padding: {{k.rowPad}};"><span style="padding: 3px 9px; border-radius: 999px; background: {{k.stdBg}}; color: {{k.muted}}; font-size: 12px; font-weight: 600;">Standard</span></td>
+<td style="padding: {{k.rowPad}};">3 days</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p style="margin: 0; font-size: 13px; color: #5C5C57;">The preview uses the real components the build will use, themed from this kit&#39;s tokens. Content comes from the project&#39;s stories (US-007, US-011).</p>
+</section>
+
+<aside aria-label="Tweak and approve" style="flex: 1 1 270px; max-width: 340px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-size: 16px; font-weight: 600;">Tweak {{kitName}}</h2>
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 13px; font-weight: 600;">Primary colour</span>
+<div style="display: flex; gap: 10px;">
+<sc-for list="{{swatches}}" as="sw" hint-placeholder-count="4">
+<button type="button" onClick="{{sw.pick}}" aria-label="{{sw.label}}" aria-pressed="{{sw.pressed}}" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: {{sw.hex}}; box-shadow: {{sw.ring}};"></button>
+</sc-for>
+</div>
+<span style="font-size: 12px; color: #5C5C57;">All options pass WCAG AA with white text. Scale 50–900 is generated.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 13px; font-weight: 600;">Typeface</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;">
+<sc-for list="{{fonts}}" as="f" hint-placeholder-count="4">
+<button type="button" onClick="{{f.pick}}" aria-pressed="{{f.pressed}}" style="min-height: 44px; padding: 8px 12px; border-radius: 8px; border: {{f.border}}; background: {{f.bg}}; color: {{f.ink}}; font-family: {{f.family}}; font-size: 14px;">{{f.name}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 13px; font-weight: 600;">Corner radius</span>
+<div style="display: flex; gap: 6px;">
+<sc-for list="{{radii}}" as="rd" hint-placeholder-count="4">
+<button type="button" onClick="{{rd.pick}}" aria-pressed="{{rd.pressed}}" style="min-height: 44px; min-width: 52px; padding: 8px 10px; border-radius: 8px; border: {{rd.border}}; background: {{rd.bg}}; color: {{rd.ink}}; font-size: 14px;">{{rd.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 13px; font-weight: 600;">Density</span>
+<div style="display: flex; gap: 6px;">
+<sc-for list="{{densities}}" as="dn" hint-placeholder-count="2">
+<button type="button" onClick="{{dn.pick}}" aria-pressed="{{dn.pressed}}" style="flex: 1 1 0; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: {{dn.border}}; background: {{dn.bg}}; color: {{dn.ink}}; font-size: 14px;">{{dn.label}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.5;">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600;">Inheritance</h2>
+<span>Based on: <strong>{{kitName}}</strong> · {{kitSource}}</span>
+<sc-if value="{{hasOverrides}}" hint-placeholder-val="{{ true }}">
+<span style="color: #5C5C57;">Overridden in this project:</span>
+<ul style="margin: 0; padding-left: 18px;">
+<sc-for list="{{overrides}}" as="o" hint-placeholder-count="2"><li>{{o.text}}</li></sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{noOverrides}}" hint-placeholder-val="{{ false }}">
+<span style="color: #5C5C57;">No project overrides yet. Changes stay in this project; the client kit is untouched.</span>
+</sc-if>
+</div>
+
+<sc-if value="{{notApproved}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{approve}}" style="min-height: 48px; padding: 12px 16px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 15px; font-weight: 600;">Approve kit for Ops Portal</button>
+<span style="font-size: 12px; color: #5C5C57; line-height: 1.45;">Approving writes the kit&#39;s tokens to the repo, regenerates the app theme and records your approval (who, role, version).</span>
+</sc-if>
+<sc-if value="{{approved}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="border-radius: 12px; padding: 14px 16px; background: #E7F3EA; border: 1px solid #B9DCC2; color: #1D4A2A; font-size: 13px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px;">
+<strong style="font-size: 14px;">Kit approved · KIT-OPS v1</strong>
+<span>Austin Smith (delivery lead) · 14 Oct 2026. Tokens committed; theme generated; prototype will use this kit.</span>
+<a href="StyleGuide.dc.html" style="color: #1D4A2A; font-weight: 600;">Open the generated style guide</a>
+<button type="button" onClick="{{undo}}" style="align-self: flex-start; min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid #B9DCC2; background: #FFFFFF; color: #1D4A2A; font-size: 13px;">Revert approval</button>
+</div>
+</sc-if>
+</aside>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+var KITS = [
+  { id: 'acme', name: 'Acme brand', tag: 'Client default', source: 'Acme Logistics client kit v3', reason: 'Inherited from the client. Keeps Ops Portal consistent with their other apps.', primary: '#1C0BE8', soft: '#EEEDFE', softLine: '#CECBF6', secondary: '#F29F05', secSoft: '#FCEFD3', secInk: '#6B4100', ink: '#161618', muted: '#5B5B66', line: '#E3E3E8', ground: '#FAFAFB', stdBg: '#EFEFF3', font: 'Poppins', head: 'Poppins', radius: 4, density: 'comfortable', contrast: 'AA pass', alts: ['#1C0BE8', '#4338CA', '#0F4C81', '#6D28A8'] },
+  { id: 'calm', name: 'Calm operations', tag: 'Suggested', source: 'Factory catalogue', reason: 'Ops lead works long shifts on desktop with dense lists: low-glare neutrals, compact tables.', primary: '#0F6E56', soft: '#E1F5EE', softLine: '#9FE1CB', secondary: '#BA7517', secSoft: '#FAEEDA', secInk: '#633806', ink: '#1B1F1D', muted: '#56605B', line: '#DCE2DF', ground: '#F6F8F7', stdBg: '#EDF1EF', font: 'IBM Plex Sans', head: 'IBM Plex Sans', radius: 6, density: 'compact', contrast: 'AA pass', alts: ['#0F6E56', '#155E75', '#3F6212', '#1E40AF'] },
+  { id: 'clear', name: 'Clear finance', tag: 'Suggested', source: 'Factory catalogue', reason: 'Approval steps and money values: serif headings for authority, high-contrast figures.', primary: '#1E3A8A', soft: '#E6EEFB', softLine: '#B5D4F4', secondary: '#B45309', secSoft: '#FDF0E1', secInk: '#7C2D12', ink: '#14171F', muted: '#525A6B', line: '#DDE1EA', ground: '#F7F8FA', stdBg: '#EEF0F5', font: 'Public Sans', head: 'Source Serif 4', radius: 2, density: 'comfortable', contrast: 'AAA pass', alts: ['#1E3A8A', '#0C447C', '#3C3489', '#0F6E56'] },
+  { id: 'field', name: 'Friendly field', tag: 'Suggested', source: 'Factory catalogue', reason: 'Requesters submit from phones between meetings: larger targets, rounder shapes.', primary: '#3B6D11', soft: '#EAF3DE', softLine: '#C0DD97', secondary: '#993C1D', secSoft: '#FAECE7', secInk: '#712B13', ink: '#1C2116', muted: '#58604F', line: '#DFE4D8', ground: '#F8F9F5', stdBg: '#EEF1E9', font: 'Nunito Sans', head: 'Nunito Sans', radius: 14, density: 'comfortable', contrast: 'AA pass', alts: ['#3B6D11', '#0F6E56', '#185FA5', '#993556'] },
+  { id: 'bold', name: 'Bold product', tag: 'Catalogue', source: 'Factory catalogue', reason: 'For SaaS products that lead with brand: strong contrast, geometric type.', primary: '#18181B', soft: '#F1F1F3', softLine: '#D4D4D8', secondary: '#E11D48', secSoft: '#FFE4EA', secInk: '#9F1239', ink: '#18181B', muted: '#55555E', line: '#E4E4E7', ground: '#FAFAFA', stdBg: '#F0F0F2', font: 'Space Grotesk', head: 'Space Grotesk', radius: 10, density: 'comfortable', contrast: 'AAA pass', alts: ['#18181B', '#1E3A8A', '#9F1239', '#0F6E56'] }
+];
+var FONT_CHOICES = ['Manrope', 'DM Sans', 'Source Serif 4'];
+function fam(n) { return n === 'Source Serif 4' ? "'Source Serif 4', serif" : "'" + n + "', sans-serif"; }
+function pill(on) { return on ? { border: '1px solid #1A1A1A', bg: '#1A1A1A', ink: '#FFFFFF' } : { border: '1px solid #D6D6D1', bg: '#FFFFFF', ink: '#1A1A1A' }; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kitId: 'acme', primary: null, font: null, radius: null, density: null, approved: false };
+  }
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var kit = KITS.filter(function (x) { return x.id === s.kitId; })[0] || KITS[0];
+    var primary = s.primary || kit.primary;
+    var font = s.font || kit.font;
+    var head = s.font ? s.font : kit.head;
+    var radius = s.radius === null ? kit.radius : s.radius;
+    var density = s.density || kit.density;
+    var compact = density === 'compact';
+
+    var kits = KITS.map(function (x) {
+      var on = x.id === kit.id;
+      return {
+        name: x.name, tag: x.tag, reason: x.reason, primary: x.primary, secondary: x.secondary, ink: x.ink, ground: x.ground,
+        fontName: x.font, family: fam(x.font), pressed: on ? 'true' : 'false',
+        border: on ? '2px solid #1A1A1A' : '1px solid #E2E2DE',
+        tagBg: x.tag === 'Suggested' ? '#EEF2E6' : (x.tag === 'Client default' ? '#ECEBFB' : '#F0EFEA'),
+        tagInk: x.tag === 'Suggested' ? '#38501A' : (x.tag === 'Client default' ? '#3C3489' : '#44443F'),
+        pick: function () { self.setState({ kitId: x.id, primary: null, font: null, radius: null, density: null, approved: false }); }
+      };
+    });
+
+    var swatches = kit.alts.map(function (hex, i) {
+      var on = hex === primary;
+      return { hex: hex, label: 'Primary ' + hex + (i === 0 ? ' (kit default)' : ''), pressed: on ? 'true' : 'false',
+        ring: on ? '0 0 0 3px #FFFFFF, 0 0 0 5px #1A1A1A' : 'none',
+        pick: function () { self.setState({ primary: hex === kit.primary ? null : hex, approved: false }); } };
+    });
+
+    var fontNames = [kit.font].concat(FONT_CHOICES.filter(function (n) { return n !== kit.font; }));
+    var fonts = fontNames.map(function (n, i) {
+      var on = n === font; var p = pill(on);
+      return { name: n + (i === 0 ? ' (kit)' : ''), family: fam(n), pressed: on ? 'true' : 'false', border: p.border, bg: p.bg, ink: p.ink,
+        pick: function () { self.setState({ font: n === kit.font ? null : n, approved: false }); } };
+    });
+
+    var radii = [0, 4, 8, 14].map(function (r) {
+      var on = r === radius; var p = pill(on);
+      return { label: r + ' px', pressed: on ? 'true' : 'false', border: p.border, bg: p.bg, ink: p.ink,
+        pick: function () { self.setState({ radius: r === kit.radius ? null : r, approved: false }); } };
+    });
+
+    var densities = ['compact', 'comfortable'].map(function (d) {
+      var on = d === density; var p = pill(on);
+      return { label: d === 'compact' ? 'Compact' : 'Comfortable', pressed: on ? 'true' : 'false', border: p.border, bg: p.bg, ink: p.ink,
+        pick: function () { self.setState({ density: d === kit.density ? null : d, approved: false }); } };
+    });
+
+    var overrides = [];
+    if (s.primary) overrides.push({ text: 'Primary colour ' + kit.primary + ' → ' + s.primary });
+    if (s.font) overrides.push({ text: 'Typeface ' + kit.font + ' → ' + s.font });
+    if (s.radius !== null) overrides.push({ text: 'Corner radius ' + kit.radius + ' px → ' + s.radius + ' px' });
+    if (s.density) overrides.push({ text: 'Density ' + kit.density + ' → ' + s.density });
+
+    return {
+      kits: kits, swatches: swatches, fonts: fonts, radii: radii, densities: densities,
+      kitName: kit.name, kitSource: kit.source,
+      overrides: overrides, hasOverrides: overrides.length > 0, noOverrides: overrides.length === 0,
+      approved: s.approved, notApproved: !s.approved,
+      stepBg: s.approved ? '#1A1A1A' : '#E6E5E0', stepInk: s.approved ? '#FFFFFF' : '#44443F',
+      approve: function () { self.setState({ approved: true }); },
+      undo: function () { self.setState({ approved: false }); },
+      k: {
+        primary: primary, soft: kit.soft, softLine: kit.softLine, secSoft: kit.secSoft, secInk: kit.secInk,
+        ink: kit.ink, muted: kit.muted, line: kit.line, ground: kit.ground, stdBg: kit.stdBg, contrast: kit.contrast,
+        font: fam(font), head: fam(head), r: radius + 'px',
+        rowPad: compact ? '8px 12px' : '13px 16px', btnPad: compact ? '7px 12px' : '10px 16px',
+        inputPad: compact ? '7px 10px' : '10px 12px', pagePad: compact ? '18px' : '26px'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

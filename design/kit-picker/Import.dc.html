@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Import a UI kit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0;background:#F4F4F2}
+a{color:#1A1A1A}a:hover{color:#000}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'DM Sans', sans-serif; color: #1A1A1A; background: #F4F4F2;">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 28px; background: #FFFFFF; border-bottom: 1px solid #E2E2DE;">
+<div style="font-weight: 700; font-size: 17px;">Factory</div>
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: #5C5C57;">
+<span>Kit catalogue</span><span aria-hidden="true">/</span><span style="color: #1A1A1A; font-weight: 600;">Import a kit</span>
+</nav>
+<div style="flex-grow: 1;"></div>
+<a href="Main.dc.html" style="font-size: 14px;">Back to kit selection</a>
+</header>
+
+<div style="max-width: 1120px; margin: 0 auto; padding: 28px 28px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+
+<div>
+<h1 style="margin: 0 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">Import a UI kit</h1>
+<p style="margin: 0; font-size: 15px; color: #5C5C57; line-height: 1.5; max-width: 720px;">Bring in any kit you&#39;ve found. The factory converts it to tokens, fills the gaps from its own values, checks accessibility and licence, then saves it to your catalogue to customise.</p>
+</div>
+
+<ol aria-label="Import steps" style="display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; font-size: 13px;">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="4">
+<li style="padding: 6px 12px; border-radius: 999px; background: {{st.bg}}; color: {{st.ink}};">{{st.label}}</li>
+</sc-for>
+</ol>
+
+<sc-if value="{{atSource}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Choose a source" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;">
+<sc-for list="{{sources}}" as="s" hint-placeholder-count="5">
+<button type="button" onClick="{{s.pick}}" style="text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 12px; border: 1px solid #E2E2DE; background: #FFFFFF; color: #1A1A1A; min-height: 150px;">
+<span style="font-size: 16px; font-weight: 600;">{{s.name}}</span>
+<span style="font-size: 13px; color: #5C5C57; line-height: 1.45;">{{s.how}}</span>
+<span style="margin-top: auto; font-size: 12px; padding: 3px 8px; border-radius: 999px; background: {{s.fidBg}}; color: {{s.fidInk}}; align-self: flex-start;">{{s.fidelity}}</span>
+</button>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{atReview}}" hint-placeholder-val="{{ false }}">
+<section aria-label="Review import" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 20px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 4px;">
+<h2 style="margin: 0; font-size: 18px; font-weight: 600; flex-grow: 1;">Harbor UI · imported from {{sourceName}}</h2>
+<span style="font-size: 13px; padding: 4px 10px; border-radius: 999px; background: #FDF3E1; color: #7A4A00;">Thin · 78% complete</span>
+</div>
+<p style="margin: 0 0 16px; font-size: 14px; color: #5C5C57;">Found 6 colour scales, 1 typeface, 14 components. Gaps are filled from the kit&#39;s own values and marked as generated.</p>
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px;">
+<thead>
+<tr style="text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C5C57;">
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Area</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Imported</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Gap</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Factory action</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{gaps}}" as="g" hint-placeholder-count="6">
+<tr>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; font-weight: 600;">{{g.area}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA;">{{g.got}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; color: {{g.gapInk}};">{{g.gap}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; color: #5C5C57;">{{g.action}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<aside style="flex: 1 1 280px; max-width: 360px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.5;">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600;">Accessibility</h2>
+<span>Text contrast: 2 pairs fail AA</span>
+<span style="color: #5C5C57;">Secondary 500 on white (3.1:1). Factory proposes 600 for text and keeps 500 for fills.</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.5;">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600;">Licence</h2>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500;">Licence type
+<select style="font: inherit; font-size: 14px; padding: 10px 12px; border-radius: 8px; border: 1px solid #D6D6D1; background: #FFFFFF;"><option>Commercial — client projects allowed</option><option>Personal use only</option><option>MIT / open source</option><option>Unknown</option></select>
+</label>
+<span style="color: #5C5C57;">Kits marked personal-only or unknown are blocked on client projects.</span>
+</div>
+<button type="button" onClick="{{save}}" style="min-height: 48px; padding: 12px 16px; border-radius: 10px; border: 0; background: #1A1A1A; color: #FFFFFF; font-size: 15px; font-weight: 600;">Approve and save to catalogue</button>
+<button type="button" onClick="{{back}}" style="min-height: 44px; padding: 10px 14px; border-radius: 10px; border: 1px solid #D6D6D1; background: #FFFFFF; color: #1A1A1A; font-size: 14px;">Choose a different source</button>
+</aside>
+</section>
+</sc-if>
+
+<sc-if value="{{atDone}}" hint-placeholder-val="{{ false }}">
+<section role="status" style="background: #E7F3EA; border: 1px solid #B9DCC2; border-radius: 12px; padding: 22px; color: #1D4A2A; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5;">
+<strong style="font-size: 18px;">Harbor UI saved to your catalogue · KIT-HARBOR v1</strong>
+<span>Source: {{sourceName}} · Licence: commercial, client projects allowed · 11 items generated to fill gaps, each marked in the style guide.</span>
+<span>It now appears in kit selection for every project, ready to customise per client.</span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px;">
+<a href="Main.dc.html" style="color: #1D4A2A; font-weight: 600;">Use it in kit selection</a>
+<a href="StyleGuide.dc.html" style="color: #1D4A2A; font-weight: 600;">See a generated style guide</a>
+<button type="button" onClick="{{restart}}" style="min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid #B9DCC2; background: #FFFFFF; color: #1D4A2A; font-size: 13px;">Import another</button>
+</div>
+</section>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+var SOURCES = [
+  { id: 'figma', name: 'Figma kit', how: 'Paste a Figma or community file link. Variables, styles and components are read through the Figma connection.', fidelity: 'Tokens exact · components rebuilt' },
+  { id: 'shadcn', name: 'shadcn theme or kit', how: 'A tweakcn theme, shadcn preset code or a paid shadcn kit registry URL.', fidelity: 'Exact' },
+  { id: 'tokens', name: 'Token or theme file', how: 'Tokens Studio JSON, Style Dictionary, Tailwind config or CSS variables.', fidelity: 'Tokens exact' },
+  { id: 'site', name: 'Client website', how: 'Enter the client&#39;s own site. Colours, fonts and spacing are extracted for you to confirm.', fidelity: 'Close · you confirm' },
+  { id: 'pdf', name: 'Brand guide PDF or screenshots', how: 'Upload a brand book or screenshots. The designer agent reads them.', fidelity: 'Approximate · you confirm' }
+];
+var GAPS = [
+  { area: 'Colour', got: '6 scales, 50–900', gap: 'No info scale', action: 'Generated from primary hue' },
+  { area: 'Type', got: 'Typeface, 8 sizes', gap: 'No line heights', action: 'Set from the 1.25 ratio' },
+  { area: 'Space and shape', got: 'Radius, shadows', gap: 'No spacing scale', action: '4 px base scale generated' },
+  { area: 'Components', got: '14 of 26', gap: 'Missing date picker, toast, drawer +9', action: 'Built on our library, styled to match' },
+  { area: 'States', got: 'Default, hover', gap: 'No focus, error, loading', action: 'Generated; focus ring from primary 300' },
+  { area: 'Dark mode', got: 'None', gap: 'Not provided', action: 'Optional; off by default' }
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 'source', src: 'figma' }; }
+  renderVals() {
+    var self = this; var s = this.state;
+    var order = ['source', 'review', 'done'];
+    var idx = order.indexOf(s.step);
+    var labels = ['1 Source', '2 Gaps and checks', '3 Approve', '4 Saved'];
+    var reached = s.step === 'source' ? 0 : (s.step === 'review' ? 2 : 3);
+    var steps = labels.map(function (l, i) { var on = i <= reached; return { label: l, bg: on ? '#1A1A1A' : '#E6E5E0', ink: on ? '#FFFFFF' : '#44443F' }; });
+    var src = SOURCES.filter(function (x) { return x.id === s.src; })[0];
+    var sources = SOURCES.map(function (x) {
+      var exact = x.fidelity.indexOf('exact') > -1 || x.fidelity === 'Exact';
+      return { name: x.name, how: x.how.replace('&#39;', "'"), fidelity: x.fidelity,
+        fidBg: exact ? '#E7F3EA' : '#F0EFEA', fidInk: exact ? '#1D4A2A' : '#44443F',
+        pick: function () { self.setState({ step: 'review', src: x.id }); } };
+    });
+    var gaps = GAPS.map(function (g) { return { area: g.area, got: g.got, gap: g.gap, action: g.action, gapInk: '#8A3B12' }; });
+    return {
+      steps: steps, sources: sources, gaps: gaps, sourceName: src.name,
+      atSource: s.step === 'source', atReview: s.step === 'review', atDone: s.step === 'done',
+      save: function () { self.setState({ step: 'done' }); },
+      back: function () { self.setState({ step: 'source' }); },
+      restart: function () { self.setState({ step: 'source' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Test accounts: Acme Ops Portal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.tab{min-height:44px;padding:0 16px;border:0;border-bottom:2px solid transparent;background:transparent;font:inherit;font-weight:600;color:#4A505C;cursor:pointer}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.row{display:grid;grid-template-columns:minmax(150px,1.1fr) 110px minmax(200px,1.4fr) minmax(230px,1.3fr) minmax(200px,1.4fr) 130px;align-items:center}
+.th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#646B78;padding:12px 16px;white-space:nowrap}
+.td{padding:14px 16px}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html" class="on" aria-current="page">Test accounts</a>
+      <a href="Integrations.dc.html">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 20px">
+
+      <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="label">Acme Ops Portal</div>
+          <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Test accounts</h1>
+          <p style="margin: 0; color: #4A505C">One login per persona and role. Passwords come from the secrets vault and are never stored in the repo.</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="btn">Reseed test data</button>
+          <button type="button" class="btn">Reset all passwords</button>
+        </div>
+      </header>
+
+      <div role="tablist" aria-label="Environment" style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #E2E5EA">
+        <sc-for list="{{envs}}" as="e" hint-placeholder-count="3">
+          <button type="button" role="tab" class="tab" aria-selected="{{e.sel}}" onClick="{{e.pick}}" style="color: {{e.color}}; border-bottom-color: {{e.line}}">{{e.name}}</button>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 14px; color: #4A505C">
+        <span><strong style="color: #15171C; font-weight: 600">URL</strong> <a href="#" class="mono">{{env.url}}</a></span>
+        <span><strong style="color: #15171C; font-weight: 600">Test data</strong> {{env.data}}</span>
+        <span><strong style="color: #15171C; font-weight: 600">Last reset</strong> {{env.reset}}</span>
+      </div>
+
+      <div class="card" style="overflow-x: auto">
+        <div role="table" aria-label="Test accounts" style="min-width: 980px">
+          <div role="row" class="row" style="border-bottom: 1px solid #E2E5EA">
+            <span role="columnheader" class="th">Persona</span><span role="columnheader" class="th">Role</span><span role="columnheader" class="th">Login</span><span role="columnheader" class="th">Password</span><span role="columnheader" class="th">Use it for</span><span role="columnheader" class="th"><span style="position: absolute; left: -9999px">Actions</span></span>
+          </div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+            <div role="row" class="row" style="border-bottom: 1px solid #EEF0F3">
+              <span role="cell" class="td" style="display: flex; flex-direction: column"><span style="font-weight: 600">{{r.persona}}</span><span class="mono" style="font-size: 12px; color: #646B78">{{r.per}}</span></span>
+              <span role="cell" class="td"><span class="chip">{{r.role}}</span></span>
+              <span role="cell" class="td mono">{{r.email}}</span>
+              <span role="cell" class="td" style="display: flex; gap: 8px; align-items: center"><span class="mono" style="min-width: 128px">{{r.pw}}</span><button type="button" class="btn sm" onClick="{{r.toggle}}">{{r.revealLabel}}</button></span>
+              <span role="cell" class="td" style="font-size: 14px; color: #4A505C">{{r.use}}</span>
+              <span role="cell" class="td"><button type="button" class="btn sm">Copy login</button></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{isProd}}" hint-placeholder-val="{{ false }}">
+        <p style="margin: 0; padding: 14px 18px; border-radius: 10px; background: #FEF3E2; color: #7A3A06">Production has a single read-only smoke account, used by the nightly smoke test. It can't change data and is rotated every 90 days.</p>
+      </sc-if>
+      <p style="margin: 0; font-size: 14px; color: #646B78">Phase 2: separate accounts for client UAT testers, sent with a shareable UAT link.</p>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { env: 1, shown: {} };
+  }
+  renderVals() {
+    var self = this;
+    var envInfo = [
+      { name: 'Preview · SL-05', url: 'acme-ops-sl05.vercel.app', data: 'Seed set A: 40 invoices, 12 suppliers', reset: 'When the preview was built, 09:12 today' },
+      { name: 'Staging', url: 'staging.acme-ops.app', data: 'Seed set A plus month-end volume (2,000 invoices)', reset: 'Yesterday 18:00' },
+      { name: 'Production smoke', url: 'ops.acme.example', data: 'Real data, read-only access', reset: 'Rotated 2 Oct' }
+    ];
+    var people = [
+      { persona: 'Accounts clerk', per: 'PER-02', role: 'clerk', email: 'clerk@acme.test', use: 'Enter invoices, upload PDFs' },
+      { persona: 'Finance approver', per: 'PER-01', role: 'approver', email: 'approver.one@acme.test', use: 'First approval, under and over $5,000' },
+      { persona: 'Second approver', per: 'PER-01', role: 'approver', email: 'approver.two@acme.test', use: 'Second approval on high-value invoices' },
+      { persona: 'Supplier', per: 'PER-04', role: 'external', email: 'supplier@northwind.test', use: 'Supplier portal: invoice status only' },
+      { persona: 'Auditor', per: 'PER-05', role: 'read-only', email: 'auditor@acme.test', use: 'Audit log and exports' },
+      { persona: 'Admin', per: 'PER-03', role: 'admin', email: 'admin@acme.test', use: 'Settings, users, thresholds' }
+    ];
+    var prod = [{ persona: 'Smoke test', per: 'system', role: 'read-only', email: 'smoke@acme.example', use: 'Nightly smoke test only' }];
+    var env = this.state.env;
+    var list = env === 2 ? prod : people;
+    var shown = this.state.shown;
+    return {
+      envs: envInfo.map(function (e, i) {
+        return {
+          name: e.name, sel: i === env ? 'true' : 'false',
+          color: i === env ? '#15171C' : '#4A505C',
+          line: i === env ? '#2546C8' : 'transparent',
+          pick: function () { self.setState({ env: i, shown: {} }); }
+        };
+      }),
+      env: envInfo[env],
+      isProd: env === 2,
+      rows: list.map(function (p, i) {
+        var on = !!shown[i];
+        return {
+          persona: p.persona, per: p.per, role: p.role, email: p.email, use: p.use,
+          pw: on ? '[vault value, 30s]' : '••••••••••',
+          revealLabel: on ? 'Hide' : 'Reveal',
+          toggle: function () {
+            var s = {}; for (var k in shown) s[k] = shown[k];
+            s[i] = !on;
+            self.setState({ shown: s });
+          }
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

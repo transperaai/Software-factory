@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Style guide — Acme brand kit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Poppins:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0;background:#F4F4F2}
+a{color:#1C0BE8}a:hover{color:#11068C}
+</style>
+</helmet>
+<div style="min-height: 100vh; font-family: 'DM Sans', sans-serif; color: #1A1A1A; background: #F4F4F2;">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 28px; background: #FFFFFF; border-bottom: 1px solid #E2E2DE;">
+<div style="font-weight: 700; font-size: 17px;">Factory</div>
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: #5C5C57;">
+<span>Acme Logistics</span><span aria-hidden="true">/</span><span>Ops Portal</span><span aria-hidden="true">/</span><a href="Main.dc.html" style="color: #5C5C57;">Design kit</a><span aria-hidden="true">/</span><span style="color: #1A1A1A; font-weight: 600;">Style guide</span>
+</nav>
+</header>
+
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 28px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px;">
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+<div style="flex: 1 1 480px;">
+<h1 style="margin: 0 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">Acme brand · KIT-OPS v1</h1>
+<p style="margin: 0; font-size: 15px; color: #5C5C57; line-height: 1.5; max-width: 720px;">Generated from the project&#39;s tokens file and rendered with the real components. To change anything, edit a token or add a project override: this page rebuilds itself.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px;">
+<span style="padding: 5px 10px; border-radius: 999px; background: #ECEBFB; color: #3C3489;">Inherits Acme client kit v3</span>
+<span style="padding: 5px 10px; border-radius: 999px; background: #E7F3EA; color: #1D4A2A;">Approved 14 Oct 2026</span>
+<span style="padding: 5px 10px; border-radius: 999px; background: #F0EFEA; color: #44443F;">Figma sync: off</span>
+</div>
+</div>
+
+<section aria-labelledby="h-colours" style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 24px;">
+<h2 id="h-colours" style="margin: 0 0 4px; font-size: 22px; font-weight: 600;">Colours</h2>
+<p style="margin: 0 0 18px; font-size: 14px; color: #5C5C57;">Scales 50–900 are generated from each main colour. Labels show text contrast on each swatch: AA or AAA passes, a dash fails.</p>
+<div style="display: flex; flex-direction: column; gap: 18px;">
+<sc-for list="{{palettes}}" as="p" hint-placeholder-count="7">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;">
+<div style="flex: 0 0 140px; font-size: 14px; font-weight: 600; padding-top: 8px;">{{p.name}}<div style="font-size: 12px; font-weight: 400; color: #5C5C57; margin-top: 2px;">{{p.token}}</div></div>
+<div style="flex: 1 1 600px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{p.steps}}" as="s" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<div style="height: 56px; border-radius: 8px; background: {{s.hex}}; border: 1px solid {{s.edge}}; color: {{s.on}}; font-size: 12px; font-weight: 600; display: flex; align-items: flex-end; padding: 6px 8px; box-sizing: border-box;">{{s.grade}}</div>
+<span style="font-size: 12px; font-weight: 600;">{{s.step}}{{s.main}}</span>
+<span style="font-size: 12px; color: #5C5C57; font-family: 'JetBrains Mono', monospace;">{{s.hex}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="h-type" style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 24px;">
+<h2 id="h-type" style="margin: 0 0 4px; font-size: 22px; font-weight: 600;">Typescale</h2>
+<p style="margin: 0 0 18px; font-size: 14px; color: #5C5C57;">Poppins (Google Font). Mobile first; desktop steps up one level for headings.</p>
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px;">
+<thead>
+<tr style="text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #5C5C57;">
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Style</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Weight</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Size</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Line height</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Spacing</th>
+<th style="padding: 10px 12px; border-bottom: 1px solid #E2E2DE; font-weight: 600;">Preview</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{type}}" as="t" hint-placeholder-count="10">
+<tr>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; font-weight: 600; white-space: nowrap;">{{t.name}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; white-space: nowrap;">{{t.weightLabel}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; white-space: nowrap;">{{t.size}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA;">{{t.lh}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA;">{{t.ls}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid #EEEEEA; font-family: 'Poppins', sans-serif; font-size: {{t.px}}; line-height: {{t.lhpx}}; letter-spacing: {{t.lsem}}; font-weight: {{t.weight}}; color: #161618;">Priority items within target</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section aria-labelledby="h-buttons" style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 24px;">
+<h2 id="h-buttons" style="margin: 0 0 4px; font-size: 22px; font-weight: 600;">Buttons</h2>
+<p style="margin: 0 0 18px; font-size: 14px; color: #5C5C57;">Variants × states at medium size, then sizes. Radius 4 px from the kit.</p>
+<div style="overflow-x: auto;">
+<div style="display: grid; grid-template-columns: 120px repeat(4, minmax(140px, 1fr)); gap: 14px 16px; align-items: center; min-width: 760px; font-family: 'Poppins', sans-serif;">
+<span></span>
+<span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.05em;">Default</span>
+<span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.05em;">Hover</span>
+<span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.05em;">Focus</span>
+<span style="font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5C5C57; text-transform: uppercase; letter-spacing: 0.05em;">Disabled</span>
+
+<span style="font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;">Primary</span>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #1C0BE8; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Primary button</button>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #11068C; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Primary button</button>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #1C0BE8; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #9E97F3;">Primary button</button>
+<button type="button" disabled style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #E8E8EA; color: #6E6E78; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Primary button</button>
+
+<span style="font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;">Secondary</span>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #F29F05; color: #2B1A00; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Secondary button</button>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #D98C00; color: #2B1A00; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Secondary button</button>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #F29F05; color: #2B1A00; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #F2C879;">Secondary button</button>
+<button type="button" disabled style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #E8E8EA; color: #6E6E78; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Secondary button</button>
+
+<span style="font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;">Outline</span>
+<button type="button" style="justify-self: start; padding: 9px 15px; border-radius: 4px; border: 1px solid #DCDCE0; background: #FFFFFF; color: #161618; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Outline button</button>
+<button type="button" style="justify-self: start; padding: 9px 15px; border-radius: 4px; border: 1px solid #A0A0AB; background: #F3F3F5; color: #161618; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Outline button</button>
+<button type="button" style="justify-self: start; padding: 9px 15px; border-radius: 4px; border: 1px solid #DCDCE0; background: #FFFFFF; color: #161618; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #9E97F3;">Outline button</button>
+<button type="button" disabled style="justify-self: start; padding: 9px 15px; border-radius: 4px; border: 1px solid #E8E8EA; background: #FBFBFC; color: #6E6E78; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Outline button</button>
+
+<span style="font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;">Sizes</span>
+<button type="button" style="justify-self: start; padding: 6px 12px; border-radius: 4px; border: 0; background: #1C0BE8; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 500;">Small</button>
+<button type="button" style="justify-self: start; padding: 10px 16px; border-radius: 4px; border: 0; background: #1C0BE8; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;">Medium</button>
+<button type="button" style="justify-self: start; padding: 13px 20px; border-radius: 4px; border: 0; background: #1C0BE8; color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500;">Large</button>
+<span></span>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="h-inputs" style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 24px;">
+<h2 id="h-inputs" style="margin: 0 0 4px; font-size: 22px; font-weight: 600;">Inputs</h2>
+<p style="margin: 0 0 18px; font-size: 14px; color: #5C5C57;">Label, field and helper text as one component. Every state below has an automated visual and accessibility test.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; font-family: 'Poppins', sans-serif;">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #161618;">Default
+<input type="text" placeholder="Placeholder" style="font: inherit; font-weight: 400; font-size: 14px; padding: 10px 12px; border-radius: 4px; border: 1px solid #DCDCE0; background: #FFFFFF; color: #161618;">
+<span style="font-size: 12px; font-weight: 400; color: #56565F;">Helper text</span>
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #161618;">Focus
+<input type="text" placeholder="Placeholder" style="font: inherit; font-weight: 400; font-size: 14px; padding: 10px 12px; border-radius: 4px; border: 1px solid #1C0BE8; background: #FFFFFF; color: #161618; box-shadow: 0 0 0 3px #DCD9FB;">
+<span style="font-size: 12px; font-weight: 400; color: #56565F;">Helper text</span>
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #161618;">Filled
+<input type="text" value="Account A" style="font: inherit; font-weight: 400; font-size: 14px; padding: 10px 12px; border-radius: 4px; border: 1px solid #DCDCE0; background: #FFFFFF; color: #161618;">
+<span style="font-size: 12px; font-weight: 400; color: #56565F;">Helper text</span>
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #161618;">Error
+<input type="text" value="REC-12" aria-invalid="true" style="font: inherit; font-weight: 400; font-size: 14px; padding: 10px 12px; border-radius: 4px; border: 1px solid #FF3426; background: #FFFFFF; color: #161618;">
+<span style="font-size: 12px; font-weight: 500; color: #B71023;">Record ID not found in the external system</span>
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: #6E6E78;">Disabled
+<input type="text" placeholder="Placeholder" disabled style="font: inherit; font-weight: 400; font-size: 14px; padding: 10px 12px; border-radius: 4px; border: 1px solid #E8E8EA; background: #F3F3F5; color: #6E6E78;">
+<span style="font-size: 12px; font-weight: 400; color: #6E6E78;">Helper text</span>
+</label>
+</div>
+</section>
+
+<section aria-labelledby="h-tokens" style="background: #FFFFFF; border: 1px solid #E2E2DE; border-radius: 12px; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px;">
+<div style="flex: 1 1 320px;">
+<h2 id="h-tokens" style="margin: 0 0 8px; font-size: 22px; font-weight: 600;">Where this comes from</h2>
+<p style="margin: 0 0 10px; font-size: 14px; color: #5C5C57; line-height: 1.55;">Every value on this page is a design token in <span style="font-family: 'JetBrains Mono', monospace;">design/tokens.json</span>, in the W3C design-token format. The build turns tokens into the app theme, so screens, this page and the prototype can never disagree.</p>
+<p style="margin: 0; font-size: 14px; color: #5C5C57; line-height: 1.55;">Changes after approval go through the attention queue as a design change (logged in 3.7) and the theme regenerates.</p>
+</div>
+<pre style="flex: 1 1 380px; margin: 0; padding: 16px; border-radius: 8px; background: #161618; color: #E8E8EA; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto;">{{tokenSample}}</pre>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2100}}'>
+function lum(hex) {
+  var c = [1, 3, 5].map(function (i) { var v = parseInt(hex.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function grade(r) { return r >= 7 ? 'AAA' : (r >= 4.5 ? 'AA' : '—'); }
+var PAL = [
+  { name: 'Neutrals', token: 'color.neutral', main: 900, hex: ['#FBFBFC', '#E8E8EA', '#B2B2BA', '#56565F', '#161618'] },
+  { name: 'Primary', token: 'color.primary', main: 700, hex: ['#DCD9FB', '#9E97F3', '#4536EC', '#1C0BE8', '#11068C'] },
+  { name: 'Secondary', token: 'color.secondary', main: 700, hex: ['#F2E5CE', '#F2C879', '#F2B749', '#F29F05', '#B87A00'] },
+  { name: 'Error', token: 'color.error', main: 700, hex: ['#FFE4DE', '#FFC3A8', '#FF745C', '#FF3426', '#B71023'] },
+  { name: 'Success', token: 'color.success', main: 700, hex: ['#F3FCCD', '#E4FA9D', '#B3E145', '#8FCC10', '#5B9145'] },
+  { name: 'Warning', token: 'color.warning', main: 700, hex: ['#FFFBC0', '#FFF598', '#FFE843', '#FFD805', '#B79902'] },
+  { name: 'Informational', token: 'color.info', main: 700, hex: ['#C9FEFC', '#98FAFE', '#3ED8FA', '#00B9F7', '#006CB1'] }
+];
+var STEPS = [50, 300, 500, 700, 900];
+var TYPE = [
+  ['Heading 01', 600, 34, 41, -4], ['Heading 02', 600, 33, 40, -2], ['Heading 03', 600, 28, 34, -2],
+  ['Heading 04', 600, 23, 28, -2], ['Heading 05', 600, 19, 23, -2], ['Heading 06', 600, 16, 19, -2],
+  ['Subheading', 400, 20, 24, 0], ['Paragraph 01', 400, 14, 17, 0], ['Paragraph 02', 400, 16, 19, 0], ['Paragraph 03', 400, 18, 22, 0]
+];
+class Component extends DCLogic {
+  renderVals() {
+    var palettes = PAL.map(function (p) {
+      return { name: p.name, token: p.token, steps: p.hex.map(function (h, i) {
+        var w = ratio(h, '#FFFFFF'), d = ratio(h, '#161618');
+        var on = w >= d ? '#FFFFFF' : '#161618';
+        return { hex: h, step: STEPS[i], main: STEPS[i] === p.main ? ' · main' : '', on: on,
+          grade: (on === '#FFFFFF' ? 'White ' : 'Ink ') + grade(Math.max(w, d)), edge: lum(h) > 0.9 ? '#E2E2DE' : h };
+      }) };
+    });
+    var type = TYPE.map(function (t) {
+      return { name: t[0], weight: t[1], weightLabel: (t[1] === 600 ? 'Semi bold' : 'Regular') + ' / ' + t[1],
+        size: t[2] + ' px / ' + (t[2] / 16).toFixed(3).replace(/0+$/, '').replace(/\.$/, '') + ' rem',
+        lh: t[3] + ' px', ls: t[4] + '%', px: t[2] + 'px', lhpx: t[3] + 'px', lsem: (t[4] / 100) + 'em' };
+    });
+    var tokenSample = '{\n  "color": {\n    "primary": {\n      "700": { "$value": "#1C0BE8", "$type": "color" }\n    }\n  },\n  "font": {\n    "family": { "base": { "$value": "Poppins" } }\n  },\n  "radius": {\n    "control": { "$value": "4px", "$type": "dimension" }\n  },\n  "$extensions": {\n    "factory": { "inherits": "acme-client-kit@3", "overrides": [] }\n  }\n}';
+    return { palettes: palettes, type: type, tokenSample: tokenSample };
+  }
+}
+</script>
+</body>
+</html>

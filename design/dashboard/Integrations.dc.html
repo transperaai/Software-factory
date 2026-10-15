@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Integrations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F7;color:#15171C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#2546C8}a:hover{color:#1A3496}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.rail{flex:1 1 220px;box-sizing:border-box;padding:24px 16px;background:#fff;border-right:1px solid #E2E5EA;display:flex;flex-direction:column;gap:28px}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:32px 36px 56px}
+.inner{max-width:1160px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;padding:0 12px}
+.mark{width:22px;height:22px;border-radius:6px;background:#15171C}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;padding:0 12px;border-radius:8px;color:#4A505C;text-decoration:none;font-weight:500}
+.nav a:hover{background:#F4F5F7;color:#15171C}
+.nav a.on{background:#E8EDFC;color:#1A3496}
+.count{min-width:22px;height:22px;border-radius:11px;background:#B45309;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;box-sizing:border-box}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#646B78}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;background:#F0F2F5;color:#4A505C;font-size:12px;font-weight:500;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid #D5D9E0;background:#fff;color:#15171C;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#15171C}
+.btn.primary{background:#2546C8;border-color:#2546C8;color:#fff}
+.btn.primary:hover{background:#1A3496;color:#fff}
+.btn.quiet{border-color:transparent;background:transparent;color:#2546C8}
+.card{background:#fff;border:1px solid #E2E5EA;border-radius:12px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#646B78;text-align:left;padding:12px 16px;border-bottom:1px solid #E2E5EA;white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid #EEF0F3;vertical-align:top;font-size:14px}
+@media (max-width:720px){.nav{flex-direction:row;flex-wrap:wrap}.main{padding:24px 16px 48px}.rail{border-right:0;border-bottom:1px solid #E2E5EA}}
+</style>
+</helmet>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><span>Factory</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="Main.dc.html">Overview <span class="count">6</span></a>
+      <a href="Project.dc.html">Projects</a>
+      <a href="Board.dc.html">Board</a>
+      <a href="Testing.dc.html">Testing</a>
+      <a href="Thread.dc.html">Thread explorer</a>
+      <a href="Accounts.dc.html">Test accounts</a>
+      <a href="Integrations.dc.html" class="on" aria-current="page">Integrations</a>
+      <a href="Cost.dc.html">Cost</a>
+      <a href="Factory.dc.html">Factory</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="inner" style="display: flex; flex-direction: column; gap: 20px">
+
+      <header style="display: flex; flex-direction: column; gap: 6px">
+        <div class="label">All projects · reviewed weekly</div>
+        <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 600">Integrations</h1>
+      </header>
+
+      <div class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px"><span class="label">Providers</span><span style="font-size: 20px; font-weight: 600">9</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Changes this week</span><span style="font-size: 20px; font-weight: 600">14 <span style="font-size: 13px; font-weight: 500; color: #4A505C">3 matter</span></span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Next deadline</span><span style="font-size: 20px; font-weight: 600; color: #A3200F">28 days</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Contract tests</span><span style="font-size: 20px; font-weight: 600">41 / 41</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-left: 1px solid #EEF0F3"><span class="label">Keys expiring 90d</span><span style="font-size: 20px; font-weight: 600">2</span></div>
+      </div>
+
+      <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 14px" aria-labelledby="dg-h">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="label">This week's digest · 12 to 18 Oct</span>
+            <h2 id="dg-h" style="margin: 0; font-size: 18px; line-height: 1.35; font-weight: 600">14 changes from 9 providers. 3 matter to us, 1 needs a decision.</h2>
+          </div>
+          <sc-if value="{{notReviewed}}" hint-placeholder-val="{{ true }}">
+            <button type="button" class="btn" onClick="{{review}}">Mark digest reviewed</button>
+          </sc-if>
+          <sc-if value="{{reviewed}}" hint-placeholder-val="{{ false }}">
+            <span class="chip" style="height: 32px; background: #E6F4EA; color: #11602F">Reviewed by you today · open items carry to next week</span>
+          </sc-if>
+        </div>
+
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+          <li style="display: flex; flex-wrap: wrap; gap: 16px 24px; padding: 14px 0; border-top: 1px solid #E2E5EA">
+            <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <span style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="chip" style="background: #FDECEA; color: #A3200F">Breaking · 28 days</span><span style="font-weight: 600">Xero</span><span style="font-size: 13px; color: #646B78">Ledger Sync</span></span>
+              <span style="font-size: 15px; font-weight: 600">Payroll API v1 retires on 12 Nov</span>
+              <span style="font-size: 14px; color: #4A505C">We call 3 of the affected endpoints: <span class="mono">GET /payruns</span>, <span class="mono">GET /employees</span>, <span class="mono">POST /timesheets</span>. Change request CR-09 is drafted: about one slice.</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start">
+              <button type="button" class="btn primary">Approve CR-09</button>
+              <button type="button" class="btn quiet">Provider notice</button>
+            </div>
+          </li>
+          <li style="display: flex; flex-wrap: wrap; gap: 16px 24px; padding: 14px 0; border-top: 1px solid #E2E5EA">
+            <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <span style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="chip" style="background: #FEF3E2; color: #8A4307">Action, no deadline</span><span style="font-weight: 600">Stripe</span><span style="font-size: 13px; color: #646B78">Harbour Bookings</span></span>
+              <span style="font-size: 15px; font-weight: 600">New API version 2026-09-30 changes the failed-payment webhook</span>
+              <span style="font-size: 14px; color: #4A505C">We're pinned to 2026-03-31, so nothing breaks until we upgrade. Suggest adding the upgrade to the Q1 maintenance plan.</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start">
+              <button type="button" class="btn">Add to Q1 plan</button>
+              <button type="button" class="btn quiet">Provider notice</button>
+            </div>
+          </li>
+          <li style="display: flex; flex-wrap: wrap; gap: 16px 24px; padding: 14px 0; border-top: 1px solid #E2E5EA">
+            <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <span style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="chip">Worth knowing</span><span style="font-weight: 600">HubSpot</span><span style="font-size: 13px; color: #646B78">Harbour Bookings</span></span>
+              <span style="font-size: 15px; font-weight: 600">v1 contact lists sunset moved earlier, to 31 Mar</span>
+              <span style="font-size: 14px; color: #4A505C">We use v3 already. One admin report still reads a v1 list; the maintenance planner has logged it as tech debt TD-14.</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start">
+              <button type="button" class="btn quiet">Provider notice</button>
+            </div>
+          </li>
+          <li style="padding: 16px 0 0; border-top: 1px solid #E2E5EA">
+            <button type="button" class="btn quiet" style="padding: 0" onClick="{{toggleNone}}" aria-expanded="{{noneOpen}}">{{noneLabel}}</button>
+            <sc-if value="{{showNone}}" hint-placeholder-val="{{ false }}">
+              <ul style="margin: 8px 0 0; padding-left: 20px; font-size: 14px; color: #4A505C; display: flex; flex-direction: column; gap: 4px">
+                <li>Stripe: new Terminal reader endpoints (we don't use Terminal)</li>
+                <li>Google: Calendar API adds working-location fields</li>
+                <li>Postmark: new inbound rules UI (no API change)</li>
+                <li>Xero: Projects API rate limit raised</li>
+                <li>…and 7 more, each checked against the endpoints we call</li>
+              </ul>
+            </sc-if>
+          </li>
+        </ul>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 12px" aria-labelledby="pv-h">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: baseline">
+          <h2 id="pv-h" class="label" style="margin: 0">Providers</h2>
+          <span style="font-size: 13px; color: #646B78">Health over the last 7 days</span>
+        </div>
+        <div class="card" style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; min-width: 900px">
+            <thead>
+              <tr><th scope="col">Provider</th><th scope="col">Used by</th><th scope="col">Pinned / latest</th><th scope="col">Next deadline</th><th scope="col">Health</th><th scope="col">Credentials</th><th scope="col">Open</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 600">Xero</td>
+                <td>Ledger Sync</td>
+                <td class="mono">Payroll v1 / v2<br>Accounting 2.0 / 2.0</td>
+                <td><span style="display: flex; gap: 8px; align-items: center; color: #A3200F; font-weight: 600"><span class="dot" style="background: #B42318" aria-hidden="true"></span>12 Nov · 28 days</span></td>
+                <td>99.9%</td>
+                <td>App review due 3 Feb</td>
+                <td class="mono">CR-09</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600">Stripe</td>
+                <td>Harbour Bookings</td>
+                <td class="mono">2026-03-31 / 2026-09-30</td>
+                <td style="color: #646B78">None</td>
+                <td><span style="display: flex; gap: 8px; align-items: center; color: #8A4307; font-weight: 600"><span class="dot" style="background: #B45309" aria-hidden="true"></span>Webhooks 95.9%</span></td>
+                <td>Key 140 days old (rotate at 180)</td>
+                <td class="mono">ISS-22</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600">HubSpot</td>
+                <td>Harbour Bookings</td>
+                <td class="mono">CRM v3 / v3</td>
+                <td>31 Mar · 167 days</td>
+                <td>99.7%</td>
+                <td>Token 60 days old</td>
+                <td class="mono">TD-14</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600">Google</td>
+                <td>Acme, Harbour</td>
+                <td class="mono">OAuth 2.0</td>
+                <td style="color: #646B78">None</td>
+                <td>100%</td>
+                <td>Client secret expires 12 Jan</td>
+                <td style="color: #646B78">None</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600">Postmark</td>
+                <td>Acme, Harbour</td>
+                <td class="mono">API v1 / v1</td>
+                <td style="color: #646B78">None</td>
+                <td>99.98%</td>
+                <td>Token 31 days old</td>
+                <td style="color: #646B78">None</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { reviewed: false, none: false };
+  }
+  renderVals() {
+    var self = this;
+    return {
+      reviewed: this.state.reviewed,
+      notReviewed: !this.state.reviewed,
+      review: function () { self.setState({ reviewed: true }); },
+      showNone: this.state.none,
+      noneOpen: this.state.none ? 'true' : 'false',
+      noneLabel: this.state.none ? 'Hide the 11 changes with no impact' : 'Show 11 changes with no impact on us',
+      toggleNone: function () { self.setState({ none: !self.state.none }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
