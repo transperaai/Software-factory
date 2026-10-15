@@ -158,7 +158,6 @@ export const RECORDS: RecordSpec[] = [
     required: ["kpi_type", "baseline", "target", "method", "owner", "review_date"],
     links: {
       baseline_of: { targets: ["PP"], required: true },
-      measures: { targets: ["BR"], required: true },
       pair: { targets: ["KPI"] },
     },
   },
@@ -172,7 +171,7 @@ export const RECORDS: RecordSpec[] = [
     required: ["value", "priority", "owner"],
     links: {
       evidence: { targets: ["CLM", "PP"], required: true },
-      // In the design doc's example record. Upstream-pointing rule says KPI.measures holds this; see PR notes.
+      // KPIs are set in Discovery before BRs exist, so the BR is downstream and holds this link.
       measured_by: { targets: ["KPI"] },
     },
   },

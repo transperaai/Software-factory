@@ -122,6 +122,25 @@ describe.each(RECORDS.map((spec) => [spec.prefix, spec] as const))("%s record", 
   });
 });
 
+describe("BR and KPI link", () => {
+  const kpi = RECORDS.find((r) => r.prefix === "KPI")!;
+  const br = RECORDS.find((r) => r.prefix === "BR")!;
+
+  it("is held by the BR as measured_by, because KPIs are set before BRs exist", () => {
+    expect(validator.validateData(fixture(br))).toEqual([]);
+    expect(fixture(br).links?.measured_by).toEqual(["KPI-02"]);
+  });
+
+  it("is rejected on the KPI", () => {
+    const rec = structuredClone(fixture(kpi));
+    rec.links = { ...rec.links, measures: ["BR-01"] };
+    expect(validator.validateData(rec)).toContainEqual({
+      path: "/links",
+      message: "unknown property measures",
+    });
+  });
+});
+
 describe("project.yaml", () => {
   const project = parseYaml(readFileSync(join(fixtureDir, "project.yaml"), "utf8")) as Rec;
 

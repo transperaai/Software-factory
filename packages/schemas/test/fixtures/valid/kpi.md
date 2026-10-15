@@ -13,6 +13,5 @@ owner: SH-01
 review_date: 2027-03-01
 links:
   baseline_of: [PP-01]
-  measures: [BR-01]
 ---
 Body.
