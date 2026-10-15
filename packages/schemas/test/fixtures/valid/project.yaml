@@ -1,0 +1,12 @@
+key: ACME-OPS
+name: Acme Ops Portal
+client: Acme
+profile: client
+mode: operate
+region: au
+security_level: L2
+adapter: vercel
+kit: kit-v0.1.0
+approvers:
+  - stakeholder: SH-01
+    gate: discovery

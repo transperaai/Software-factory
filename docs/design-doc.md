@@ -882,8 +882,9 @@ Plain-language body.
 | Record | Must link to | Link type |
 | --- | --- | --- |
 | Claim | Source, stakeholder | from\_source, said\_by |
-| Pain point, BR | Confirmed claims | evidence |
-| KPI | Pain point; BR | baseline\_of, measures |
+| Pain point | Confirmed claims | evidence |
+| KPI | Pain point | baseline\_of |
+| BR | Confirmed claims; the KPIs that measure it (KPIs are set in Discovery, before BRs) | evidence, measured\_by |
 | Decision, rule | Claims or stakeholder who decided; record replaced | decided\_by, supersedes |
 | Use case | BRs | serves |
 | Screen | Use cases | realises |

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:source",
+  "title": "SRC: source",
+  "description": "An input stored untouched. The record is records/sources/SRC-NNN/meta.yaml.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by",
+    "source_type",
+    "date",
+    "raw_file"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^SRC-\\d{2,}$"
+    },
+    "type": {
+      "const": "source"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "superseded",
+        "retired"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "source_type": {
+      "enum": [
+        "transcript",
+        "typed_notes",
+        "email",
+        "document",
+        "screenshot",
+        "spreadsheet",
+        "audio",
+        "video",
+        "other"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stakeholder": {
+            "$ref": "#/$defs/ref_SH"
+          }
+        }
+      }
+    },
+    "raw_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "supplied_by": {
+      "$ref": "#/$defs/ref_SH"
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "review",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "source_type",
+          "date",
+          "participants",
+          "raw_file"
+        ]
+      }
+    }
+  ]
+}
