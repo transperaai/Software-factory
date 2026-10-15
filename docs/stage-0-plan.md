@@ -1,14 +1,18 @@
 # Stage 0 Plan
 
-Oct 15, 2026 · Draft for Austin's approval
+Oct 15, 2026 · Approved 15 Oct
 
 ## Status
 
+Updated 15 Oct, 09:30 UTC.
+
 | State | Items |
 | --- | --- |
-| Done | Play-back answered. Test repo `transperaai/factory-test-project` created and attached |
-| In progress | Docs fixes PR ([#1](https://github.com/transperaai/Software-factory/pull/1)), waiting for you to merge. This plan, waiting for approval |
-| Blocked on you | Approve this plan. Then steps A1 to A6 (below) as each item reaches them |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3) and Vercel framework fix (#7). **S0-2** record schemas, with BR holding `measured_by` (#4) |
+| Waiting on your merge | **S0-5** kit skeleton (#5). Merging it tags `kit-v0.1.0` |
+| In progress | Hobby check (S0-1): Claude-authored commits deploy on Hobby (passed). Bot-authored commit and production `/api/health` still to check |
+| Blocked on you | Run "Hobby check (bot commit)" in the Actions tab. Send the production vercel.app address. Then A2 Neon and A3 OAuth app for S0-3 |
+| Next | Wave 2: S0-3 dashboard login and Neon, once A2 and A3 are done |
 
 ## Goal and exit check
 
