@@ -1,9 +1,15 @@
 node_modules/
-.env
-.env.local
-.env*.local
 .next/
-.vercel/
 dist/
+.turbo/
+.vercel/
 coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets never go in git
+.env
+.env.*
+!.env.example
+
 .DS_Store
