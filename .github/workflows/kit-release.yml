@@ -1,0 +1,30 @@
+# Tags a kit release when kit/kit.json's version changes on main.
+# Projects install the kit at a tag (kit-vX.Y.Z), never from main.
+name: Kit release
+
+on:
+  push:
+    branches: [main]
+    paths: ["kit/**", "schemas/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tag the kit version if it is new
+        run: |
+          version=$(node -p "require('./kit/kit.json').version")
+          tag="kit-v${version}"
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "::warning::kit/ or schemas/ changed but ${tag} already exists. Bump the version in kit/kit.json to release."
+            exit 0
+          fi
+          git tag "${tag}"
+          git push origin "${tag}"
+          echo "Released ${tag}"

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../kit/hooks",
+    "rootDir": "src/hooks",
+    "types": ["node"],
+    "removeComments": false
+  },
+  "include": ["src/hooks"]
+}
