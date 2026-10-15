@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:change_request",
+  "title": "CR: change_request",
+  "description": "A requested change to approved records.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by",
+    "requested_by",
+    "reason"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^CR-\\d{2,}$"
+    },
+    "type": {
+      "const": "change_request"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed",
+        "wont_fix"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "requested_by": {
+      "$ref": "#/$defs/ref_SH"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "changes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:SRC-\\d{2,}|CLM-\\d{2,}|SH-\\d{2,}|PP-\\d{2,}|KPI-\\d{2,}|BR-\\d{2,}|PER-\\d{2,}|TERM-\\d{2,}|DEC-\\d{2,}|RULE-\\d{2,}|PROC-\\d{2,}|UC-\\d{2,}|WF-\\d{2,}|US-\\d{2,}|FR-\\d{2,}|NFR-\\d{2,}|ENT-\\d{2,}|INT-\\d{2,}|SL-\\d{2,}|ADR-\\d{2,}|THR-\\d{2,}|SEC-\\d{2,}|TC-\\d{2,}|UAT-\\d{2,}|REL-\\d+\\.\\d+(?:\\.\\d+)?|DEF-\\d{2,}|ISS-\\d{2,}|CR-\\d{2,}|TD-\\d{2,}|APR-\\d{2,}))$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  }
+}

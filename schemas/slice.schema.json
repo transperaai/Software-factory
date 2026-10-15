@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:slice",
+  "title": "SL: slice",
+  "description": "A vertical slice that fits one fresh agent context.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^SL-\\d{2,}$"
+    },
+    "type": {
+      "const": "slice"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "superseded",
+        "retired"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delivers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:US-\\d{2,}))$"
+          }
+        },
+        "depends_on": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:SL-\\d{2,}))$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "review",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "layers",
+          "outcome",
+          "links"
+        ],
+        "properties": {
+          "links": {
+            "type": "object",
+            "required": [
+              "delivers"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

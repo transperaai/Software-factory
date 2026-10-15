@@ -1,0 +1,13 @@
+id: SRC-001
+type: source
+title: Kickoff call transcript
+status: review
+version: 1
+created_by: script:intake-sorter
+source_type: transcript
+date: 2026-10-02
+participants:
+  - label: Sarah Kim
+    stakeholder: SH-01
+  - label: Speaker 2
+raw_file: kickoff.vtt

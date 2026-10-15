@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:claim",
+  "title": "CLM: claim",
+  "description": "One claim, rule, term or pain, linked to its exact place in a source.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by",
+    "words",
+    "location",
+    "claim_type",
+    "confirmation",
+    "links"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^CLM-\\d{2,}$"
+    },
+    "type": {
+      "const": "claim"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "superseded",
+        "retired"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "words": {
+      "type": "string",
+      "minLength": 1
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_type": {
+      "enum": [
+        "fact",
+        "opinion",
+        "ask",
+        "assumption"
+      ]
+    },
+    "confirmation": {
+      "enum": [
+        "pending",
+        "confirmed",
+        "rejected"
+      ]
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "from_source": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:SRC-\\d{2,}))$"
+          }
+        },
+        "said_by": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:SH-\\d{2,}))$"
+          }
+        }
+      },
+      "required": [
+        "from_source"
+      ]
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "review",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "words",
+          "location",
+          "claim_type",
+          "confirmation",
+          "links"
+        ],
+        "properties": {
+          "links": {
+            "type": "object",
+            "required": [
+              "from_source"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

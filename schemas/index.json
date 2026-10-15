@@ -1,0 +1,152 @@
+{
+  "SRC": {
+    "type": "source",
+    "schema": "source.schema.json",
+    "folder": "sources"
+  },
+  "CLM": {
+    "type": "claim",
+    "schema": "claim.schema.json",
+    "folder": "claims"
+  },
+  "SH": {
+    "type": "stakeholder",
+    "schema": "stakeholder.schema.json",
+    "folder": "stakeholders"
+  },
+  "PP": {
+    "type": "pain_point",
+    "schema": "pain_point.schema.json",
+    "folder": "pains"
+  },
+  "KPI": {
+    "type": "kpi",
+    "schema": "kpi.schema.json",
+    "folder": "kpis"
+  },
+  "BR": {
+    "type": "business_requirement",
+    "schema": "business_requirement.schema.json",
+    "folder": "brs"
+  },
+  "PER": {
+    "type": "persona",
+    "schema": "persona.schema.json",
+    "folder": "personas"
+  },
+  "TERM": {
+    "type": "glossary_term",
+    "schema": "glossary_term.schema.json",
+    "folder": "glossary"
+  },
+  "DEC": {
+    "type": "decision",
+    "schema": "decision.schema.json",
+    "folder": "decisions"
+  },
+  "RULE": {
+    "type": "rule",
+    "schema": "rule.schema.json",
+    "folder": "rules"
+  },
+  "PROC": {
+    "type": "process",
+    "schema": "process.schema.json",
+    "folder": "processes"
+  },
+  "UC": {
+    "type": "use_case",
+    "schema": "use_case.schema.json",
+    "folder": "usecases"
+  },
+  "WF": {
+    "type": "screen",
+    "schema": "screen.schema.json",
+    "folder": "screens"
+  },
+  "US": {
+    "type": "story",
+    "schema": "story.schema.json",
+    "folder": "stories"
+  },
+  "FR": {
+    "type": "functional_requirement",
+    "schema": "functional_requirement.schema.json",
+    "folder": "frs"
+  },
+  "NFR": {
+    "type": "non_functional_requirement",
+    "schema": "non_functional_requirement.schema.json",
+    "folder": "nfrs"
+  },
+  "ENT": {
+    "type": "entity",
+    "schema": "entity.schema.json",
+    "folder": "data"
+  },
+  "INT": {
+    "type": "interface",
+    "schema": "interface.schema.json",
+    "folder": "interfaces"
+  },
+  "SL": {
+    "type": "slice",
+    "schema": "slice.schema.json",
+    "folder": "slices"
+  },
+  "ADR": {
+    "type": "adr",
+    "schema": "adr.schema.json",
+    "folder": "adrs"
+  },
+  "THR": {
+    "type": "threat",
+    "schema": "threat.schema.json",
+    "folder": "threats"
+  },
+  "SEC": {
+    "type": "security_finding",
+    "schema": "security_finding.schema.json",
+    "folder": null
+  },
+  "TC": {
+    "type": "test_case",
+    "schema": "test_case.schema.json",
+    "folder": null
+  },
+  "UAT": {
+    "type": "uat_script",
+    "schema": "uat_script.schema.json",
+    "folder": null
+  },
+  "REL": {
+    "type": "release",
+    "schema": "release.schema.json",
+    "folder": null
+  },
+  "DEF": {
+    "type": "defect",
+    "schema": "defect.schema.json",
+    "folder": null
+  },
+  "ISS": {
+    "type": "issue",
+    "schema": "issue.schema.json",
+    "folder": null
+  },
+  "CR": {
+    "type": "change_request",
+    "schema": "change_request.schema.json",
+    "folder": null
+  },
+  "TD": {
+    "type": "tech_debt",
+    "schema": "tech_debt.schema.json",
+    "folder": null
+  },
+  "APR": {
+    "type": "approval",
+    "schema": "approval.schema.json",
+    "folder": "approvals"
+  }
+}

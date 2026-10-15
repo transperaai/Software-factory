@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:threat",
+  "title": "THR: threat",
+  "description": "A STRIDE threat at a trust boundary, with its controls.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^THR-\\d{2,}$"
+    },
+    "type": {
+      "const": "threat"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "superseded",
+        "retired"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "stride": {
+      "enum": [
+        "spoofing",
+        "tampering",
+        "repudiation",
+        "information_disclosure",
+        "denial_of_service",
+        "elevation_of_privilege"
+      ]
+    },
+    "boundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "threatens": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:ENT-\\d{2,}|INT-\\d{2,}))$"
+          }
+        },
+        "controlled_by": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:FR-\\d{2,}|NFR-\\d{2,}|RULE-\\d{2,}))$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "review",
+              "approved"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "stride",
+          "boundary",
+          "links"
+        ],
+        "properties": {
+          "links": {
+            "type": "object",
+            "required": [
+              "threatens",
+              "controlled_by"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

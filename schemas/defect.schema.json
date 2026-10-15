@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:defect",
+  "title": "DEF: defect",
+  "description": "A defect found before release.",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "version",
+    "created_by",
+    "steps",
+    "expected",
+    "actual",
+    "evidence",
+    "severity",
+    "links"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^DEF-\\d{2,}$"
+    },
+    "type": {
+      "const": "defect"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed",
+        "wont_fix"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_by": {
+      "type": "string",
+      "pattern": "^(?:agent|human|script):[a-z0-9][a-z0-9-]*$"
+    },
+    "approval": {
+      "type": "string",
+      "pattern": "^APR-\\d{2,}$"
+    },
+    "steps": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actual": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "severity": {
+      "enum": [
+        "sev1",
+        "sev2",
+        "sev3",
+        "sev4"
+      ]
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "breaks": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:US-\\d{2,}|FR-\\d{2,}|RULE-\\d{2,}))$"
+          }
+        },
+        "found_in": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?(?:REL-\\d+\\.\\d+(?:\\.\\d+)?|SL-\\d{2,}))$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref_SH": {
+      "type": "string",
+      "pattern": "^(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*:)?SH-\\d{2,}$"
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "links": {
+          "type": "object",
+          "required": [
+            "breaks"
+          ]
+        }
+      }
+    }
+  ]
+}
