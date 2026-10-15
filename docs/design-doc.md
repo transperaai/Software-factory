@@ -47,11 +47,13 @@ Git is the record; everything else reads from it. Approval means a merged change
 | GitHub Issues + Projects | One issue per slice, defect, debt item | The work queue |
 | Pull requests | Artefact or code changes | The gates: approve = merge |
 | GitHub Actions | CI jobs | Trace checks, projections, security and test agents |
-| Index (Postgres, e.g. Supabase) | IDs, links, statuses, agent events, synced on every push | Fast queries for the dashboard and agents |
+| Index (Postgres on Neon, through the Vercel Marketplace) | IDs, links, statuses, agent events, synced on every push | Fast queries for the dashboard and agents |
 | Dashboard (Next.js on Vercel) | Your cockpit, no tool limits | Kanban, attention queue, thread explorer, UAT, approvals |
 | MCP server | Agent interface to the index | Any harness can ask "what does RULE-01 say?" |
 
 **Deploy adapters.** Environments are defined platform-neutrally: a preview per slice with a clickable URL, staging and production, each with secrets, migrations, rollback and backups. Each platform gets an adapter; Vercel is first, others (Netlify, Railway, Fly, AWS, Azure, client servers) are added when a project needs them. The choice per project is an ADR.
+
+**Kit distribution (agreed 15 Oct).** This repo (Software-factory) is the master copy of the kit: agents, skills, hooks and scripts, released as tagged versions. Each project repo installs the kit at a pinned version, recorded in a lockfile (version and file hashes), so the project runs on its own with no access to the factory repo and survives handover. A kit update arrives as one pull request per project, with the project's tests and the kit's evals run first, and is merged only with your approval. Stage 0 spike 1 proves the mechanism on `factory-test-project`.
 
 **Approval records** always store who, role, when and which version, so client approvers can be added later without retrofitting. No vector database for now: trace links are structured; add search later if needed.
 
@@ -404,7 +406,7 @@ One Vercel dashboard across all projects, designed in detail after the phase dee
 | Sources inbox | Ingested sources, extracted claims, trust levels, pending attribution |
 | Agent feed | Live plan files and agent activity; interrupt any time |
 | Health (Operate) | Scorecard, KPIs vs baseline, open issues, alerts |
-| Factory | Kit, lessons proposed and adopted, cross-project metrics; test accounts (per project and environment: one login per persona and role, the smoke account for production, which test data is loaded; passwords kept in the secrets vault and revealed or copied on click, never stored in the repo; reset and reseed buttons; client UAT tester accounts in phase 2); design library (browse components, palettes, type and kits from approved sources, live in your kit, with licence, Add to kit, Copy code, and generate new); integrations (factory-wide, reviewed weekly: this week's digest of third-party API changes as the focal point, then one row per provider with projects using it, pinned versus latest version, next sunset deadline, health, credential expiry and open change requests) |
+| Factory | Kit, lessons proposed and adopted, cross-project metrics; test accounts (per project and environment: one login per persona and role, the smoke account for production, which test data is loaded; passwords stored encrypted in Postgres (no vault for now) and revealed or copied on click, never stored in the repo; reset and reseed buttons; client UAT tester accounts in phase 2); design library (browse components, palettes, type and kits from approved sources, live in your kit, with licence, Add to kit, Copy code, and generate new); integrations (factory-wide, reviewed weekly: this week's digest of third-party API changes as the focal point, then one row per provider with projects using it, pinned versus latest version, next sunset deadline, health, credential expiry and open change requests) |
 
 Every record page has a history tab with diffs and revert. Client logins come later; approval records already carry approver and role.
 
@@ -938,8 +940,10 @@ Researched 14 Oct 2026. The biggest savings are built in: the right model per ag
 | Role | Model |
 | --- | --- |
 | Mechanical work (sorting, dedupe, filling templates) | No model: scripts |
-| BA, coder, tester, docs writer, QA explorer, triage | Sonnet |
-| Planning, architecture, security review, code review | Opus |
+| Coder (build), tester, designer, UX reviewer, docs writer, QA explorer, triage, maintenance planner | Sonnet |
+| BA, story writing, planning, architecture, security review, code review, learning | Opus |
+
+The roster in `agent-specs.md` is the source of truth for each agent's model.
 
 **2. Token reduction, ranked by impact**
 
@@ -1034,23 +1038,23 @@ The same tags (client, project, env) go everywhere so agents filter consistently
 **8. Cost tracking**
 
 - AI cost: Claude Code exports token and cost metrics through OpenTelemetry, tagged with client, project, agent and phase via environment variables set by the launcher. On a subscription, cost is allocated by each project's token share; on API billing, the Admin Usage & Cost API is authoritative.
-- Infrastructure: Vercel billing API gives per-project daily cost; GitHub Actions usage per repo (needs an org); Supabase has no billing API, so cost is estimated from its pricing model.
+- Infrastructure: Vercel billing API gives per-project daily cost; GitHub Actions usage per repo (needs an org); Neon is billed through the Vercel Marketplace; until F-09 confirms it shows in Vercel's billing data, its cost is estimated from its pricing model.
 - One cost ledger table (date, project, client, source, category, amount, basis: billed / estimated / allocated), filled nightly, shown weekly and monthly with a build vs maintain split and budget alerts.
 
 Sources: [LLM gateway](https://code.claude.com/docs/en/llm-gateway) · [cloud environments](https://code.claude.com/docs/en/cloud-environments) · [subagents](https://code.claude.com/docs/en/sub-agents) · [pricing](https://platform.claude.com/docs/en/about-claude/pricing) · [costs](https://code.claude.com/docs/en/costs) · [prompt caching](https://code.claude.com/docs/en/prompt-caching) · [code intelligence](https://code.claude.com/docs/en/plugins/code-intelligence) · [monitoring usage](https://code.claude.com/docs/en/monitoring-usage) · [Serena](https://github.com/oraios/serena) · [mattpocock/skills](https://github.com/mattpocock/skills) · [tracer bullets](https://www.aihero.dev/tracer-bullets) · [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design) · [shadcn MCP](https://ui.shadcn.com/docs/mcp) · [shadcn registry items](https://ui.shadcn.com/docs/registry/registry-item-json) · [tweakcn](https://github.com/jnsahaj/tweakcn) · [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) · [next-forge](https://github.com/vercel/next-forge) · [Copier updates](https://copier.readthedocs.io/en/stable/updating/) · [Sentry pricing](https://sentry.io/pricing/) · [Sentry MCP](https://mcp.sentry.dev/) · [Better Stack pricing](https://betterstack.com/pricing) · [Vercel billing API](https://vercel.com/docs/rest-api/billing/list-focus-billing-charges) · [Usage & Cost API](https://platform.claude.com/docs/en/manage-claude/usage-cost-api) · [ccusage](https://github.com/ryoppippi/ccusage)
 
 ## Open questions and next steps
 
-Nothing gets built until the phase deep-dives and agent specs are agreed. The next step is Phase 1 Discovery, field by field.
+All design is agreed. The next step is Stage 0 in `build-plan.md`.
 
 **Next steps**
 
 - [ ] Your own review of this doc; comment anywhere you disagree
 - [x] Phase deep-dives, one at a time: Discovery, Analysis, Requirements, Architecture, Develop, Test, Release, Maintenance — exact fields, IDs, screens and gates
-- [ ] ID and trace schema (frontmatter format, link types, check rules)
-- [ ] Agent roster: six-part spec per agent, with profile and mode overlays, reviewed one by one
-- [ ] Dashboard design: views, attention queue rules, testing screens
-- [ ] Build order: kit and schema → trace checks → dashboard → agents phase by phase → maintenance loops
+- [x] ID and trace schema (frontmatter format, link types, check rules)
+- [x] Agent roster: six-part spec per agent, with profile and mode overlays, reviewed one by one
+- [x] Dashboard design: views, attention queue rules, testing screens
+- [x] Build order: kit and schema → trace checks → dashboard → agents phase by phase → maintenance loops
 - [ ] Sample project: a fake client brief the factory runs end to end after every change
 
 **Dashboard design status (15 Oct):** UX and screen structure agreed on the Factory Dashboard Design canvas: Overview, Project, Board (with a Needs you column), Testing, Thread explorer (drill-down table), Test accounts, Integrations, Cost, Factory. Visual polish is deferred: restyle to a minimal modern SaaS look later, ideally by running the dashboard through the factory's own design kit picker.
