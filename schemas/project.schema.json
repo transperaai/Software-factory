@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:project",
+  "title": "project.yaml",
+  "description": "Project settings: client, profile, mode, region, security level, adapter, kit, approvers.",
+  "type": "object",
+  "required": [
+    "key",
+    "name",
+    "client",
+    "profile",
+    "mode"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "client": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile": {
+      "enum": [
+        "lite",
+        "client",
+        "saas",
+        "headless"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "handover",
+        "operate"
+      ]
+    },
+    "region": {
+      "type": "string",
+      "minLength": 1
+    },
+    "security_level": {
+      "enum": [
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    "adapter": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approvers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stakeholder",
+          "gate"
+        ],
+        "properties": {
+          "stakeholder": {
+            "type": "string",
+            "pattern": "^SH-\\d{2,}$"
+          },
+          "gate": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
