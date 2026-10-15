@@ -1,0 +1,26 @@
+# Stage 0, S0-1: checks that Vercel Hobby deploys a commit authored by github-actions[bot].
+# Run by hand from the Actions tab. Pushes one commit to the branch hobby-check/bot.
+# Remove after the check is written up in docs/spikes/.
+name: Hobby check (bot commit)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bot-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Commit as github-actions[bot] and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B hobby-check/bot
+          mkdir -p apps/dashboard/public
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > apps/dashboard/public/hobby-check.txt
+          git add apps/dashboard/public/hobby-check.txt
+          git commit -m "Hobby check: bot-authored commit"
+          git push --force origin hobby-check/bot
