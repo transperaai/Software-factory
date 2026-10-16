@@ -29,6 +29,12 @@ describe("scopes", () => {
     expect(canRead("someone-else", "business_requirement")).toBe(true);
     expect(canRead(undefined, "business_requirement")).toBe(true);
   });
+
+  it("treats an inherited property name like constructor as unscoped, without throwing", () => {
+    expect(agentFrom(new Headers({ "x-factory-agent": "constructor" }))).toBe("constructor");
+    expect(canRead("constructor", "business_requirement")).toBe(true);
+    expect(canRead("toString", "claim")).toBe(true);
+  });
 });
 
 describe("tools", () => {

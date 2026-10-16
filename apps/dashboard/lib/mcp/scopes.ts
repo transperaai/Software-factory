@@ -8,6 +8,7 @@ export function agentFrom(headers: Headers): string | undefined {
 
 /** Whether the agent may read records of this type. An agent not listed, or unset, reads everything. */
 export function canRead(agent: string | undefined, type: string): boolean {
-  const scope = agent ? AGENT_READ_SCOPES[agent] : undefined;
+  const scope =
+    agent && Object.hasOwn(AGENT_READ_SCOPES, agent) ? AGENT_READ_SCOPES[agent] : undefined;
   return !scope || scope.includes(type);
 }

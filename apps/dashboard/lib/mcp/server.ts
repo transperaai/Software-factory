@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from "node:crypto";
+import { createDb, createIndexQueries } from "@factory/db";
 import type { IndexQueries } from "@factory/records";
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import { agentFrom } from "./scopes";
@@ -34,9 +35,9 @@ export function makeMcpHandler(deps: McpDeps) {
   );
 }
 
-// S3's createIndexQueries(createDb()) isn't on this branch yet. Swap it in here when S3 lands on f01.
 function productionQueries(): IndexQueries | undefined {
-  return undefined;
+  const db = createDb();
+  return db ? createIndexQueries(db) : undefined;
 }
 
 export const mcpHandler = makeMcpHandler({

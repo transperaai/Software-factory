@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { createIndexQueries, upsertRecords } from "@factory/db";
+import { createTestDb } from "@factory/db/testing";
 import { makeMcpHandler } from "./server";
 import { fakeQueries, rpc } from "./testing";
 
@@ -51,6 +53,32 @@ describe("MCP server", () => {
       arguments: { project: "p", id: "SH-01" },
     });
     expect(body.result.isError).toBe(true);
+  });
+
+  it("reads a stored record through the real index", async () => {
+    const db = await createTestDb();
+    await upsertRecords(db, [
+      {
+        project: "factory-test-project",
+        recordId: "SH-01",
+        type: "stakeholder",
+        title: "Sarah Kim",
+        status: "draft",
+        path: "records/stakeholders/SH-01.md",
+        header: { id: "SH-01", type: "stakeholder" },
+        body: "Sponsors the new ops portal.",
+        commitSha: "a8a5253",
+      },
+    ]);
+    const real = makeMcpHandler({ token: () => "t", queries: () => createIndexQueries(db) });
+    const { body } = await rpc(real, "tools/call", {
+      name: "get_record",
+      arguments: { project: "factory-test-project", id: "SH-01" },
+    });
+    expect(JSON.parse(body.result.content[0].text)).toMatchObject({
+      id: "SH-01",
+      body: "Sponsors the new ops portal.",
+    });
   });
 
   it("refuses a missing or wrong token, and everything when no token is configured", async () => {
