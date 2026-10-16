@@ -1,6 +1,6 @@
 # Spike 5: preview databases
 
-Status: **built, live tests pending** (needs A8). Results are filled in below as each test runs.
+Status: **tests 1 and 2 passed**; 3 to 6 pending. Results are filled in as each test runs.
 
 ## Question
 
@@ -20,12 +20,16 @@ Can each PR's preview get its own Neon database branch, migrated by its build, a
 - **`/api/health`** reports `database: production | branch | unknown`, without the host.
 - **Cleanup** (`.github/workflows/neon-preview-cleanup.yml`). When a PR closes or a branch is deleted, the workflow deletes `preview/<branch>` through Neon's API. It runs from `main` only, the key lives in a GitHub environment limited to `main`, and it never deletes a name outside `preview/` or the default branch. We call Neon's API directly rather than `neondatabase/delete-branch-action`, because its docs don't say what happens when the branch is already gone, and merge-then-delete fires both events.
 
+## Found on the way: migrations skipped by the build cache
+
+The first live run showed `cache hit, replaying logs`: Vercel's Turbo remote cache replayed an older build, so the migration step inside it never ran. A production build whose code matched an earlier preview could skip its migration the same way. Fixed in #14: Vercel's build command runs the migration first, outside Turbo, on every deploy. Production's next build logged `migrate: up to date`.
+
 ## Live tests
 
 | # | Test | Result |
 | --- | --- | --- |
-| 1 | Push this branch with a PR open: Neon branch `preview/stage0/spike-5` exists, build log says "migrating (preview branch ep-…)", preview `/api/health` says `database: "branch"` | Pending |
-| 2 | Throwaway migration on the branch applies there and not on production (reverted before merge) | Pending |
+| 1 | Push this branch with a PR open: Neon branch `preview/stage0/spike-5` exists, build log says "migrating (preview branch ep-…)", preview `/api/health` says `database: "branch"` | **Pass** (16 Oct, `852ee35`). Branch exists; log: `migrating (preview branch ep-tiny-flower-a7fh6i5q)`, `up to date`; health `database: "branch"` |
+| 2 | Throwaway migration on the branch applies there and not on production (reverted before merge) | **Pass** (16 Oct, `19364fc`, reverted). `spike5_probe` on `preview/stage0/spike-5`, not on `main` |
 | 3 | First push of a brand-new git branch gets its variables on the first build | Pending |
 | 4 | Closing a throwaway PR deletes its Neon branch; deleting a branch with no PR does too | Pending |
 | 5 | At the 10-branch limit, a new preview fails or falls back, and never migrates production | Pending |
