@@ -1,0 +1,61 @@
+# Deletes leftover branches, weekly and on demand. A branch is deleted when it has no open PR and either
+# it is fully merged into main or its PR was closed. Anything else is listed, not deleted.
+# A deleted PR branch can be restored from the PR page.
+name: Branch cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      also_delete:
+        description: Extra branch names to delete, space-separated (for branches with no PR)
+        required: false
+        default: ""
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Delete merged and closed branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ALSO_DELETE: ${{ inputs.also_delete }}
+        run: |
+          set -euo pipefail
+          default=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          owner=${GITHUB_REPOSITORY%%/*}
+          deleted=() kept=()
+          for ref in $(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin); do
+            [[ "$ref" == "HEAD" || "$ref" == "$default" ]] && continue
+            open=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$owner:$ref" --jq length)
+            closed=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=closed&head=$owner:$ref" --jq length)
+            merged=false
+            git merge-base --is-ancestor "origin/$ref" "origin/$default" && merged=true
+            extra=false
+            for x in $ALSO_DELETE; do [[ "$x" == "$ref" ]] && extra=true; done
+            if [[ "$open" == 0 ]] && { $merged || [[ "$closed" != 0 ]] || $extra; }; then
+              git push -q origin --delete "$ref"
+              deleted+=("$ref")
+            else
+              kept+=("$ref (open PRs: $open, merged: $merged)")
+            fi
+          done
+          {
+            echo "### Branch cleanup"
+            echo "Deleted ${#deleted[@]}: ${deleted[*]:-none}"
+            echo
+            echo "Kept ${#kept[@]}:"
+            for k in "${kept[@]}"; do echo "- $k"; done
+          } | tee -a "$GITHUB_STEP_SUMMARY"

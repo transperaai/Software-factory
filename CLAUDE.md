@@ -23,6 +23,7 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 - **Every slice ends at its demo check.** Stop, show what was built against the written check, and wait for Austin to accept.
 - **Merging needs Austin's yes in chat.** Claude merges a PR only after Austin approves that PR in chat, and only when CI is green. Every merge to `main` deploys to production.
 - **Low-risk merges don't need asking.** Claude may merge without asking when CI is green and the PR is docs-only (only `docs/` and other Markdown) or is in `factory-test-project`. Anything that changes Software-factory code, workflows, schemas or the kit still needs Austin's yes in chat.
+- **Claude deletes leftover branches, never Austin.** Merged and closed branches go through the Branch cleanup workflow in each repo (weekly; Claude runs it by hand after merges). Branches with no PR go through its `also_delete` input once checked.
 - **Agents get evals in the same slice they're built.** Use the evals listed in `docs/agent-specs.md`.
 - **Build only what the current slice needs.** Boilerplates, modules and the design kit grow when a slice needs them.
 - **Plan before code.** For each slice, write a short plan (files, tests, risks) and get it approved first.
