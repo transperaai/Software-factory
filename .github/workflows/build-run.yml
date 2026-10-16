@@ -14,7 +14,7 @@ on:
         description: Plan file, e.g. plans/F-01-S1.md
         required: true
       branch:
-        description: Stream branch, e.g. f01/s1-records
+        description: Stream branch, e.g. f01-s1-records (a dash, not a slash; git can't hold f01/... beside a branch f01)
         required: true
       base:
         description: Branch the PR targets
@@ -44,7 +44,7 @@ jobs:
       - name: Check inputs
         run: |
           [[ "$PLAN" =~ ^plans/[A-Za-z0-9._-]+\.md$ ]] || { echo "::error::Bad plan path: $PLAN"; exit 1; }
-          [[ "$BRANCH" =~ ^f[0-9]+/[a-z0-9-]+$ ]] || { echo "::error::Bad branch: $BRANCH"; exit 1; }
+          [[ "$BRANCH" =~ ^f[0-9]+-s[0-9]+-[a-z0-9-]+$ ]] || { echo "::error::Bad branch: $BRANCH"; exit 1; }
           [[ "$BASE" =~ ^[a-z0-9/_-]+$ && "$BASE" != "main" ]] || { echo "::error::Bad base: $BASE"; exit 1; }
           [[ "$SLICE" =~ ^[A-Z0-9-]+$ ]] || { echo "::error::Bad slice: $SLICE"; exit 1; }
 
