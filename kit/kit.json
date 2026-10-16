@@ -1,10 +1,11 @@
 {
   "name": "transpera-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "install": [
     { "from": "kit/agents", "to": ".claude/agents" },
     { "from": "kit/skills", "to": ".claude/skills" },
     { "from": "kit/hooks", "to": ".claude/hooks/factory" },
+    { "from": "kit/tools", "to": ".factory/tools" },
     { "from": "schemas", "to": ".factory/schemas", "match": "\\.json$" }
   ],
   "settings": "kit/settings.json"

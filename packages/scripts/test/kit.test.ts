@@ -13,7 +13,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { decide } from "../src/hooks/guard-writes.mts";
-import { KitDeviationError, checkKit, installKit, readLock } from "../src/kit/install.ts";
+import {
+  KitDeviationError,
+  checkKit,
+  installKit,
+  readLock,
+  readManifest,
+} from "../src/kit/install.ts";
 import { checkoutRef } from "../src/kit/source.ts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -55,8 +61,13 @@ describe("installKit", () => {
     expect(existsSync(join(project, ".factory/schemas/README.md"))).toBe(false);
 
     const lock = readLock(project)!;
-    expect(lock).toMatchObject({ kit: "transpera-kit", version: "0.1.0", source });
+    expect(lock).toMatchObject({
+      kit: "transpera-kit",
+      version: readManifest(kit).version,
+      source,
+    });
     expect(Object.keys(lock.files)).toContain(".claude/agents/scribe.md");
+    expect(Object.keys(lock.files)).toContain(".factory/tools/schema-check.mjs");
     expect(read(project, ".claude/settings.json")).toContain(
       ".claude/hooks/factory/guard-writes.mjs",
     );
