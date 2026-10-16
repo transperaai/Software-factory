@@ -65,6 +65,8 @@ export function agentEnv(agent: string, base: NodeJS.ProcessEnv = process.env): 
     ...env,
     // The write guard hook reads this.
     FACTORY_AGENT: agent,
+    // No Haiku: Claude Code's background calls use Sonnet too (spike 1).
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: "claude-sonnet-5-5",
     // Tags eval usage in the cost ledger when telemetry is on.
     OTEL_RESOURCE_ATTRIBUTES: `factory.project=software-factory,factory.client=transpera,factory.agent=${agent},factory.slice=EVAL`,
   };

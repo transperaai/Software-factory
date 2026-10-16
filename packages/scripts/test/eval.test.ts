@@ -171,6 +171,7 @@ describe("agentEnv", () => {
       KIT_BOT_PRIVATE_KEY: "x",
     });
     expect(Object.keys(env).sort()).toEqual([
+      "ANTHROPIC_DEFAULT_HAIKU_MODEL",
       "CLAUDE_CODE_OAUTH_TOKEN",
       "FACTORY_AGENT",
       "OTEL_RESOURCE_ATTRIBUTES",
@@ -178,5 +179,6 @@ describe("agentEnv", () => {
     ]);
     expect(env.FACTORY_AGENT).toBe("scribe");
     expect(env.OTEL_RESOURCE_ATTRIBUTES).toContain("factory.agent=scribe");
+    expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("claude-sonnet-5-5");
   });
 });
