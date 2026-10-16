@@ -55,7 +55,7 @@ All six recommendations accepted by Austin, 16 Oct.
 Spike 2 and spike 1 decisions, applied to F-01:
 
 1. **Opus plans.** I write one plan file per stream, `plans/F-01-S<n>.md` (files, functions, tests by name, done check), in this session.
-2. **Sonnet builds, in a separate run.** `build-run.yml` (workflow_dispatch: plan path, branch) runs `claude-code-action` with `--model sonnet`, on branch `f01/s<n>-<name>`, and opens a PR into `f01`. No Haiku (`ANTHROPIC_DEFAULT_HAIKU_MODEL`). OTel tags: `factory.project=Software-factory, factory.agent=coder-build, factory.slice=F-01-S<n>`. The allowlist lets it run compound test commands (spike 2's 11 denials).
+2. **Sonnet builds, in a separate run.** `build-run.yml` (workflow_dispatch: plan path, branch) runs `claude-code-action` with `--model sonnet`, on branch `f01-s<n>-<name>` (a dash: git can't hold `f01/…` beside a branch `f01`), and opens a PR into `f01`. No Haiku (`ANTHROPIC_DEFAULT_HAIKU_MODEL`). OTel tags: `factory.project=Software-factory, factory.agent=coder-build, factory.slice=F-01-S<n>`. The allowlist lets it run compound test commands (spike 2's 11 denials).
 3. **Opus reviews** each PR here. A fix round is a new Sonnet run with my review notes appended to the plan file.
 4. **At most 8 runs at once.** GitHub has no N-slot concurrency, so I start at most 7 build runs together, leaving room for an eval run. Each stream branch has its own concurrency group.
 5. `build-run.yml` must be on `main` before it can be started, so C0 merges to `main` first; `f01` is cut from `main` after that.
