@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -101,7 +102,11 @@ describe("installKit", () => {
 
     const settings = JSON.parse(read(project, ".claude/settings.json"));
     expect(settings.permissions).toEqual(own.permissions);
-    expect(settings.hooks.PostToolUse).toEqual(own.hooks.PostToolUse);
+    expect(settings.hooks.PostToolUse).toHaveLength(2);
+    expect(settings.hooks.PostToolUse[0]).toEqual(own.hooks.PostToolUse[0]);
+    expect(JSON.stringify(settings.hooks.PostToolUse[1])).toContain(
+      ".claude/hooks/factory/validate-records.mjs",
+    );
     expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
@@ -124,6 +129,51 @@ describe("installKit", () => {
     expect(() => installKit(kit, project, source)).toThrow(KitDeviationError);
     expect(read(project, ".claude/agents/scribe.md")).toBe("edited\n");
   });
+
+  it("installs workflows and .mcp.json, and never a spec file as an agent", () => {
+    const kit = kitRoot();
+    mkdirSync(join(kit, "kit/agents/intake"), { recursive: true });
+    writeFileSync(join(kit, "kit/agents/intake/spec.md"), "spec\n");
+    const project = temp();
+    installKit(kit, project, source);
+
+    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(true);
+    expect(existsSync(join(project, ".github/workflows/index-sync.yml"))).toBe(true);
+    expect(read(project, ".mcp.json")).toBe(read(kit, "kit/mcp.json"));
+    expect(existsSync(join(project, ".claude/agents/intake/spec.md"))).toBe(false);
+    expect(Object.keys(readLock(project)!.files)).toContain(".mcp.json");
+  });
+
+  it("refuses to overwrite a workflow the project has edited", () => {
+    const kit = kitRoot();
+    const project = temp();
+    installKit(kit, project, source);
+    writeFileSync(join(project, ".github/workflows/ba.yml"), "edited\n");
+    expect(() => installKit(kit, project, source)).toThrow(KitDeviationError);
+  });
+});
+
+describe("kit workflows", () => {
+  const dir = join(repoRoot, "kit/workflows");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".yml"));
+
+  it("never give the App token or its key to a claude-code-action step", () => {
+    for (const file of files) {
+      const steps = readFileSync(join(dir, file), "utf8").split(/^ {6}- /m);
+      for (const step of steps.filter((s) => s.includes("anthropics/claude-code-action"))) {
+        expect(step, file).not.toMatch(/KIT_BOT_|steps\.app\.outputs|app-token|GH_TOKEN/);
+      }
+    }
+  });
+
+  it("mint the App token after the agent step", () => {
+    for (const file of files) {
+      const text = readFileSync(join(dir, file), "utf8");
+      const mint = text.indexOf("actions/create-github-app-token");
+      if (mint < 0 || !text.includes("anthropics/claude-code-action")) continue;
+      expect(mint, file).toBeGreaterThan(text.indexOf("anthropics/claude-code-action"));
+    }
+  });
 });
 
 describe("checkKit", () => {
@@ -139,7 +189,10 @@ describe("checkKit", () => {
     expect(result.ok).toBe(false);
     expect(result.modified).toEqual([".claude/agents/scribe.md"]);
     expect(result.missing).toEqual([".claude/skills/factory-records/SKILL.md"]);
-    expect(result.settings).toEqual([".claude/hooks/factory/guard-writes.mjs"]);
+    expect(result.settings).toEqual([
+      ".claude/hooks/factory/guard-writes.mjs",
+      ".claude/hooks/factory/validate-records.mjs",
+    ]);
   });
 
   it("fails when there is no lockfile", () => {

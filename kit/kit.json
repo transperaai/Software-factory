@@ -1,11 +1,13 @@
 {
   "name": "transpera-kit",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "install": [
-    { "from": "kit/agents", "to": ".claude/agents" },
+    { "from": "kit/agents", "to": ".claude/agents", "match": "^[^/]+\\.md$" },
     { "from": "kit/skills", "to": ".claude/skills" },
     { "from": "kit/hooks", "to": ".claude/hooks/factory" },
     { "from": "kit/tools", "to": ".factory/tools" },
+    { "from": "kit/workflows", "to": ".github/workflows" },
+    { "from": "kit/mcp.json", "to": ".mcp.json" },
     { "from": "schemas", "to": ".factory/schemas", "match": "\\.json$" }
   ],
   "settings": "kit/settings.json"

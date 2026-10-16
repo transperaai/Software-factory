@@ -64,20 +64,24 @@ export function frontmatter(markdown: string): unknown {
   return parseYaml(lines.slice(1, end).join("\n"));
 }
 
-/** Record files in a project: project.yaml, records/**\/*.md and records/sources/*\/meta.yaml. */
+/**
+ * Record files in a project: project.yaml, records/**\/*.md and records/sources/*\/meta.yaml.
+ * Under records/sources/ only meta.yaml is a record: the raw file and the sorter's text.md sit beside it (K1).
+ */
 export function findRecordFiles(root: string): string[] {
   const found: string[] = [];
   const projectFile = join(root, "project.yaml");
   if (exists(projectFile)) found.push(projectFile);
-  const walk = (dir: string) => {
+  const sources = join(root, "records", "sources");
+  const walk = (dir: string, inSources: boolean) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
-      if (entry.isDirectory()) walk(path);
-      else if (entry.name.endsWith(".md") || entry.name === "meta.yaml") found.push(path);
+      if (entry.isDirectory()) walk(path, inSources || path === sources);
+      else if (entry.name === "meta.yaml" || (!inSources && entry.name.endsWith(".md"))) found.push(path);
     }
   };
   const records = join(root, "records");
-  if (exists(records)) walk(records);
+  if (exists(records)) walk(records, false);
   return found.sort();
 }
 

@@ -2,12 +2,15 @@
 // Factory command line.
 //   factory kit install --project <dir> [--kit <factory repo>] --ref <tag>
 //   factory kit check   --project <dir>
-//   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>]
+//   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]
 //   factory eval store  <results file> --url <dashboard>     (token in FACTORY_INGEST_TOKEN)
+//   factory e2e f01     (env: FACTORY_URL, FACTORY_API_TOKEN, GITHUB_TOKEN_E2E; optional E2E_REPO)
 import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { CaseError, loadCases } from "./eval/cases.ts";
+import { DEFAULT_TIMEOUTS, formatSummary, runF01 } from "./e2e/f01.ts";
+import { opusJudge } from "./eval/judge.ts";
 import { runEval, storeRun } from "./eval/run.ts";
 import type { EvalRunFile } from "./eval/run.ts";
 import { KitDeviationError, checkKit, installKit } from "./kit/install.ts";
@@ -23,6 +26,7 @@ const { positionals, values } = parseArgs({
     cases: { type: "string" },
     out: { type: "string" },
     trigger: { type: "string", default: "local" },
+    judge: { type: "string" },
     url: { type: "string" },
   },
 });
@@ -81,6 +85,7 @@ if (group === "kit" && command === "install") {
   if (!result.ok) fail("Kit check failed: installed files differ from kit.lock.json.");
   console.log("Kit check passed.");
 } else if (group === "eval" && command === "run") {
+  if (values.judge && values.judge !== "opus") fail("--judge must be opus");
   if (!values.agent || !values.cases)
     fail("Give the agent and its cases, e.g. --agent scribe --cases evals/scribe/");
   let cases;
@@ -96,6 +101,7 @@ if (group === "kit" && command === "install") {
     agent: values.agent,
     cases,
     trigger: values.trigger,
+    judge: values.judge === "opus" ? opusJudge : undefined,
     log: (line) => console.log(line),
   });
   const out = resolve(values.out ?? `eval-${values.agent}-${run.id}.json`);
@@ -118,13 +124,44 @@ if (group === "kit" && command === "install") {
   console.log(
     result.stored ? `Stored run ${run.id}.` : `Run ${run.id} was already stored; nothing changed.`,
   );
+} else if (group === "e2e" && command === "f01") {
+  const { FACTORY_URL, FACTORY_API_TOKEN, GITHUB_TOKEN_E2E, E2E_REPO } = process.env;
+  if (!FACTORY_URL || !FACTORY_API_TOKEN || !GITHUB_TOKEN_E2E)
+    fail("Set FACTORY_URL, FACTORY_API_TOKEN and GITHUB_TOKEN_E2E.");
+  try {
+    const result = await runF01({
+      fetch,
+      sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      now: () => Date.now(),
+      config: {
+        ...DEFAULT_TIMEOUTS,
+        factoryUrl: FACTORY_URL.replace(/\/+$/, ""),
+        apiToken: FACTORY_API_TOKEN,
+        githubToken: GITHUB_TOKEN_E2E,
+        repo: E2E_REPO ?? "transperaai/factory-e2e",
+        transcriptPath: resolve("fixtures/f01/inbox/kickoff-2026-10-02.txt"),
+      },
+    });
+    const table = formatSummary(result);
+    console.log(table);
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, table);
+  } catch (err) {
+    const message = (err as Error).message;
+    if (process.env.GITHUB_STEP_SUMMARY)
+      appendFileSync(
+        process.env.GITHUB_STEP_SUMMARY,
+        `### F-01 end to end: FAILED\n\n${message}\n`,
+      );
+    fail(message);
+  }
 } else {
   fail(
     [
       "Usage: factory kit install --project <dir> --ref <tag> [--kit <factory repo>]",
       "       factory kit check --project <dir>",
-      "       factory eval run --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>]",
+      "       factory eval run --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]",
       "       factory eval store <results file> --url <dashboard>",
+      "       factory e2e f01",
     ].join("\n"),
   );
 }
