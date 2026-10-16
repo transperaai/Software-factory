@@ -8,10 +8,10 @@ Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token. Production: https://transpera-factory.vercel.app |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token, A8 steps 1 to 8. Production: https://transpera-factory.vercel.app |
 | Waiting on your merge | Nothing yet. Spike 5 PR goes up for the live tests |
-| In progress | **Spike 5** preview databases: migration guard and cleanup built; live tests need A8 |
-| Blocked on you | A8 for spike 5's live tests. A4 and A5 step 4 for evals from Actions. Deleting the merged branches on GitHub (this session can't delete branches) |
+| In progress | **Spike 5** preview databases: preview branching on, `FACTORY_PROD_DB_ENDPOINT` and `NEON_PROJECT_ID` set; live tests 1 to 3 running |
+| Blocked on you | A8 steps 9 to 11 (cleanup environment and Neon key) before spike 5 merges. A4 and A5 step 4 for evals from Actions. Deleting the merged branches on GitHub (this session can't delete branches) |
 | Next | S0-6 agent run in the test project (needs A4). A6 lets sessions report their own usage to the ledger |
 
 ## Goal and exit check
