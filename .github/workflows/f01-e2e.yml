@@ -1,5 +1,5 @@
 # F-01 end to end (docs/f-01-plan.md, D3): proves steps 1 to 8 against the real dashboard, real Actions and real agents.
-# 1. Resets transperaai/factory-e2e to its e2e-seed tag (force push to main; it holds sample data only, D3),
+# 1. Resets transperaai/factory-e2e to its e2e-seed branch (force push to main; it holds sample data only, D3),
 #    deletes leftover intake/*, ba/* and approval/* branches, and re-syncs the index to the seed.
 # 2. Runs `factory e2e f01`: upload, intake, confirm, BA, approve, then checks the trace and git.
 # Secrets: KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (App token for factory-e2e), FACTORY_API_TOKEN (dashboard /api/e2e/*).
@@ -35,8 +35,8 @@ jobs:
         run: |
           git clone --quiet "https://x-access-token:${GH_TOKEN}@github.com/transperaai/factory-e2e.git" e2e-repo
           cd e2e-repo
-          git fetch --quiet --tags origin
-          git push --force origin 'refs/tags/e2e-seed^{commit}:refs/heads/main'
+          # The seed is a branch, not a tag: the factory's cloud sessions can push branches but not tags.
+          git push --force origin 'refs/remotes/origin/e2e-seed:refs/heads/main'
           for ref in $(git ls-remote --heads origin 'intake/*' 'ba/*' 'approval/*' | cut -f2); do
             git push origin --delete "$ref"
           done
