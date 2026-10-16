@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "pnpm --filter @factory/db migrate:deploy && pnpm exec turbo run build"
+  "buildCommand": "pnpm --filter @factory/db migrate:deploy && pnpm exec turbo run build",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
 }

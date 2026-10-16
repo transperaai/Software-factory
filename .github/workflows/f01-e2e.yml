@@ -1,8 +1,11 @@
-# F-01 end to end (docs/f-01-plan.md, D3): proves steps 1 to 8 against the real dashboard, real Actions and real agents.
-# 1. Resets transperaai/factory-e2e to its e2e-seed branch (force push to main; it holds sample data only, D3),
+# F-01 end to end (docs/f-01-plan.md, D3, D8): runs the Claude Code session's steps headless against the real
+# dashboard and real agents, in transperaai/factory-e2e.
+# 1. Resets factory-e2e to its e2e-seed branch (force push to main; it holds sample data only, D3),
 #    deletes leftover intake/*, ba/* and approval/* branches, and re-syncs the index to the seed.
-# 2. Runs `factory e2e f01`: upload, intake, confirm, BA, approve, then checks the trace and git.
-# Secrets: KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (App token for factory-e2e), FACTORY_API_TOKEN (dashboard /api/e2e/*).
+# 2. Runs `factory e2e f01`: sort, intake agent, confirm, BA agent, approve (each through a merged PR),
+#    then checks the dashboard cards, the trace and git.
+# Secrets: KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (App token for factory-e2e), FACTORY_API_TOKEN (dashboard
+# /api/e2e/*), CLAUDE_CODE_OAUTH_TOKEN (agents), OTEL_INGEST_TOKEN (cost ledger).
 name: F-01 end to end
 
 on:
@@ -33,7 +36,9 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          git clone --quiet "https://x-access-token:${GH_TOKEN}@github.com/transperaai/factory-e2e.git" e2e-repo
+          # gh supplies the token to git, so it is never written into e2e-repo/.git/config, where an agent could read it.
+          gh auth setup-git
+          git clone --quiet https://github.com/transperaai/factory-e2e.git e2e-repo
           cd e2e-repo
           # The seed is a branch, not a tag: the factory's cloud sessions can push branches but not tags.
           git push --force origin 'refs/remotes/origin/e2e-seed:refs/heads/main'
@@ -62,9 +67,33 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec turbo run build --filter=@factory/scripts
-      - name: Run steps 1 to 8
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity in the factory-e2e checkout
+        working-directory: e2e-repo
+        run: |
+          git config user.name "transpera-kit-bot[bot]"
+          git config user.email "transpera-kit-bot[bot]@users.noreply.github.com"
+          # The clone predates the reset: move local main to the reset remote main (the seed).
+          git fetch --quiet origin main
+          git checkout -B main origin/main
+      # No INDEX_TOKEN: IDs are allocated offline, which is safe because factory-e2e is reset every run.
+      - name: Run the session steps headless
         env:
+          E2E_REPO_DIR: e2e-repo
+          GH_TOKEN: ${{ steps.app.outputs.token }}
           FACTORY_URL: ${{ vars.FACTORY_URL || 'https://transpera-factory.vercel.app' }}
           FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
-          GITHUB_TOKEN_E2E: ${{ steps.app.outputs.token }}
+          FACTORY_PROJECT: factory-e2e
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: claude-sonnet-5-5
+          CLAUDE_CODE_ENABLE_TELEMETRY: "1"
+          OTEL_LOGS_EXPORTER: otlp
+          OTEL_METRICS_EXPORTER: otlp
+          OTEL_EXPORTER_OTLP_PROTOCOL: http/json
+          OTEL_LOGS_EXPORT_INTERVAL: "2000"
+          OTEL_METRIC_EXPORT_INTERVAL: "10000"
+          OTEL_EXPORTER_OTLP_ENDPOINT: https://transpera-factory.vercel.app/api/otel
+          OTEL_EXPORTER_OTLP_HEADERS: Authorization=Bearer ${{ secrets.OTEL_INGEST_TOKEN }}
+          OTEL_RESOURCE_ATTRIBUTES: factory.project=factory-e2e,factory.client=transpera,factory.agent=e2e,factory.slice=F-01-E2E
         run: node packages/scripts/dist/cli.js e2e f01
