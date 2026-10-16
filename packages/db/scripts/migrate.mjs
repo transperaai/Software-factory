@@ -1,25 +1,25 @@
 /* global process, console, URL */
 // Applies pending migrations from ./migrations. Runs in the dashboard's Vercel build.
-// Only production builds migrate: preview builds share the production database until spike 5
-// gives each preview its own branch, and an unmerged branch must never change it.
-// Pass --force to migrate outside Vercel (for example a local database).
+// Production builds migrate production. Preview builds migrate their own Neon branch, and fail
+// rather than touch production (see migrate-guard.mjs). Pass --force to migrate a local database.
 import { fileURLToPath } from "node:url";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { migrate } from "drizzle-orm/neon-http/migrator";
+import { decide } from "./migrate-guard.mjs";
 
-const env = process.env.VERCEL_ENV ?? "local";
-if (env !== "production" && !process.argv.includes("--force")) {
-  console.log(`migrate: skipped (${env} build; only production builds migrate)`);
+const { action, reason } = decide(process.env, process.argv);
+if (action === "skip") {
+  console.log(`migrate: skipped (${reason})`);
   process.exit(0);
 }
-
-const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
-if (!url) {
-  console.error("migrate: DATABASE_URL is not set");
+if (action === "fail") {
+  console.error(`migrate: ${reason}`);
   process.exit(1);
 }
+console.log(`migrate: migrating (${reason})`);
 
+const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
 const migrationsFolder = fileURLToPath(new URL("../migrations", import.meta.url));
 try {
   await migrate(drizzle(neon(url)), { migrationsFolder });

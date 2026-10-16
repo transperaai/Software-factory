@@ -8,11 +8,11 @@ Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token. Production: https://transpera-factory.vercel.app |
-| Waiting on your merge | **S0-7** eval harness (#12). Adds the eval tables; the production build migrates them |
-| In progress | Spike 5 preview databases: research and your steps |
-| Blocked on you | Running evals from Actions needs A4 and A5 step 4 (secrets in Software-factory) |
-| Next | Spike 5 preview databases (needs your Vercel steps), then S0-6 (needs A4). A6 lets sessions report their own usage to the ledger |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token. Production: https://transpera-factory.vercel.app |
+| Waiting on your merge | Nothing yet. Spike 5 PR goes up for the live tests |
+| In progress | **Spike 5** preview databases: migration guard and cleanup built; live tests need A8 |
+| Blocked on you | A8 for spike 5's live tests. A4 and A5 step 4 for evals from Actions. Deleting the merged branches on GitHub (this session can't delete branches) |
+| Next | S0-6 agent run in the test project (needs A4). A6 lets sessions report their own usage to the ledger |
 
 ## Goal and exit check
 
@@ -290,6 +290,21 @@ I'll ask for each one when its item is ready, not all at once. Never paste a tok
 5. Click Install App → `transperaai` → choose `Software-factory` and `factory-test-project`.
 6. In Software-factory → Settings → Secrets → Actions, add `KIT_BOT_APP_ID` and `KIT_BOT_PRIVATE_KEY` (the whole `.pem` contents). Then delete the `.pem` file from your computer.
 
+**A8 Preview databases (for spike 5)**
+
+1. In Vercel, open the project → Storage → your Neon database. Open its settings for `transpera-factory`.
+2. Under Advanced Options → Deployments Configuration, turn on **Preview**.
+3. Make sure **"Resource must be active before deployment"** is on. Save.
+4. Click Open in Neon. On the Branches page, open the production branch (`main` or `production`).
+5. Under Computes, copy the endpoint ID. It starts with `ep-`. It isn't a secret.
+6. In Vercel → Settings → Environment Variables, add `FACTORY_PROD_DB_ENDPOINT` with that ID. Tick Production and Preview. Leave Sensitive off.
+7. In Neon → Project settings, copy the Project ID.
+8. In GitHub → Software-factory → Settings → Secrets and variables → Actions → Variables, add `NEON_PROJECT_ID` with it.
+9. In Neon → account or organisation settings → API keys, create a key named `github-preview-cleanup`. Choose this project only, if offered.
+10. In GitHub → Software-factory → Settings → Environments, create `neon-cleanup`. Under Deployment branches, choose "Selected branches" and add `main`.
+11. In that environment, add a secret `NEON_API_KEY` and paste the key there. Nowhere else.
+12. Optional: GitHub → Settings → General → tick "Automatically delete head branches", so merged branches free their Neon slot at once.
+
 ## Order of work
 
 ```text
@@ -313,7 +328,7 @@ The Hobby check comes first because a blocked deploy changes S0-3 onward. I'll k
 | Telemetry doesn't export from `claude-code-action`, or cloud egress is blocked | Exit check part 3 fails | Spike 4. Fallbacks: post the action's execution log usage to the ingest endpoint; for cloud, ccusage from a session-end hook |
 | Cost on Max is notional | `cost_usd` is the API-equivalent price, not money spent | Ledger basis `allocated`. Real allocation by token share comes in F-09 |
 | Usage meter is coarse | Spike 1d gives a rough parallel limit, not an exact one | Step up gently, stop at 5%, and let the conductor adjust from live data later |
-| Neon free plan limits (branches, compute hours) | Preview branches fail when many PRs are open | Spike 5 checks the limit; auto-delete on close |
+| Neon free plan limits: 10 branches (9 previews), 100 CU-hours a month shared with production | Previews fail, or eat production's compute | Spike 5: cleanup on PR close or branch delete, merged branches deleted, usage measured |
 | Thin field specs for some record types | Schemas too loose or too strict | Listed in the S0-2 PR for you to confirm |
 | Preview deployments can't log in | You can't review previews behind auth in Stage 0 | Production-only login now; redirect proxy later if needed |
 | Setup-token is personal and expires after a year | Actions stop on expiry | Expiry date recorded; the F-08 expiry checker will warn |

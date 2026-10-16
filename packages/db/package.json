@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/testing.ts"
+    "./testing": "./src/testing.ts",
+    "./guard": "./scripts/migrate-guard.mjs"
   },
   "scripts": {
     "lint": "eslint .",
