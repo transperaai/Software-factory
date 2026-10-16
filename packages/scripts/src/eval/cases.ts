@@ -10,7 +10,17 @@ export type Rule =
   | { rule: "schema_valid"; file: string }
   | { rule: "field_equals"; file: string; field: string; value: unknown }
   | { rule: "regex"; in: RegexTarget; pattern: string; flags?: string; match?: boolean }
-  | { rule: "judge"; rubric: string };
+  | { rule: "json_schema"; file: string; schema: string }
+  | {
+      rule: "claims_match";
+      file: string;
+      expected: { words: string; said_by: string | null }[];
+      min_recall?: number;
+    }
+  | { rule: "no_invented"; file: string; input: string }
+  | { rule: "evidence_subset"; file: string; input: string }
+  /** `file` is the proposal the judge reads; the rubric holds anything else it needs to know. */
+  | { rule: "judge"; rubric: string; file?: string };
 
 export type EvalCase = {
   id: string;
@@ -24,7 +34,24 @@ export type EvalCase = {
 
 export class CaseError extends Error {}
 
-const RULES = new Set(["schema_valid", "field_equals", "regex", "judge"]);
+const RULES = new Set([
+  "schema_valid",
+  "field_equals",
+  "regex",
+  "json_schema",
+  "claims_match",
+  "no_invented",
+  "evidence_subset",
+  "judge",
+]);
+const NEEDS_FILE = new Set([
+  "schema_valid",
+  "field_equals",
+  "json_schema",
+  "claims_match",
+  "no_invented",
+  "evidence_subset",
+]);
 
 function need(cond: unknown, file: string, message: string): asserts cond {
   if (!cond) throw new CaseError(`${file}: ${message}`);
@@ -62,8 +89,32 @@ export function parseCase(data: unknown, file: string): EvalCase {
       file,
       `${at}: rule must be one of ${[...RULES].join(", ")}`,
     );
-    if (r.rule === "schema_valid" || r.rule === "field_equals")
+    if (NEEDS_FILE.has(r.rule as string))
       need(typeof r.file === "string", file, `${at}: file is required`);
+    if (r.rule === "json_schema")
+      need(typeof r.schema === "string", file, `${at}: schema is required`);
+    if (r.rule === "no_invented" || r.rule === "evidence_subset")
+      need(typeof r.input === "string", file, `${at}: input is required`);
+    if (r.rule === "claims_match") {
+      const expected = r.expected as { words?: unknown; said_by?: unknown }[] | undefined;
+      need(
+        Array.isArray(expected) &&
+          expected.every(
+            (e) =>
+              e &&
+              typeof e.words === "string" &&
+              (typeof e.said_by === "string" || e.said_by === null),
+          ),
+        file,
+        `${at}: expected must list { words, said_by } entries`,
+      );
+      need(
+        r.min_recall === undefined ||
+          (typeof r.min_recall === "number" && r.min_recall >= 0 && r.min_recall <= 1),
+        file,
+        `${at}: min_recall must be a number from 0 to 1`,
+      );
+    }
     if (r.rule === "field_equals")
       need(
         typeof r.field === "string" && "value" in r,
