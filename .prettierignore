@@ -6,3 +6,4 @@ dist/
 *.md
 kit/hooks/*.mjs
 schemas/
+kit/tools/
