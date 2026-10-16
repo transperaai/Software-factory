@@ -8,11 +8,11 @@ Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token, A8. **Spike 5** preview databases (#13, #17), migrations outside the build cache (#14). Merge and CLI rules in CLAUDE.md (#15). Production: https://transpera-factory.vercel.app |
-| Waiting on your merge | Spike 5 test 5 result (docs) |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token, A8. **Spike 5** preview databases (#13, #17), migrations outside the build cache (#14). Merge and CLI rules in CLAUDE.md (#15). Kit 0.2.0 with a standalone schema checker (#19). **S0-6** agent run in `factory-test-project` (#1, #3, #4 there): issue #2 labelled `agent:scribe` → PR #5 with a valid `SH-01.md`; a broken record fails the check (#6); the run's cost is in the ledger. Exit checks 1 to 3 pass. A4. Production: https://transpera-factory.vercel.app |
+| Waiting on your merge | Nothing |
 | In progress | Nothing |
-| Blocked on you | A4 (Claude token) for S0-6 and evals from Actions, plus A5 step 4. A6 and A7 for wave 5 |
-| Next | S0-6 agent run in the test project (needs A4). Then wave 5: spikes 1 to 4 (need A6; spike 1b needs A7). Then the exit check |
+| Blocked on you | A6 for spikes 3 and 4. A7 for spike 1b |
+| Next | Wave 5: spike 2 (model hand-off) can start now; spikes 3 and 4 after A6; spike 1 (1b after A7). Then exit check 4 (your sign-in) and Stage 0 sign-off |
 
 ## Goal and exit check
 
