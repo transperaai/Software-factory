@@ -8,10 +8,11 @@ setup:
       "profile": "client",
       "source": "SRC-01",
       "claims": [
-        { "id": "CLM-01", "words": "Thanks for joining.", "said_by": "SH-01", "location": "L1", "claim_type": "fact" },
+        { "id": "CLM-01", "words": "Thanks for joining.", "said_by": "SH-00", "location": "L1", "claim_type": "fact" },
         { "id": "CLM-02", "words": "My team works the spreadsheet top to bottom, oldest first.", "said_by": "SH-02", "location": "L3", "claim_type": "fact" }
       ],
       "stakeholders": [
+        { "id": "SH-00", "name": "Austin Smith", "role": "Delivery lead", "organisation": "Transpera" },
         { "id": "SH-01", "name": "Sarah Kim", "role": "Operations manager", "organisation": "Acme Logistics" },
         { "id": "SH-02", "name": "Tom Reyes", "role": "Dispatch team lead", "organisation": "Acme Logistics" }
       ]

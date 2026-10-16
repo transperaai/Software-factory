@@ -369,6 +369,57 @@ describe("F-01 agents", () => {
     expect(scopes.scribe).toEqual(["records/stakeholders/"]);
   });
 
+  describe("case claims match the fixture transcript", () => {
+    const speakers: Record<string, string> = {
+      "Austin Smith": "SH-00",
+      "Sarah Kim": "SH-01",
+      "Tom Reyes": "SH-02",
+    };
+    const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+    const turns = readFileSync(join(repoRoot, "fixtures/f01/inbox/kickoff-2026-10-02.txt"), "utf8")
+      .split("\n")
+      .filter((l) => l.startsWith("["))
+      .map((line) => {
+        const who = /^\[[^\]]*\]\s*([^:]+):/.exec(line)?.[1] ?? "";
+        return { text: norm(line), said_by: speakers[who] };
+      });
+
+    it("evals/ba claims are real, by the right speaker, at the right line", () => {
+      const cases = loadCases(join(repoRoot, "evals/ba"));
+      expect(cases.length).toBeGreaterThan(0);
+      for (const c of cases) {
+        const input = JSON.parse(c.setup[".factory/runs/r1/input.json"] ?? "{}");
+        for (const claim of input.claims as {
+          words: string;
+          said_by: string;
+          location: string;
+        }[]) {
+          const turn = turns[Number(claim.location.slice(1)) - 1];
+          const label = `${c.id} ${claim.location} "${claim.words}"`;
+          expect(turn, label).toBeDefined();
+          expect(turn?.text, label).toContain(norm(claim.words));
+          expect(turn?.said_by, label).toBe(claim.said_by);
+        }
+      }
+    });
+
+    it("evals/intake/01-kickoff expected claims are on a line by their speaker", () => {
+      const c = loadCases(join(repoRoot, "evals/intake")).find((x) => x.id === "intake-kickoff");
+      const rule = c?.rules.find((r) => r.rule === "claims_match");
+      if (rule?.rule !== "claims_match") throw new Error("no claims_match rule");
+      const input = JSON.parse(c?.setup[".factory/runs/r1/input.json"] ?? "{}");
+      const lines = (input.text as string).split("\n").map((l) => {
+        const who = /^L\d+ \[[^\]]*\]\s*([^:]+):/.exec(l)?.[1] ?? "";
+        return { text: norm(l), said_by: speakers[who] };
+      });
+      expect(rule.expected.length).toBeGreaterThan(0);
+      for (const e of rule.expected) {
+        const hit = lines.some((l) => l.text.includes(norm(e.words)) && l.said_by === e.said_by);
+        expect(hit, `${e.words} by ${e.said_by}`).toBe(true);
+      }
+    });
+  });
+
   it("keeps one copy of each spec, in kit/agents", () => {
     const specs = readFileSync(join(repoRoot, "docs/agent-specs.md"), "utf8");
     for (const [title, agent] of [

@@ -29,6 +29,10 @@ rules:
   - rule: no_invented
     file: .factory/runs/r1/proposal.json
     input: .factory/runs/r1/input.json
+  - rule: regex
+    in: { file: .factory/runs/r1/proposal.json }
+    pattern: '"quote":\s*"paraphrase"'
+    match: false
   - rule: claims_match
     file: .factory/runs/r1/proposal.json
     expected:
