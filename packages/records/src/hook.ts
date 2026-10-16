@@ -1,9 +1,9 @@
 // Claude Code PostToolUse hook: checks a record or proposal the moment an agent writes it.
 // Installed into projects as .claude/hooks/factory/validate-records.mjs (bundled from this file).
 // Problems go to stderr with exit code 2, so the agent sees them and fixes the file.
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { RecordValidator } from "@factory/schemas";
 import { parse as parseYaml } from "yaml";
 import { RUN_DIR } from "./contracts";
@@ -65,5 +65,15 @@ function main(): void {
   }
 }
 
-// Run only when executed as a script, not when imported by tests.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
+// Run only when executed as a script, not when imported by tests. Compare real paths: argv[1] keeps symlinks.
+const isMain = (() => {
+  try {
+    return (
+      !!process.argv[1] &&
+      realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+    );
+  } catch {
+    return false;
+  }
+})();
+if (isMain) main();

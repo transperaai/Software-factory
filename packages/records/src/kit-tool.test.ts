@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync } from "node:fs";
+import { cpSync, mkdirSync, symlinkSync, unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
@@ -93,5 +94,26 @@ describe("kit tools", () => {
     const bad = run("records/claims/CLM-0002.md");
     expect(bad.status).toBe(2);
     expect(bad.stderr).toContain("missing title");
+  });
+
+  it("the hook still checks when the project is reached through a symlink", () => {
+    const dir = install();
+    writeFile(dir, "records/claims/CLM-0002.md", "---\nid: CLM-0002\ntype: claim\n---\n");
+    const link = join(tmpdir(), `records-link-${process.pid}-${Date.now()}`);
+    symlinkSync(dir, link);
+    try {
+      const r = spawnSync("node", [join(link, ".factory/hooks/validate-records.mjs")], {
+        cwd: link,
+        encoding: "utf8",
+        input: JSON.stringify({
+          cwd: link,
+          tool_input: { file_path: join(link, "records/claims/CLM-0002.md") },
+        }),
+        env: { ...process.env, CLAUDE_PROJECT_DIR: link },
+      });
+      expect(r.status).toBe(2);
+    } finally {
+      unlinkSync(link);
+    }
   });
 });
