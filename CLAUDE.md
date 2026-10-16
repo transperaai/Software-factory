@@ -20,7 +20,8 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 
 - **Full auto, no stops for Austin.** Claude plans, builds, merges and moves to the next slice without waiting for approval, acceptance or a yes in chat. Austin gets a short summary after each slice and can step in any time.
 - **Work one slice at a time, in build-plan order.** Start the next slice once the previous one's demo check passes and is merged.
-- **Tracer bullets.** Each slice is thin but real end to end. No layer is mocked unless the plan says so.
+- **Thick slices, real end to end.** Since F-02 (Austin, 16 Oct): a slice leaves its stage usable for real work, not just a proven chain. Build the whole stage in one slice (all its records, agent skills, checks and views), with no layer mocked unless the plan says so. Stay thin only where real use doesn't need it yet, and say so in the plan.
+- **Input and approvals happen in Claude Code** (D8, `docs/f-01-plan.md`). The dashboard is view-only.
 - **Every slice ends at its demo check.** Run the written check, then post a short summary: what was built, the check result, decisions made and any doc changes.
 - **Claude merges when CI is green.** No approval needed, in either repo. Never merge on red CI. Every merge to `main` deploys to production.
 - **Claude deletes leftover branches, never Austin.** Merged and closed branches go through the Branch cleanup workflow in each repo (weekly; Claude runs it by hand after merges). Branches with no PR go through its `also_delete` input once checked.
@@ -62,4 +63,4 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 
 ## Current status
 
-**Stage 0** signed off 16 Oct (`docs/stage-0-plan.md`). **Next: F-01**, starting with its plan.
+**Stage 0** signed off 16 Oct (`docs/stage-0-plan.md`). **F-01** built and on `main`; reworked to Claude Code only (D8) in streams S9 and S10 (`plans/F-01-S9.md`, `S10.md`), then its e2e and demo. **Next: F-02**, a thick slice: real Discovery from Claude Code through to the approved Brief. Plan it in a fresh session.
