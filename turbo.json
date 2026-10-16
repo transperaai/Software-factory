@@ -3,13 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "passThroughEnv": [
-        "VERCEL_ENV",
-        "DATABASE_URL",
-        "DATABASE_URL_UNPOOLED",
-        "FACTORY_PROD_DB_ENDPOINT"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {},
     "typecheck": {

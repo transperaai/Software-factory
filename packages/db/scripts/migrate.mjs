@@ -1,5 +1,6 @@
 /* global process, console, URL */
-// Applies pending migrations from ./migrations. Runs in the dashboard's Vercel build.
+// Applies pending migrations from ./migrations. Vercel runs it before the build (apps/dashboard/vercel.json),
+// outside Turbo, so a cached build can never skip it.
 // Production builds migrate production. Preview builds migrate their own Neon branch, and fail
 // rather than touch production (see migrate-guard.mjs). Pass --force to migrate a local database.
 import { fileURLToPath } from "node:url";
