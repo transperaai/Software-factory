@@ -1,6 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
+export * from "./schema";
+export * from "./ledger";
+
 export type DbStatus =
   | { state: "connected"; latencyMs: number }
   | { state: "not_configured" }
