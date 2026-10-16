@@ -8,11 +8,11 @@ Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token, A8. **Spike 5** preview databases (#13), migrations outside the build cache (#14). Production: https://transpera-factory.vercel.app |
-| Waiting on your merge | Nothing yet. Spike 5 PR goes up for the live tests |
-| In progress | **Spike 5** results recorded; test 5 (branch limit) waits on your go-ahead |
-| Blocked on you | Go-ahead for spike 5 test 5. A4 and A5 step 4 for evals from Actions. Approving #15 (merge and CLI rules) |
-| Next | S0-6 agent run in the test project (needs A4). A6 lets sessions report their own usage to the ledger |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. **S0-7** eval harness (#12), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token, A8. **Spike 5** preview databases (#13, #17), migrations outside the build cache (#14). Merge and CLI rules in CLAUDE.md (#15). Production: https://transpera-factory.vercel.app |
+| Waiting on your merge | Spike 5 test 5 result (docs) |
+| In progress | Nothing |
+| Blocked on you | A4 (Claude token) for S0-6 and evals from Actions, plus A5 step 4. A6 and A7 for wave 5 |
+| Next | S0-6 agent run in the test project (needs A4). Then wave 5: spikes 1 to 4 (need A6; spike 1b needs A7). Then the exit check |
 
 ## Goal and exit check
 
