@@ -8,8 +8,8 @@ Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token. Production: https://transpera-factory.vercel.app |
-| Waiting on your merge | **S0-4** cost ledger and OTel ingest. Migrations run in the production build; after merging, the home page shows the ledger. **S0-7** eval harness (stacked on S0-4; merge S0-4 first) |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). **S0-3** dashboard sign-in and Neon (#10). **S0-4** cost ledger and OTel ingest (#11), live on production. A1 Vercel, A2 Neon, A3 OAuth app, A5 ingest token. Production: https://transpera-factory.vercel.app |
+| Waiting on your merge | **S0-7** eval harness (#12). Adds the eval tables; the production build migrates them |
 | In progress | Spike 5 preview databases: research and your steps |
 | Blocked on you | Running evals from Actions needs A4 and A5 step 4 (secrets in Software-factory) |
 | Next | Spike 5 preview databases (needs your Vercel steps), then S0-6 (needs A4). A6 lets sessions report their own usage to the ledger |
