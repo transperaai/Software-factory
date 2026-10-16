@@ -117,10 +117,3 @@ export const evalResults = pgTable(
   },
   (t) => [primaryKey({ columns: [t.runId, t.caseId] })],
 );
-
-// THROWAWAY (spike 5, test 2): proves a preview migration lands on its own Neon branch only.
-// Reverted before merge.
-export const spike5Probe = pgTable("spike5_probe", {
-  id: integer("id").primaryKey(),
-  note: text("note"),
-});
