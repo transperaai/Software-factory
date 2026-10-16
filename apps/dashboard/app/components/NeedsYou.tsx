@@ -1,16 +1,6 @@
 import type { NeedsYouItem } from "@/lib/cards-view";
 
-type Action = (form: FormData) => void | Promise<void>;
-
-export function NeedsYou({
-  items,
-  confirmClaims,
-  approve,
-}: {
-  items: NeedsYouItem[];
-  confirmClaims: Action;
-  approve: Action;
-}) {
+export function NeedsYou({ items }: { items: NeedsYouItem[] }) {
   return (
     <section>
       <h2>Needs you</h2>
@@ -20,64 +10,38 @@ export function NeedsYou({
           if (c.kind === "confirm_claims")
             return (
               <li key={`confirm|${c.project}|${c.source}`}>
-                <form action={confirmClaims}>
-                  <input type="hidden" name="project" value={c.project} />
-                  <h3>
-                    Confirm claims from {c.sourceTitle} ({c.project}, {c.source})
-                  </h3>
-                  <ul>
-                    {c.claims.map((cl) => (
-                      <li key={cl.id}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            name="claim"
-                            value={`${cl.id}@${cl.version}`}
-                            defaultChecked
-                          />{" "}
-                          “{cl.words}” — {cl.speaker}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                  <button type="submit" name="decision" value="approved">
-                    Confirm
-                  </button>{" "}
-                  <button type="submit" name="decision" value="rejected">
-                    Reject
-                  </button>
-                </form>
+                <h3>
+                  Confirm claims from {c.source} ({c.claims.length} claims): tell Claude in your
+                  project session.
+                </h3>
+                <p>
+                  {c.sourceTitle} ({c.project})
+                </p>
+                <ul>
+                  {c.claims.map((cl) => (
+                    <li key={cl.id}>
+                      {cl.id}: “{cl.words}” — {cl.speaker}
+                    </li>
+                  ))}
+                </ul>
               </li>
             );
           if (c.kind === "approve")
             return (
               <li key={`approve|${c.project}|${c.record}`}>
-                <form action={approve}>
-                  <input type="hidden" name="project" value={c.project} />
-                  <input type="hidden" name="record" value={c.record} />
-                  <input type="hidden" name="version" value={c.version} />
-                  <h3>
-                    Approve {c.record} v{c.version}: {c.title} ({c.project})
-                  </h3>
-                  <p>Value: {c.value}</p>
-                  <ul>
-                    {c.evidence.map((e) => (
-                      <li key={e.id}>“{e.quote}”</li>
-                    ))}
-                  </ul>
-                  <p>
-                    <a href={`/thread/${c.project}/${c.record}`}>See the full thread</a>
-                  </p>
-                  <label>
-                    Comment <textarea name="comment" />
-                  </label>{" "}
-                  <button type="submit" name="decision" value="approved">
-                    Approve
-                  </button>{" "}
-                  <button type="submit" name="decision" value="rejected">
-                    Reject
-                  </button>
-                </form>
+                <h3>
+                  Approve {c.record} v{c.version}: {c.title} ({c.project})
+                </h3>
+                <p>Value: {c.value}</p>
+                <ul>
+                  {c.evidence.map((e) => (
+                    <li key={e.id}>“{e.quote}”</li>
+                  ))}
+                </ul>
+                <p>
+                  Tell Claude in your project session.{" "}
+                  <a href={`/thread/${c.project}/${c.record}`}>See the full thread</a>
+                </p>
               </li>
             );
           return (

@@ -62,9 +62,32 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec turbo run build --filter=@factory/scripts
-      - name: Run steps 1 to 8
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Git identity in the factory-e2e checkout
+        working-directory: e2e-repo
+        run: |
+          git config user.name "transpera-kit-bot[bot]"
+          git config user.email "transpera-kit-bot[bot]@users.noreply.github.com"
+          git checkout main
+          git pull --ff-only origin main
+      # No INDEX_TOKEN: IDs are allocated offline, which is safe because factory-e2e is reset every run.
+      - name: Run the session steps headless
         env:
+          E2E_REPO_DIR: e2e-repo
+          GH_TOKEN: ${{ steps.app.outputs.token }}
           FACTORY_URL: ${{ vars.FACTORY_URL || 'https://transpera-factory.vercel.app' }}
           FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
-          GITHUB_TOKEN_E2E: ${{ steps.app.outputs.token }}
+          FACTORY_PROJECT: factory-e2e
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: claude-sonnet-5-5
+          CLAUDE_CODE_ENABLE_TELEMETRY: "1"
+          OTEL_LOGS_EXPORTER: otlp
+          OTEL_METRICS_EXPORTER: otlp
+          OTEL_EXPORTER_OTLP_PROTOCOL: http/json
+          OTEL_LOGS_EXPORT_INTERVAL: "2000"
+          OTEL_METRIC_EXPORT_INTERVAL: "10000"
+          OTEL_EXPORTER_OTLP_ENDPOINT: https://transpera-factory.vercel.app/api/otel
+          OTEL_EXPORTER_OTLP_HEADERS: Authorization=Bearer ${{ secrets.OTEL_INGEST_TOKEN }}
+          OTEL_RESOURCE_ATTRIBUTES: factory.project=factory-e2e,factory.client=transpera,factory.agent=e2e,factory.slice=F-01-E2E
         run: node packages/scripts/dist/cli.js e2e f01
