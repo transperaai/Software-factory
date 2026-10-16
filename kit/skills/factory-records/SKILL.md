@@ -5,6 +5,8 @@ description: How to write a factory record file (Markdown with a YAML header) so
 
 # Writing a record
 
+From F-01, agents don't write record files. The intake and BA agents write a proposal (`.factory/runs/<run>/proposal.json`, see the `intake-claims` and `ba-discovery` skills) and a script writes the records. This format is what the scripts write, and what the Stage 0 scribe agent still writes by hand.
+
 A record is one Markdown file with a YAML header between `---` lines, then a plain-language body.
 
 Every record has:

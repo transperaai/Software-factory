@@ -2,12 +2,13 @@
 // Factory command line.
 //   factory kit install --project <dir> [--kit <factory repo>] --ref <tag>
 //   factory kit check   --project <dir>
-//   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>]
+//   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]
 //   factory eval store  <results file> --url <dashboard>     (token in FACTORY_INGEST_TOKEN)
 import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { CaseError, loadCases } from "./eval/cases.ts";
+import { opusJudge } from "./eval/judge.ts";
 import { runEval, storeRun } from "./eval/run.ts";
 import type { EvalRunFile } from "./eval/run.ts";
 import { KitDeviationError, checkKit, installKit } from "./kit/install.ts";
@@ -23,6 +24,7 @@ const { positionals, values } = parseArgs({
     cases: { type: "string" },
     out: { type: "string" },
     trigger: { type: "string", default: "local" },
+    judge: { type: "string" },
     url: { type: "string" },
   },
 });
@@ -81,6 +83,7 @@ if (group === "kit" && command === "install") {
   if (!result.ok) fail("Kit check failed: installed files differ from kit.lock.json.");
   console.log("Kit check passed.");
 } else if (group === "eval" && command === "run") {
+  if (values.judge && values.judge !== "opus") fail("--judge must be opus");
   if (!values.agent || !values.cases)
     fail("Give the agent and its cases, e.g. --agent scribe --cases evals/scribe/");
   let cases;
@@ -96,6 +99,7 @@ if (group === "kit" && command === "install") {
     agent: values.agent,
     cases,
     trigger: values.trigger,
+    judge: values.judge === "opus" ? opusJudge : undefined,
     log: (line) => console.log(line),
   });
   const out = resolve(values.out ?? `eval-${values.agent}-${run.id}.json`);
@@ -123,7 +127,7 @@ if (group === "kit" && command === "install") {
     [
       "Usage: factory kit install --project <dir> --ref <tag> [--kit <factory repo>]",
       "       factory kit check --project <dir>",
-      "       factory eval run --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>]",
+      "       factory eval run --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]",
       "       factory eval store <results file> --url <dashboard>",
     ].join("\n"),
   );

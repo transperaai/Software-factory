@@ -1,7 +1,18 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { frontmatter } from "@factory/schemas";
 import { describe, expect, it } from "vitest";
+import { judgeCommand, makeJudge } from "../src/eval/judge.ts";
+import { scoreRule } from "../src/eval/rules.ts";
 import { CaseError, loadCases, parseCase } from "../src/eval/cases.ts";
 import type { EvalCase } from "../src/eval/cases.ts";
 import { agentEnv, runEval } from "../src/eval/run.ts";
@@ -180,5 +191,199 @@ describe("agentEnv", () => {
     expect(env.FACTORY_AGENT).toBe("scribe");
     expect(env.OTEL_RESOURCE_ATTRIBUTES).toContain("factory.agent=scribe");
     expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("claude-sonnet-5-5");
+  });
+});
+
+describe("proposal rules", () => {
+  const ws = () => {
+    const dir = mkdtempSync(join(tmpdir(), "rules-test-"));
+    mkdirSync(join(dir, ".factory/schemas"), { recursive: true });
+    mkdirSync(join(dir, ".factory/runs/r1"), { recursive: true });
+    for (const name of ["intake-proposal", "ba-proposal"])
+      copyFileSync(
+        join(repoRoot, `schemas/${name}.schema.json`),
+        join(dir, `.factory/schemas/${name}.schema.json`),
+      );
+    return dir;
+  };
+  const put = (dir: string, path: string, data: unknown) =>
+    writeFileSync(join(dir, path), typeof data === "string" ? data : JSON.stringify(data));
+  const ctx = (workspace: string) => ({ workspace, reply: "", files: [] });
+  const P = ".factory/runs/r1/proposal.json";
+  const I = ".factory/runs/r1/input.json";
+  const claim = (words: string, said_by: string | null = "SH-01") => ({
+    words,
+    location: "L1",
+    claim_type: "fact",
+    trust: "strong",
+    quote: "verbatim",
+    said_by,
+  });
+
+  it("json_schema passes a valid proposal and lists problems for a bad one", async () => {
+    const dir = ws();
+    const rule = { rule: "json_schema", file: P, schema: "intake-proposal" } as const;
+    put(dir, P, { source: "SRC-01", claims: [claim("hello")] });
+    expect(await scoreRule(rule, ctx(dir))).toMatchObject({ passed: true });
+    put(dir, P, { source: "SRC-01", claims: [{ words: "x" }] });
+    const bad = await scoreRule(rule, ctx(dir));
+    expect(bad.passed).toBe(false);
+    expect(bad.detail).toMatch(/location/);
+    put(dir, P, "not json");
+    expect((await scoreRule(rule, ctx(dir))).passed).toBe(false);
+    expect(
+      await scoreRule({ ...rule, file: ".factory/runs/r1/none.json" }, ctx(dir)),
+    ).toMatchObject({ passed: false, detail: ".factory/runs/r1/none.json was not written" });
+    expect((await scoreRule({ ...rule, schema: "nope" }, ctx(dir))).passed).toBe(false);
+  });
+
+  it("claims_match finds expected claims by words and speaker, and lists misses", async () => {
+    const dir = ws();
+    put(dir, P, {
+      source: "SRC-01",
+      claims: [claim("We get about 120 requests a day", "SH-02"), claim("Cost is  $250", "SH-01")],
+    });
+    const rule = (expected: { words: string; said_by: string | null }[], min_recall = 1) =>
+      ({ rule: "claims_match", file: P, expected, min_recall }) as const;
+    expect(
+      await scoreRule(
+        rule([
+          { words: "120 requests a day", said_by: "SH-02" },
+          { words: "cost is $250", said_by: "SH-01" },
+        ]),
+        ctx(dir),
+      ),
+    ).toMatchObject({ passed: true });
+    const wrongSpeaker = await scoreRule(
+      rule([{ words: "120 requests a day", said_by: "SH-01" }]),
+      ctx(dir),
+    );
+    expect(wrongSpeaker.passed).toBe(false);
+    expect(wrongSpeaker.detail).toMatch(/missed.*120 requests a day/);
+    const half = rule(
+      [
+        { words: "120 requests a day", said_by: "SH-02" },
+        { words: "kanban", said_by: "SH-01" },
+      ],
+      0.5,
+    );
+    expect(await scoreRule(half, ctx(dir))).toMatchObject({ passed: true });
+  });
+
+  it("no_invented fails on any verbatim claim whose words are not in the input text", async () => {
+    const dir = ws();
+    put(dir, I, { text: "L1 [00:00:15] Tom: We get about 120 requests a day." });
+    const rule = { rule: "no_invented", file: P, input: I } as const;
+    put(dir, P, { claims: [claim("We get about 120 requests a day.")] });
+    expect(await scoreRule(rule, ctx(dir))).toMatchObject({ passed: true });
+    put(dir, P, {
+      claims: [claim("We get about 120 requests a day."), claim("We get 500 a day")],
+    });
+    const bad = await scoreRule(rule, ctx(dir));
+    expect(bad.passed).toBe(false);
+    expect(bad.detail).toMatch(/500/);
+    // Paraphrases are not checked word for word.
+    put(dir, P, { claims: [{ ...claim("about five hundred"), quote: "paraphrase" }] });
+    expect(await scoreRule(rule, ctx(dir))).toMatchObject({ passed: true });
+  });
+
+  it("evidence_subset fails when a BR cites a claim not in the input", async () => {
+    const dir = ws();
+    put(dir, I, { claims: [{ id: "CLM-01" }, { id: "CLM-02" }] });
+    const rule = { rule: "evidence_subset", file: P, input: I } as const;
+    put(dir, P, { brs: [{ evidence: ["CLM-01", "CLM-02"] }], parked: [] });
+    expect(await scoreRule(rule, ctx(dir))).toMatchObject({ passed: true });
+    put(dir, P, { brs: [{ evidence: ["CLM-01", "CLM-09"] }], parked: [] });
+    const bad = await scoreRule(rule, ctx(dir));
+    expect(bad.passed).toBe(false);
+    expect(bad.detail).toMatch(/CLM-09/);
+  });
+});
+
+describe("judge", () => {
+  const dir = mkdtempSync(join(tmpdir(), "judge-test-"));
+  writeFileSync(join(dir, "p.json"), '{"brs":[]}');
+  const ctx = { workspace: dir, reply: "", files: [] };
+
+  it("passes the rubric and file to the model and reads its verdict", async () => {
+    let prompt = "";
+    const judge = makeJudge(async (p) => {
+      prompt = p;
+      return 'Sure.\n{ "pass": true, "reason": "states an outcome" }';
+    });
+    const out = await judge.score("Title is an outcome", ctx, "p.json");
+    expect(out).toEqual({ rule: "judge", passed: true, detail: "states an outcome" });
+    expect(prompt).toContain("Title is an outcome");
+    expect(prompt).toContain('{"brs":[]}');
+  });
+
+  it("fails on a negative verdict, an unreadable answer, or a missing file", async () => {
+    const no = makeJudge(async () => '{"pass": false, "reason": "names a kanban board"}');
+    expect(await no.score("r", ctx, "p.json")).toMatchObject({
+      passed: false,
+      detail: "names a kanban board",
+    });
+    const junk = makeJudge(async () => "looks fine to me");
+    expect((await junk.score("r", ctx, "p.json")).passed).toBe(false);
+    expect((await makeJudge(async () => "{}").score("r", ctx, "missing.json")).passed).toBe(false);
+  });
+
+  it("runs claude with no project settings and Sonnet for background calls", () => {
+    const { args, env } = judgeCommand({ PATH: "/bin", DATABASE_URL: "x" });
+    expect(args).toEqual(
+      expect.arrayContaining(["-p", "--model", "opus", "--output-format", "json"]),
+    );
+    expect(args[args.indexOf("--setting-sources") + 1]).toBe("");
+    expect(args).toContain("--strict-mcp-config");
+    expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("claude-sonnet-5-5");
+    expect(env.DATABASE_URL).toBeUndefined();
+  });
+});
+
+describe("F-01 agents", () => {
+  it("loads the intake and ba cases", () => {
+    expect(loadCases(join(repoRoot, "evals/intake")).map((c) => c.id)).toEqual([
+      "intake-kickoff",
+      "intake-compound",
+      "intake-injection",
+      "intake-numbers",
+    ]);
+    expect(loadCases(join(repoRoot, "evals/ba")).map((c) => c.id)).toEqual([
+      "ba-outcome-br",
+      "ba-solution-parked",
+      "ba-no-evidence",
+    ]);
+  });
+
+  it("agent files have frontmatter and write scopes", () => {
+    const head = (name: string) =>
+      frontmatter(readFileSync(join(repoRoot, `kit/agents/${name}.md`), "utf8")) as Record<
+        string,
+        unknown
+      >;
+    expect(head("intake")).toMatchObject({ name: "intake", tools: "Read, Write", model: "sonnet" });
+    expect(head("ba")).toMatchObject({ name: "ba", tools: "Read, Write", model: "opus" });
+    const scopes = JSON.parse(readFileSync(join(repoRoot, "kit/hooks/write-scopes.json"), "utf8"));
+    expect(scopes.intake).toEqual([".factory/runs/"]);
+    expect(scopes.ba).toEqual([".factory/runs/"]);
+    expect(scopes.scribe).toEqual(["records/stakeholders/"]);
+  });
+
+  it("keeps one copy of each spec, in kit/agents", () => {
+    const specs = readFileSync(join(repoRoot, "docs/agent-specs.md"), "utf8");
+    for (const [title, agent] of [
+      ["Agent 1: Intake", "intake"],
+      ["Agent 2: BA agent", "ba"],
+    ] as const) {
+      const start = specs.indexOf(`## ${title}`);
+      const end = specs.indexOf("\n## ", start + 1);
+      const body = specs
+        .slice(start, end)
+        .split("\n")
+        .slice(1)
+        .filter((l) => l.trim());
+      expect(body).toEqual([`Built in F-01: see \`kit/agents/${agent}/spec.md\`.`]);
+      expect(existsSync(join(repoRoot, `kit/agents/${agent}/spec.md`))).toBe(true);
+    }
   });
 });

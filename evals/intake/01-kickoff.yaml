@@ -1,0 +1,55 @@
+id: intake-kickoff
+description: >-
+  The full kickoff transcript. At least 80% of the 8 key claims are found with the right speaker,
+  no verbatim claim is invented, and the proposal matches its schema.
+setup:
+  .factory/runs/r1/input.json: |
+    {
+      "agent": "intake",
+      "project": "acme-ops-portal",
+      "profile": "client",
+      "source": {
+        "id": "SRC-01",
+        "source_type": "transcript",
+        "date": "2026-10-02",
+        "text_path": "records/sources/SRC-01/text.md",
+        "trust": "strong"
+      },
+      "participants": [
+        { "label": "Austin Smith", "stakeholder": "SH-00" },
+        { "label": "Sarah Kim", "stakeholder": "SH-01" },
+        { "label": "Tom Reyes", "stakeholder": "SH-02" }
+      ],
+      "text": "L1 [00:00:15] Austin Smith: Thanks for joining. Can you walk me through how a request reaches the dispatch team today?\nL2 [00:00:42] Sarah Kim: Customers email the ops inbox, and someone copies each request into the shared spreadsheet.\nL3 [00:01:10] Tom Reyes: My team works the spreadsheet top to bottom, oldest first.\nL4 [00:01:35] Austin Smith: What happens when something is urgent?\nL5 [00:01:52] Tom Reyes: Urgent requests sit in the same queue as everything else. We only find them when a customer rings to chase.\nL6 [00:02:30] Sarah Kim: Last month 14 urgent requests missed their 4-hour pickup window, and each one costs us a $250 credit to the customer.\nL7 [00:03:05] Tom Reyes: We get about 120 requests a day, and maybe 1 in 10 is urgent.\nL8 [00:03:40] Austin Smith: How do you know a request is urgent?\nL9 [00:03:58] Tom Reyes: The customer usually writes \"urgent\" or \"same day\" in the subject, but not always.\nL10 [00:04:30] Sarah Kim: I think the team could spot urgent ones at a glance if we had a kanban board.\nL11 [00:05:02] Tom Reyes: Copying from email to the spreadsheet takes one person about two hours every morning, and that's when mistakes creep in.\nL12 [00:05:45] Sarah Kim: I'd assume most customers would fill in a web form if we gave them one.\nL13 [00:06:20] Austin Smith: What would good look like in three months?\nL14 [00:06:41] Sarah Kim: No urgent request misses its pickup window because we didn't see it in time.\nL15 [00:07:15] Austin Smith: Thanks both. I'll send the notes round."
+    }
+input: |
+  Run intake. The run folder is .factory/runs/r1
+rules:
+  - rule: json_schema
+    file: .factory/runs/r1/proposal.json
+    schema: intake-proposal
+  - rule: no_invented
+    file: .factory/runs/r1/proposal.json
+    input: .factory/runs/r1/input.json
+  - rule: claims_match
+    file: .factory/runs/r1/proposal.json
+    min_recall: 0.8
+    expected:
+      - words: same queue as everything else
+        said_by: SH-02
+      - words: 14 urgent requests missed their 4-hour pickup window
+        said_by: SH-01
+      - words: $250 credit
+        said_by: SH-01
+      - words: 120 requests a day
+        said_by: SH-02
+      - words: 1 in 10 is urgent
+        said_by: SH-02
+      - words: about two hours every morning
+        said_by: SH-02
+      - words: kanban board
+        said_by: SH-01
+      - words: web form
+        said_by: SH-01
+      - words: No urgent request misses its pickup window
+        said_by: SH-01

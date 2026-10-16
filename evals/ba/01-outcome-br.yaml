@@ -1,0 +1,49 @@
+id: ba-outcome-br
+description: >-
+  Confirmed claims about urgent requests give at least one BR that cites only input claims, matches
+  its schema, and has an outcome title with no invented numbers.
+setup:
+  .factory/runs/r1/input.json: |
+    {
+      "agent": "ba",
+      "project": "acme-ops-portal",
+      "profile": "client",
+      "source": "SRC-01",
+      "claims": [
+        { "id": "CLM-01", "words": "Urgent requests sit in the same queue as everything else.", "said_by": "SH-02", "location": "L5", "claim_type": "fact" },
+        { "id": "CLM-02", "words": "We only find them when a customer rings to chase.", "said_by": "SH-02", "location": "L5", "claim_type": "fact" },
+        { "id": "CLM-03", "words": "Last month 14 urgent requests missed their 4-hour pickup window", "said_by": "SH-01", "location": "L6", "claim_type": "measure" },
+        { "id": "CLM-04", "words": "each one costs us a $250 credit to the customer", "said_by": "SH-01", "location": "L6", "claim_type": "measure" },
+        { "id": "CLM-05", "words": "No urgent request misses its pickup window because we didn't see it in time.", "said_by": "SH-01", "location": "L14", "claim_type": "ask" }
+      ],
+      "stakeholders": [
+        { "id": "SH-01", "name": "Sarah Kim", "role": "Operations manager", "organisation": "Acme Logistics" },
+        { "id": "SH-02", "name": "Tom Reyes", "role": "Dispatch team lead", "organisation": "Acme Logistics" }
+      ]
+    }
+input: |
+  Run the BA agent. The run folder is .factory/runs/r1
+rules:
+  - rule: json_schema
+    file: .factory/runs/r1/proposal.json
+    schema: ba-proposal
+  - rule: evidence_subset
+    file: .factory/runs/r1/proposal.json
+    input: .factory/runs/r1/input.json
+  - rule: regex
+    in: { file: .factory/runs/r1/proposal.json }
+    pattern: '"brs":\s*\[\s*\{'
+  - rule: judge
+    file: .factory/runs/r1/proposal.json
+    rubric: |
+      Check the business requirements (brs) in the proposal.
+      1. Every BR title states an outcome the business needs. It must not name a solution such as a
+         board, form, dashboard, app, screen or button.
+      2. No title or value uses a number that is absent from the claims below.
+      The claims:
+      - Urgent requests sit in the same queue as everything else.
+      - We only find them when a customer rings to chase.
+      - Last month 14 urgent requests missed their 4-hour pickup window
+      - each one costs us a $250 credit to the customer
+      - No urgent request misses its pickup window because we didn't see it in time.
+      Pass only if both checks hold for every BR.

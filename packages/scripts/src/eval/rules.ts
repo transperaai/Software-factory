@@ -1,8 +1,10 @@
-// Scoring rules. Stage 0 has schema_valid, field_equals and regex. judge (Opus as the judge) is an
-// interface only; the first real judge comes with the intake agent in F-01.
+// Scoring rules. schema_valid, field_equals and regex score record files; json_schema, claims_match,
+// no_invented and evidence_subset score the JSON proposals of the F-01 agents. judge hands a rubric to
+// a model (the real one is in judge.ts).
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { RecordValidator, frontmatter } from "@factory/schemas";
+import { Ajv2020 } from "ajv/dist/2020.js";
 import type { Rule } from "./cases.ts";
 
 export type RuleOutcome = { rule: Rule["rule"]; passed: boolean; detail: string };
@@ -15,18 +17,33 @@ export type ScoringContext = {
   files: string[];
 };
 
-/** Judges a case against a rubric with a model. Not implemented in Stage 0. */
+/** Judges a case against a rubric with a model. `file` is the workspace file the judge reads. */
 export interface Judge {
-  score(rubric: string, ctx: ScoringContext): Promise<RuleOutcome>;
+  score(rubric: string, ctx: ScoringContext, file?: string): Promise<RuleOutcome>;
 }
 
+/** For tests and runs without `--judge`: judge rules fail. */
 export const noJudge: Judge = {
   score: async () => ({
     rule: "judge",
     passed: false,
-    detail: "judge rules are not available yet; the first one arrives with the intake agent (F-01)",
+    detail: "no judge was given; run with --judge opus",
   }),
 };
+
+function readJson(ctx: ScoringContext, file: string): unknown {
+  const path = join(ctx.workspace, file);
+  if (!existsSync(path)) throw new Error(`${file} was not written`);
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch (err) {
+    throw new Error(`${file} is not valid JSON: ${(err as Error).message}`, { cause: err });
+  }
+}
+
+const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+
+type LooseClaim = { words?: string; said_by?: string | null; quote?: string };
 
 function readHeader(ctx: ScoringContext, file: string): Record<string, unknown> {
   const path = join(ctx.workspace, file);
@@ -83,8 +100,84 @@ export async function scoreRule(
           detail: `/${rule.pattern}/ ${found ? "found" : "not found"} in ${where}${wanted ? "" : " (must not match)"}`,
         };
       }
+      case "json_schema": {
+        const data = readJson(ctx, rule.file);
+        const schemaPath = join(ctx.workspace, ".factory/schemas", `${rule.schema}.schema.json`);
+        if (!existsSync(schemaPath)) throw new Error(`schema ${rule.schema} is not installed`);
+        const validate = new Ajv2020({ allErrors: true, strict: true }).compile(
+          JSON.parse(readFileSync(schemaPath, "utf8")),
+        );
+        const ok = validate(data);
+        const problems = (validate.errors ?? [])
+          .map((e) => `${e.instancePath || "/"} ${e.message}`)
+          .join("; ");
+        return {
+          rule: rule.rule,
+          passed: ok,
+          detail: ok ? `${rule.file} matches ${rule.schema}` : problems,
+        };
+      }
+      case "claims_match": {
+        const claims = ((readJson(ctx, rule.file) as { claims?: LooseClaim[] }).claims ??
+          []) as LooseClaim[];
+        const missed = rule.expected.filter(
+          (e) =>
+            !claims.some(
+              (c) =>
+                norm(c.words ?? "")
+                  .toLowerCase()
+                  .includes(norm(e.words).toLowerCase()) && (c.said_by ?? null) === e.said_by,
+            ),
+        );
+        const found = rule.expected.length - missed.length;
+        const recall = rule.expected.length === 0 ? 1 : found / rule.expected.length;
+        const passed = recall >= (rule.min_recall ?? 1);
+        return {
+          rule: rule.rule,
+          passed,
+          detail:
+            `recall ${found}/${rule.expected.length}` +
+            (missed.length
+              ? `; missed: ${missed.map((m) => `${show(m.words)} by ${show(m.said_by)}`).join(", ")}`
+              : ""),
+        };
+      }
+      case "no_invented": {
+        const text = norm((readJson(ctx, rule.input) as { text?: string }).text ?? "");
+        const claims = ((readJson(ctx, rule.file) as { claims?: LooseClaim[] }).claims ??
+          []) as LooseClaim[];
+        const invented = claims.filter(
+          (c) => c.quote === "verbatim" && !text.includes(norm(c.words ?? "")),
+        );
+        return {
+          rule: rule.rule,
+          passed: invented.length === 0,
+          detail: invented.length
+            ? `not in the source: ${invented.map((c) => show(c.words)).join(", ")}`
+            : "every verbatim claim is in the source",
+        };
+      }
+      case "evidence_subset": {
+        const known = new Set(
+          ((readJson(ctx, rule.input) as { claims?: { id: string }[] }).claims ?? []).map(
+            (c) => c.id,
+          ),
+        );
+        const brs = ((readJson(ctx, rule.file) as { brs?: { evidence?: string[] }[] }).brs ??
+          []) as { evidence?: string[] }[];
+        const unknown = [...new Set(brs.flatMap((b) => b.evidence ?? []))].filter(
+          (id) => !known.has(id),
+        );
+        return {
+          rule: rule.rule,
+          passed: unknown.length === 0,
+          detail: unknown.length
+            ? `evidence not in the input: ${unknown.join(", ")}`
+            : "all evidence IDs are in the input",
+        };
+      }
       case "judge":
-        return await judge.score(rule.rubric, ctx);
+        return await judge.score(rule.rubric, ctx, rule.file);
     }
   } catch (err) {
     return { rule: rule.rule, passed: false, detail: (err as Error).message };
