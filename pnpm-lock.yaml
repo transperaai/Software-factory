@@ -38,6 +38,9 @@ importers:
       '@factory/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@factory/records':
+        specifier: workspace:*
+        version: link:../../packages/records
       '@modelcontextprotocol/server':
         specifier: ^2.3.1
         version: 2.3.1

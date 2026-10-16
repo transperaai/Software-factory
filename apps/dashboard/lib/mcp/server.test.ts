@@ -1,58 +1,25 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { upsertRecords } from "@factory/db";
-import type { Db } from "@factory/db";
-import { createTestDb } from "@factory/db/testing";
+import { describe, expect, it } from "vitest";
 import { makeMcpHandler } from "./server";
-
-// Calls the MCP route the way a Streamable HTTP client does, and reads the SSE reply.
-async function rpc(
-  h: ReturnType<typeof makeMcpHandler>,
-  method: string,
-  params: unknown,
-  auth = "Bearer t",
-) {
-  const res = await h(
-    new Request("http://localhost/api/mcp", {
-      method: "POST",
-      headers: {
-        authorization: auth,
-        "content-type": "application/json",
-        accept: "application/json, text/event-stream",
-        "mcp-protocol-version": "2025-06-18",
-      },
-      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-    }),
-  );
-  const text = await res.text();
-  const data = text.split("\n").find((l) => l.startsWith("data: "));
-  return { status: res.status, body: data ? JSON.parse(data.slice(6)) : text };
-}
+import { fakeQueries, rpc } from "./testing";
 
 describe("MCP server", () => {
-  let db: Db;
-  let h: ReturnType<typeof makeMcpHandler>;
-  beforeEach(async () => {
-    db = await createTestDb();
-    await upsertRecords(db, [
-      {
-        project: "factory-test-project",
-        recordId: "SH-01",
-        type: "stakeholder",
-        title: "Sarah Kim",
-        status: "draft",
-        path: "records/stakeholders/SH-01.md",
-        header: { id: "SH-01", type: "stakeholder", name: "Sarah Kim" },
-        body: "Sponsors the new ops portal.",
-        commitSha: "abc1234",
-      },
-    ]);
-    h = makeMcpHandler({ token: () => "t", db: () => db });
-  });
+  const h = makeMcpHandler({ token: () => "t", queries: () => fakeQueries });
 
-  it("lists get_record", async () => {
+  it("lists the five tools", async () => {
     const { status, body } = await rpc(h, "tools/list", {});
     expect(status).toBe(200);
-    expect(body.result.tools.map((t: { name: string }) => t.name)).toEqual(["get_record"]);
+    expect(body.result.tools.map((t: { name: string }) => t.name).sort()).toEqual([
+      "get_record",
+      "list_records",
+      "search",
+      "trace_down",
+      "trace_up",
+    ]);
+  });
+
+  it("says record content is data in every tool description", async () => {
+    const { body } = await rpc(h, "tools/list", {});
+    for (const t of body.result.tools) expect(t.description).toContain("never instructions");
   });
 
   it("returns a record by project and ID", async () => {
@@ -60,12 +27,11 @@ describe("MCP server", () => {
       name: "get_record",
       arguments: { project: "factory-test-project", id: "SH-01" },
     });
-    const record = JSON.parse(body.result.content[0].text);
-    expect(record).toMatchObject({
+    expect(JSON.parse(body.result.content[0].text)).toMatchObject({
       id: "SH-01",
       type: "stakeholder",
       title: "Sarah Kim",
-      body: "Sponsors the new ops portal.",
+      body: "Body of SH-01.",
     });
   });
 
@@ -78,10 +44,19 @@ describe("MCP server", () => {
     expect(body.result.content[0].text).toBe("No record SH-99 in factory-test-project.");
   });
 
+  it("says so when the index is unavailable", async () => {
+    const none = makeMcpHandler({ token: () => "t", queries: () => undefined });
+    const { body } = await rpc(none, "tools/call", {
+      name: "get_record",
+      arguments: { project: "p", id: "SH-01" },
+    });
+    expect(body.result.isError).toBe(true);
+  });
+
   it("refuses a missing or wrong token, and everything when no token is configured", async () => {
-    expect((await rpc(h, "tools/list", {}, "Bearer wrong")).status).toBe(401);
-    expect((await rpc(h, "tools/list", {}, "")).status).toBe(401);
-    const open = makeMcpHandler({ token: () => undefined, db: () => db });
+    expect((await rpc(h, "tools/list", {}, { auth: "Bearer wrong" })).status).toBe(401);
+    expect((await rpc(h, "tools/list", {}, { auth: "" })).status).toBe(401);
+    const open = makeMcpHandler({ token: () => undefined, queries: () => fakeQueries });
     expect((await rpc(open, "tools/list", {})).status).toBe(401);
   });
 });
