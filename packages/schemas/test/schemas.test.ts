@@ -1,11 +1,12 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
 import { buildAll, refPattern } from "../src/build.ts";
 import { PREFIXES, RECORDS, type RecordSpec } from "../src/definitions.ts";
-import { RecordValidator, frontmatter } from "../src/validate.ts";
+import { RecordValidator, findRecordFiles, frontmatter } from "../src/validate.ts";
 
 const schemaDir = fileURLToPath(new URL("../../../schemas/", import.meta.url));
 const fixtureDir = fileURLToPath(new URL("./fixtures/valid/", import.meta.url));
@@ -173,5 +174,17 @@ describe("validateFile", () => {
     expect(validator.validateData({ type: "memo" })).toEqual([
       { path: "/type", message: 'unknown record type "memo"' },
     ]);
+  });
+});
+
+describe("findRecordFiles", () => {
+  it("takes only meta.yaml from a source folder, not its text.md or raw file", () => {
+    const root = mkdtempSync(join(tmpdir(), "find-records-"));
+    mkdirSync(join(root, "records", "sources", "SRC-001"), { recursive: true });
+    mkdirSync(join(root, "records", "stakeholders"), { recursive: true });
+    for (const file of ["meta.yaml", "text.md", "kickoff.md"]) writeFileSync(join(root, "records", "sources", "SRC-001", file), "x");
+    writeFileSync(join(root, "records", "stakeholders", "SH-01.md"), "x");
+    const found = findRecordFiles(root).map((f) => f.slice(root.length + 1));
+    expect(found).toEqual(["records/sources/SRC-001/meta.yaml", "records/stakeholders/SH-01.md"]);
   });
 });

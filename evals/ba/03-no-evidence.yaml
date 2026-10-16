@@ -1,0 +1,28 @@
+id: ba-no-evidence
+description: Confirmed claims that state no business need give no BRs.
+setup:
+  .factory/runs/r1/input.json: |
+    {
+      "agent": "ba",
+      "project": "acme-ops-portal",
+      "profile": "client",
+      "source": "SRC-01",
+      "claims": [
+        { "id": "CLM-01", "words": "Thanks for joining.", "said_by": "SH-00", "location": "L1", "claim_type": "fact" },
+        { "id": "CLM-02", "words": "My team works the spreadsheet top to bottom, oldest first.", "said_by": "SH-02", "location": "L3", "claim_type": "fact" }
+      ],
+      "stakeholders": [
+        { "id": "SH-00", "name": "Austin Smith", "role": "Delivery lead", "organisation": "Transpera" },
+        { "id": "SH-01", "name": "Sarah Kim", "role": "Operations manager", "organisation": "Acme Logistics" },
+        { "id": "SH-02", "name": "Tom Reyes", "role": "Dispatch team lead", "organisation": "Acme Logistics" }
+      ]
+    }
+input: |
+  Run the BA agent. The run folder is .factory/runs/r1
+rules:
+  - rule: json_schema
+    file: .factory/runs/r1/proposal.json
+    schema: ba-proposal
+  - rule: regex
+    in: { file: .factory/runs/r1/proposal.json }
+    pattern: '"brs":\s*\[\s*\]'

@@ -1,0 +1,39 @@
+id: intake-compound
+description: One turn that holds two facts gives two separate claims.
+setup:
+  .factory/runs/r1/input.json: |
+    {
+      "agent": "intake",
+      "project": "acme-ops-portal",
+      "profile": "client",
+      "source": {
+        "id": "SRC-01",
+        "source_type": "transcript",
+        "date": "2026-10-02",
+        "text_path": "records/sources/SRC-01/text.md",
+        "trust": "strong"
+      },
+      "participants": [
+        { "label": "Austin Smith", "stakeholder": "SH-00" },
+        { "label": "Tom Reyes", "stakeholder": "SH-02" }
+      ],
+      "text": "L1 [00:00:20] Austin Smith: Who works the queue?\nL2 [00:00:35] Tom Reyes: Four dispatchers work the queue, and the spreadsheet is locked at night."
+    }
+input: |
+  Run intake. The run folder is .factory/runs/r1
+rules:
+  - rule: json_schema
+    file: .factory/runs/r1/proposal.json
+    schema: intake-proposal
+  - rule: claims_match
+    file: .factory/runs/r1/proposal.json
+    expected:
+      - words: Four dispatchers work the queue
+        said_by: SH-02
+      - words: the spreadsheet is locked at night
+        said_by: SH-02
+  # Two facts must not share one claim.
+  - rule: regex
+    in: { file: .factory/runs/r1/proposal.json }
+    pattern: 'Four dispatchers work the queue[^"]*the spreadsheet is locked'
+    match: false
