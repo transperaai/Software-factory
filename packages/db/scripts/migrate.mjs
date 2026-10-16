@@ -1,5 +1,6 @@
 /* global process, console, URL */
-// Applies pending migrations from ./migrations. Runs in the dashboard's Vercel build.
+// Applies pending migrations from ./migrations. Vercel runs it before the build (apps/dashboard/vercel.json),
+// outside Turbo, so a cached build can never skip it.
 // Only production builds migrate: preview builds share the production database until spike 5
 // gives each preview its own branch, and an unmerged branch must never change it.
 // Pass --force to migrate outside Vercel (for example a local database).
