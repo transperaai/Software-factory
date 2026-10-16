@@ -4,7 +4,7 @@ Oct 15, 2026 · @Austin Smith
 
 ## How we build it
 
-We build the factory the way it will build client work: one thin end-to-end slice first (F-01), then one stage at a time, with a demo check at the end of each slice. From F-02 on, slices are thick: each one leaves its stage usable for real project work (Austin, 16 Oct), because thin slices drew out the build.
+We build the factory the way it will build client work: one thin end-to-end slice first (F-01), then one stage at a time, with a demo check at the end of each slice. From F-02 on, slices are thick: each one leaves its stage usable for real project work (Austin, 16 Oct), because thin slices drew out the build. Each slice is built in as few runs as possible: one build run, one review and one fix round by default, and at most three parallel streams where the work truly splits.
 
 - **Tracer bullet first.** Slice F-01 runs a single requirement from a dropped-in source to an approved record on the dashboard. It's thin, but every layer is real: git records, index, dashboard, approval and trace check.
 - **One stage per slice after that.** Each slice adds one phase of the life cycle (discovery, stories, build, test, release, operate) and its agents, scripts and dashboard screen.
