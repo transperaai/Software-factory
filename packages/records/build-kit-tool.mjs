@@ -1,5 +1,6 @@
 /* global process, console, URL */
-// Builds kit/tools/records.mjs (the records CLI) and kit/hooks/validate-records.mjs (the PostToolUse hook):
+// Builds kit/tools/records.mjs (the records CLI), kit/tools/intake-sort.mjs (the intake sorter) and
+// kit/hooks/validate-records.mjs (the PostToolUse hook):
 // each bundled with its dependencies, so a project runs them with plain `node` and no factory repo.
 // `--check` fails if a committed file is stale.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -9,6 +10,7 @@ import { build } from "esbuild";
 const targets = [
   { entry: "src/cli.ts", out: "kit/tools/records.mjs" },
   { entry: "src/hook.ts", out: "kit/hooks/validate-records.mjs" },
+  { entry: "src/sorter/cli.ts", out: "kit/tools/intake-sort.mjs" },
 ];
 const check = process.argv.includes("--check");
 let stale = false;

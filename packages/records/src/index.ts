@@ -6,3 +6,5 @@ export * from "./writer";
 export * from "./validate";
 export * from "./trace";
 export * from "./approve";
+export * from "./sorter/sort";
+export * from "./bundles/ba";
