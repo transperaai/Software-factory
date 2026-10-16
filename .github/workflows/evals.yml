@@ -1,0 +1,60 @@
+# Runs an agent's eval suite on demand and stores the results in the dashboard (eval_runs, eval_results).
+# Needs repo secrets CLAUDE_CODE_OAUTH_TOKEN (runs the agent) and OTEL_INGEST_TOKEN (stores results).
+# Each secret is given only to the step that needs it: the agent never sees the ingest token.
+name: Evals
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: Agent to evaluate (a folder under evals/)
+        required: true
+        default: scribe
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AGENT: ${{ inputs.agent }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Check the agent name
+        run: |
+          if [[ ! "$AGENT" =~ ^[a-z0-9-]+$ ]] || [[ ! -d "evals/$AGENT" ]]; then
+            echo "::error::No eval cases for agent '$AGENT' (expected a folder evals/<agent>/)."
+            exit 1
+          fi
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec turbo run build --filter=@factory/scripts
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code && claude --version
+      - name: Run evals
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: >-
+          node packages/scripts/dist/cli.js eval run --agent "$AGENT" --cases "evals/$AGENT/"
+          --out eval-results.json --trigger "workflow:${{ github.run_id }}"
+      - name: Store results
+        if: ${{ !cancelled() && hashFiles('eval-results.json') != '' }}
+        env:
+          FACTORY_INGEST_TOKEN: ${{ secrets.OTEL_INGEST_TOKEN }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL || 'https://transpera-factory.vercel.app' }}
+        run: node packages/scripts/dist/cli.js eval store eval-results.json --url "$DASHBOARD_URL"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && hashFiles('eval-results.json') != '' }}
+        with:
+          name: eval-results-${{ inputs.agent }}
+          path: eval-results.json

@@ -1,0 +1,47 @@
+id: scribe-next-free-id
+description: Picks the next free ID and leaves existing records alone.
+setup:
+  records/stakeholders/SH-01.md: |
+    ---
+    id: SH-01
+    type: stakeholder
+    title: Sarah Kim
+    status: draft
+    version: 1
+    created_by: agent:scribe
+    name: Sarah Kim
+    role: Operations manager
+    organisation: Acme Logistics
+    ---
+
+    Sponsor for the ops portal.
+  records/stakeholders/SH-02.md: |
+    ---
+    id: SH-02
+    type: stakeholder
+    title: Lena Ortiz
+    status: draft
+    version: 1
+    created_by: agent:scribe
+    name: Lena Ortiz
+    role: Warehouse lead
+    organisation: Acme Logistics
+    ---
+
+    Runs the night shift.
+input: |
+  Tom Reyes is the finance director at Acme Logistics. He approves the portal budget.
+rules:
+  - rule: schema_valid
+    file: records/stakeholders/SH-03.md
+  - rule: field_equals
+    file: records/stakeholders/SH-03.md
+    field: id
+    value: SH-03
+  - rule: field_equals
+    file: records/stakeholders/SH-03.md
+    field: name
+    value: Tom Reyes
+  - rule: regex
+    in: files
+    pattern: "^records/stakeholders/SH-03\\.md$"

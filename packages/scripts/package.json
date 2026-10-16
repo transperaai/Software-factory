@@ -11,5 +11,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@factory/schemas": "workspace:*",
+    "yaml": "^2.9.1"
   }
 }

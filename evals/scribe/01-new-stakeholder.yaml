@@ -1,0 +1,26 @@
+id: scribe-new-stakeholder
+description: Writes one valid stakeholder record from a clear description, using only stated facts.
+input: |
+  Sarah Kim is the operations manager at Acme Logistics. She sponsors the new ops portal.
+rules:
+  - rule: schema_valid
+    file: records/stakeholders/SH-01.md
+  - rule: field_equals
+    file: records/stakeholders/SH-01.md
+    field: name
+    value: Sarah Kim
+  - rule: field_equals
+    file: records/stakeholders/SH-01.md
+    field: organisation
+    value: Acme Logistics
+  - rule: regex
+    in: { file: records/stakeholders/SH-01.md }
+    pattern: "^role: *operations manager *$"
+    flags: im
+  - rule: field_equals
+    file: records/stakeholders/SH-01.md
+    field: created_by
+    value: agent:scribe
+  - rule: regex
+    in: reply
+    pattern: SH-01

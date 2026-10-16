@@ -3,6 +3,7 @@ import { checkDb } from "@factory/db";
 import { auth, authConfigured, signOut } from "@/auth";
 import { isAllowed } from "@/lib/allowlist";
 import { getBuildInfo } from "@/lib/build-info";
+import { loadEvalRunsView } from "@/lib/evals-view";
 import { loadLedgerView } from "@/lib/ledger-view";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,12 @@ export default async function Home() {
   // Checked again here, not only at sign-in, so a changed allowlist takes effect at once.
   if (!session || !isAllowed((session as { githubId?: string }).githubId)) redirect("/signin");
 
-  const [db, ledger, build] = [await checkDb(), await loadLedgerView(), getBuildInfo()];
+  const [db, ledger, evals, build] = [
+    await checkDb(),
+    await loadLedgerView(),
+    await loadEvalRunsView(),
+    getBuildInfo(),
+  ];
   return (
     <main>
       <h1>Transpera Factory</h1>
@@ -64,6 +70,19 @@ export default async function Home() {
       <p>
         <small>On Max, amounts are the API-equivalent price, allocated rather than billed.</small>
       </p>
+      <h2>Recent eval runs</h2>
+      {evals.state === "unavailable" && <p>Not available ({evals.message}).</p>}
+      {evals.state === "ok" && evals.runs.length === 0 && <p>No eval runs yet.</p>}
+      {evals.state === "ok" && evals.runs.length > 0 && (
+        <ul>
+          {evals.runs.map((r) => (
+            <li key={r.id}>
+              {r.startedAt.toISOString().slice(0, 16).replace("T", " ")} UTC · {r.agent} ·{" "}
+              {r.casesPassed}/{r.casesTotal} passed · kit {r.kitVersion} · {r.trigger}
+            </li>
+          ))}
+        </ul>
+      )}
       <form
         action={async () => {
           "use server";
