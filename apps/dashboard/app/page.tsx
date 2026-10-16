@@ -1,7 +1,10 @@
-import { redirect } from "next/navigation";
 import { checkDb } from "@factory/db";
-import { auth, authConfigured, signOut } from "@/auth";
-import { isAllowed } from "@/lib/allowlist";
+import { signOut } from "@/auth";
+import { approveAction, confirmClaimsAction } from "@/app/actions";
+import { NeedsYou } from "@/app/components/NeedsYou";
+import { loadNeedsYou } from "@/lib/cards-view";
+import { getQueries } from "@/lib/deps";
+import { requireAllowed } from "@/lib/session";
 import { getBuildInfo } from "@/lib/build-info";
 import { loadEvalRunsView } from "@/lib/evals-view";
 import { loadLedgerView } from "@/lib/ledger-view";
@@ -15,10 +18,9 @@ const DB_LABEL = {
 } as const;
 
 export default async function Home() {
-  if (!authConfigured) redirect("/signin");
-  const session = await auth();
-  // Checked again here, not only at sign-in, so a changed allowlist takes effect at once.
-  if (!session || !isAllowed((session as { githubId?: string }).githubId)) redirect("/signin");
+  const session = await requireAllowed();
+  const queries = getQueries();
+  const needsYou = queries ? await loadNeedsYou(queries) : undefined;
 
   const [db, ledger, evals, build] = [
     await checkDb(),
@@ -29,7 +31,14 @@ export default async function Home() {
   return (
     <main>
       <h1>Transpera Factory</h1>
-      <p>Signed in as {session.user?.name ?? "you"}. Nothing to show yet.</p>
+      <p>
+        Signed in as {session.user?.name ?? "you"}. <a href="/inbox">Inbox</a>
+      </p>
+      {needsYou ? (
+        <NeedsYou items={needsYou} confirmClaims={confirmClaimsAction} approve={approveAction} />
+      ) : (
+        <p>The record index is not available.</p>
+      )}
       <p>
         Database: {DB_LABEL[db.state]}
         {db.state === "connected" && ` (${db.latencyMs} ms)`}
