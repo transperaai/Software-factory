@@ -6,10 +6,13 @@ This repo builds a software factory: agents turn messy client input into traced,
 
 | File | What it holds |
 | --- | --- |
+| `docs/README.md` | **Map of every doc section**, one line each. Start here |
 | `docs/build-plan.md` | **What to build next.** Stage 0, then slices F-01 to F-12, each with a demo check |
 | `docs/design-doc.md` | Every agreed decision: principles, profiles, phases 1 to 8, the ID and trace schema, optimisation research |
 | `docs/agent-specs.md` | The 17 agents and the scripts: role, triggers, reads, tools and permissions, writes, escalation, evals, overlays, draft system prompt |
 | `design/` | Dashboard and kit picker prototypes. Read `design/README.md` |
+
+Don't read the docs end to end. Start from `docs/README.md` and the build plan section for the current slice. Each slice plan includes a Read list of the exact sections it needs; read only those, using search (grep) to find them.
 
 If anything here conflicts with those docs, the docs win. If the docs need to change, propose the change and wait for approval before building on it.
 
@@ -22,6 +25,10 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 - **Build only what the current slice needs.** Boilerplates, modules and the design kit grow when a slice needs them.
 - **Plan before code.** For each slice, write a short plan (files, tests, risks) and get it approved first.
 - **Ask, don't guess.** If a decision isn't in the docs and could reasonably go either way, ask.
+- **Every slice plan starts with a Read list:** the exact design-doc and agent-spec sections the slice needs.
+- **One copy of each agent spec.** When an agent is built, its spec moves from `docs/agent-specs.md` into `kit/agents/<agent>/spec.md`, and `agent-specs.md` keeps a one-line pointer. Never two copies.
+- **Agents query records, they don't browse them.** Agent instructions must tell agents to query records through the MCP server or index (by ID and links), never by reading whole record folders.
+- **Keep CLAUDE.md under 150 lines.** Detail belongs in docs, linked from here.
 
 ## Stack (agreed)
 
@@ -52,4 +59,4 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 
 ## Current status
 
-All design is agreed. Next: **Stage 0** in `docs/build-plan.md`.
+**Stage 0** in progress. The live status is at the top of `docs/stage-0-plan.md`.
