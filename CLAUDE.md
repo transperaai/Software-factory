@@ -65,4 +65,4 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 
 ## Current status
 
-**Stage 0** signed off 16 Oct (`docs/stage-0-plan.md`). **F-01** built and on `main`; reworked to Claude Code only (D8) in streams S9 and S10 (`plans/F-01-S9.md`, `S10.md`), then its e2e and demo. **Next: F-02**, a thick slice: real Discovery from Claude Code through to the approved Brief. Plan it in a fresh session.
+**Stage 0** signed off 16 Oct (`docs/stage-0-plan.md`). **F-01** done 16 Oct: Claude Code only (D8), kit v0.4.0, e2e passed twice. **Next: F-02**, a thick slice: real Discovery from Claude Code through to the approved Brief. Plan it in a fresh session.
