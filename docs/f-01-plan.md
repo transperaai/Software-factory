@@ -6,9 +6,9 @@ Oct 16, 2026 · Approved 16 Oct, with all six recommendations
 
 | State | Items |
 | --- | --- |
-| Done | C0 contracts (#32), merged 16 Oct; `f01` cut from `main`. Cloud environment OTel variables and network secrets fixed by Austin |
+| Done | C0 contracts (#32), merged 16 Oct; `f01` cut from `main`. Cloud environment OTel variables and network secrets fixed by Austin. S1 to S7 done, merged into `f01` |
 | Waiting on you | Your steps 2 to 6 below, if not done yet |
-| In progress | Build runs for S1 to S7 from `plans/F-01-S1.md` to `S7` |
+| In progress | S8 (end to end), from `plans/F-01-S8.md` |
 
 ## Goal and demo check
 
@@ -49,6 +49,7 @@ All six recommendations accepted by Austin, 16 Oct.
 | D4 | Where do the Sonnet build runs for F-01 run? | **Actions**, from a small `build-run.yml` in Software-factory | Spike 1: Actions for agent runs, about a quarter of the cost, every run tagged `factory.slice=F-01-Sn`. It also gets F-01's build into the ledger while the cloud OTel variables are missing |
 | D5 | Merging stream PRs | **Stream PRs merge into an `f01` branch** after green CI and my Opus review, without asking. **One `f01` → `main` PR**, merged on green CI (full auto since #33, confirmed by Austin 16 Oct) | Seven streams would mean seven production deploys. `f01` gets a preview with its own Neon branch |
 | D6 | The claim schema lacks two things the Intake spec requires: claim type `measure`, and a trust level | **Fix the schema** (it is generated and was meant to follow the spec): add `measure` to `claim_type`, add `trust: strong \| medium \| unverified` and `quote: verbatim \| paraphrase`, required from `review` | Docs win over code; this brings the schema back in line |
+| D7 | Stream branch names | **Stream branches use a dash (`f01-s1-records`)** | Git can't hold `f01/...` beside a branch `f01` |
 
 ## How we build it
 
