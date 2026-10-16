@@ -53,18 +53,18 @@ Stage 0 sets up the empty factory and answers five unknowns before we rely on th
 
 F-01 takes one workshop transcript all the way to an approved business requirement you can trace back to the quote it came from. Each step is the thinnest real version; later slices thicken it.
 
-1. You drop a transcript into the dashboard inbox.
+1. You give the transcript to Claude in a Claude Code session connected to the project repo.
 2. The intake sorter script converts it, gives it a SRC ID and matches speakers to the stakeholder list.
 3. The intake agent extracts claims, each linked to its quote and speaker.
 4. The BA agent drafts one business requirement from the claims, with the claim links stored on the record.
 5. Records are committed to the project repo; the record validator hook checks them on commit.
 6. Index sync copies them into Postgres; the trace checker confirms every link resolves.
-7. An approval card appears on the Overview. You approve, and the approval recorder writes an APR record.
+7. Claude shows you the requirement; you approve it in the session, and the approval recorder writes an APR record. The Overview shows what's waiting and what's done.
 8. The Thread explorer shows the requirement, its claims and the source quote.
 
 **Built in F-01:** intake sorter, ID allocator, record validator, approval recorder, index sync, trace checker (scripts and hooks); intake and BA agents with their first evals; the MCP server's read tools; the Overview card list and the top level of the Thread explorer.
 
-**Done when:** an automated test runs steps 1 to 8 on a sample transcript and passes, and you've done it once yourself from the dashboard.
+**Done when:** an automated test runs steps 1 to 8 on a sample transcript and passes, and you've done it once yourself from Claude Code.
 
 ## F-02 to F-12: one stage per slice
 

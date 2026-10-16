@@ -8,13 +8,13 @@ Oct 16, 2026 · Approved 16 Oct, with all six recommendations
 | --- | --- |
 | Done | C0 contracts (#32), merged 16 Oct; `f01` cut from `main`. Cloud environment OTel variables and network secrets fixed by Austin. S1 to S7 done, merged into `f01` |
 | Waiting on you | Your steps 2 to 6 below, if not done yet |
-| In progress | S8 (end to end), from `plans/F-01-S8.md` |
+| In progress | S9 (approvals from the session, intake skill) and S10 (view-only dashboard, headless e2e), from `plans/F-01-S9.md` and `plans/F-01-S10.md` |
 
 ## Goal and demo check
 
-One workshop transcript goes from the dashboard inbox to an approved business requirement you can trace back to the quote it came from (build plan, F-01, steps 1 to 8).
+One workshop transcript goes from a Claude Code session (not the dashboard inbox) to an approved business requirement you can trace back to the quote it came from (build plan, F-01, steps 1 to 8).
 
-**Done when:** an automated test runs steps 1 to 8 on a sample transcript and passes, and you've done it once yourself from the dashboard.
+**Done when:** an automated test runs steps 1 to 8 on a sample transcript and passes, and you've done it once yourself from Claude Code.
 
 ## Read list
 
@@ -50,6 +50,7 @@ All six recommendations accepted by Austin, 16 Oct.
 | D5 | Merging stream PRs | **Stream PRs merge into an `f01` branch** after green CI and my Opus review, without asking. **One `f01` → `main` PR**, merged on green CI (full auto since #33, confirmed by Austin 16 Oct) | Seven streams would mean seven production deploys. `f01` gets a preview with its own Neon branch |
 | D6 | The claim schema lacks two things the Intake spec requires: claim type `measure`, and a trust level | **Fix the schema** (it is generated and was meant to follow the spec): add `measure` to `claim_type`, add `trust: strong \| medium \| unverified` and `quote: verbatim \| paraphrase`, required from `review` | Docs win over code; this brings the schema back in line |
 | D7 | Stream branch names | **Stream branches use a dash (`f01-s1-records`)** | Git can't hold `f01/...` beside a branch `f01` |
+| D8 | Where does input and approval happen? | **Claude Code only.** You give stimulus and confirm or approve in a Claude Code session; the dashboard is view-only (Overview, cards, Thread explorer) | Austin, 16 Oct: one place to work, less to maintain; git stays the record |
 
 ## How we build it
 
@@ -69,7 +70,7 @@ C0 is one PR I build before the streams start. It holds only shared definitions,
 
 - Sources: `records/sources/SRC-001/<original file, untouched>` plus `meta.yaml` (the `source` record). The sorter's normalised text goes in `records/sources/SRC-001/text.md` (generated, line-numbered turns).
 - ID widths: SRC 3 digits, CLM and APR 4, everything else 2 (`SRC-001`, `CLM-0003`, `BR-01`, `APR-0012`), as in the design doc. The schemas already accept these.
-- Inbox: the dashboard commits uploads to `inbox/<yyyymmdd-hhmmss>-<safe name>` on a branch `intake/<same stamp>`. The sorter moves the file into `records/sources/` with `git mv`.
+- Inbox: the Claude Code session commits the source to `inbox/<yyyymmdd-hhmmss>-<safe name>` on a branch `intake/<same stamp>`. The sorter moves the file into `records/sources/` with `git mv`.
 
 **K2. Records written in F-01**
 
@@ -111,7 +112,7 @@ You need a stakeholder record: C0 adds `SH-00` (Austin Smith, delivery lead, Tra
 | `POST /api/index/sync` | `INDEX_TOKEN` (new; spike 3 follow-up) | `{project, commitSha, files: [{path, content}], findings}` → replaces the project's rows in one transaction |
 | `POST /api/ids` | `INDEX_TOKEN` | `{project, prefix, count, maxInTree}` → `{ids: ["CLM-0001", …]}` |
 | `POST /api/index/query` | `INDEX_TOKEN` | `{project, type?, status?, confirmation?, from_source?}` → records, for input bundles |
-| `/api/e2e/*` (`inbox`, `cards`, `act`, `thread/:id`) | `FACTORY_API_TOKEN` (new) | API twins of the dashboard actions. Refused for any project except `factory-e2e` |
+| `/api/e2e/*` (`cards`, `thread/:id`) | `FACTORY_API_TOKEN` (new) | Read-only API twins of the dashboard views. Refused for any project except `factory-e2e` |
 
 `/api/records` is removed once `factory-test-project` uses `/api/index/sync`.
 
@@ -121,11 +122,11 @@ You need a stakeholder record: C0 adds `SH-00` (Austin Smith, delivery lead, Tra
 
 | Card | Shown when | Action |
 | --- | --- | --- |
-| Confirm claims | A source has attributed claims with `confirmation: pending` | Confirm all (with per-claim untick) → APR, then starts `ba.yml` |
-| Approve | A record has `status: review` and no approval | Approve or Reject with comment → APR |
+| Confirm claims | A source has attributed claims with `confirmation: pending` | You tell Claude in the session to confirm (per-claim untick) → APR, then the BA agent runs |
+| Approve | A record has `status: review` and no approval | You tell Claude in the session to approve or reject, with a comment → APR |
 | Broken link | The latest sync's findings list a link that doesn't resolve | Opens the record |
 
-**K9. Workflow triggers in a project repo.** The dashboard starts `intake.yml` (inputs `inbox_path`) and `ba.yml` (inputs `source`) with `workflow_dispatch`, using the App token. Agents never run on `push` (the action rejects it). Index sync runs on push to `main` touching `records/`. All commits and merges by workflows and the dashboard use the App token, so they trigger the next workflow.
+**K9. Where agents run in a project repo.** The intake and BA agents run in the Claude Code session (D8); `intake.yml` and `ba.yml` are gone. The e2e runs them headless in Actions. Index sync is unchanged: it runs on push to `main` touching `records/`, and merges that trigger it use the App token.
 
 ## Streams
 
@@ -182,7 +183,7 @@ None of these block C0. Step 1 is worth doing now; the rest are needed before S6
    | `Software-factory` | `FACTORY_API_TOKEN` |
 
 7. **Tell me when 1 to 6 are done.** I check variable names only, never values.
-8. **The demo:** drop the sample transcript in the inbox, confirm the claims, approve the BR, and walk the thread.
+8. **The demo:** from Claude Code, give Claude the sample transcript, confirm the claims, approve the BR, and walk the thread on the dashboard.
 
 ## Risks
 
