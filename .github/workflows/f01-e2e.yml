@@ -1,0 +1,70 @@
+# F-01 end to end (docs/f-01-plan.md, D3): proves steps 1 to 8 against the real dashboard, real Actions and real agents.
+# 1. Resets transperaai/factory-e2e to its e2e-seed tag (force push to main; it holds sample data only, D3),
+#    deletes leftover intake/*, ba/* and approval/* branches, and re-syncs the index to the seed.
+# 2. Runs `factory e2e f01`: upload, intake, confirm, BA, approve, then checks the trace and git.
+# Secrets: KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (App token for factory-e2e), FACTORY_API_TOKEN (dashboard /api/e2e/*).
+name: F-01 end to end
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: f01-e2e
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ secrets.KIT_BOT_APP_ID }}
+          private-key: ${{ secrets.KIT_BOT_PRIVATE_KEY }}
+          owner: transperaai
+          repositories: factory-e2e
+
+      - name: Reset factory-e2e to the seed
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          git clone --quiet "https://x-access-token:${GH_TOKEN}@github.com/transperaai/factory-e2e.git" e2e-repo
+          cd e2e-repo
+          git fetch --quiet --tags origin
+          git push --force origin 'refs/tags/e2e-seed^{commit}:refs/heads/main'
+          for ref in $(git ls-remote --heads origin 'intake/*' 'ba/*' 'approval/*' | cut -f2); do
+            git push origin --delete "$ref"
+          done
+          since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          gh workflow run index-sync.yml --repo transperaai/factory-e2e --ref main
+          for _ in $(seq 1 40); do
+            sleep 15
+            result=$(gh run list --repo transperaai/factory-e2e --workflow index-sync.yml --branch main \
+              --json status,conclusion,createdAt \
+              --jq "[.[] | select(.createdAt >= \"$since\" and .status == \"completed\")][0].conclusion // \"\"")
+            [[ -z "$result" ]] && continue
+            [[ "$result" == success ]] && exit 0
+            echo "::error::Index sync on the seed ended as $result"
+            exit 1
+          done
+          echo "::error::Index sync on the seed did not finish in 10 minutes"
+          exit 1
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec turbo run build --filter=@factory/scripts
+      - name: Run steps 1 to 8
+        env:
+          FACTORY_URL: ${{ vars.FACTORY_URL || 'https://transpera-factory.vercel.app' }}
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+          GITHUB_TOKEN_E2E: ${{ steps.app.outputs.token }}
+        run: node packages/scripts/dist/cli.js e2e f01
