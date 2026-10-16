@@ -61,4 +61,4 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 
 ## Current status
 
-**Stage 0** in progress. The live status is at the top of `docs/stage-0-plan.md`.
+**Stage 0** signed off 16 Oct (`docs/stage-0-plan.md`). **Next: F-01**, starting with its plan.
