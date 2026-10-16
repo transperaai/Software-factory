@@ -94,6 +94,27 @@ describe("writeIntake", () => {
     );
   });
 
+  it("finds L<n> by the line's own prefix, as the sorter writes it with blank lines left out", async () => {
+    const dir = makeProject();
+    writeFile(
+      dir,
+      "records/sources/SRC-001/text.md",
+      [
+        "L1 Kick-off, 2 October",
+        "L3 [00:01:10] Sarah Kim: We lose about two hours a day re-keying requests.",
+        "L6 [00:02:30] Tom Reyes: The queue is checked by hand every morning.",
+        "",
+      ].join("\n"),
+    );
+    const at6 = intake({ words: "The queue is checked by hand every morning.", location: "L6" });
+    await expect(writeIntake(dir, at6, opts(dir))).resolves.toEqual(["records/claims/CLM-0001.md"]);
+    const at3wrong = intake({
+      words: "The queue is checked by hand every morning.",
+      location: "L3",
+    });
+    await expect(writeIntake(dir, at3wrong, opts(dir))).rejects.toBeInstanceOf(ProposalRejected);
+  });
+
   it("rejects a proposal that fails its schema", async () => {
     const dir = makeProject();
     const bad = { source: "SRC-001", claims: [{ words: "x" }] } as unknown as IntakeProposal;
