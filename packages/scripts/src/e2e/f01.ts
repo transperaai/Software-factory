@@ -98,7 +98,11 @@ function header(text: string): Record<string, unknown> {
 
 /** Runs the steps. Any error comes out with the tokens replaced by ***. */
 export async function runF01(deps: F01Deps): Promise<F01Result> {
-  const secrets = [deps.config.apiToken, deps.config.githubToken].filter(Boolean);
+  const secrets = [
+    deps.config.apiToken,
+    deps.config.githubToken,
+    process.env.CLAUDE_CODE_OAUTH_TOKEN,
+  ].filter((t): t is string => Boolean(t));
   const scrub = (s: string) => secrets.reduce((out, t) => out.split(t).join("***"), s);
   try {
     return await execute(deps, scrub);
@@ -134,8 +138,13 @@ async function execute(deps: F01Deps, scrub: (s: string) => string): Promise<F01
   };
 
   /** Runs a command in the e2e checkout. A non-zero exit fails with the command's own words. */
-  async function sh(label: string, cmd: string, args: string[]): Promise<ExecResult> {
-    const r = await deps.exec(cmd, args, { cwd: c.repoDir });
+  async function sh(
+    label: string,
+    cmd: string,
+    args: string[],
+    env?: Record<string, string>,
+  ): Promise<ExecResult> {
+    const r = await deps.exec(cmd, args, { cwd: c.repoDir, ...(env ? { env } : {}) });
     if (r.code !== 0)
       throw new Error(`${label} failed (exit ${r.code}): ${(r.stderr || r.stdout).trim()}`);
     return r;
@@ -200,20 +209,26 @@ async function execute(deps: F01Deps, scrub: (s: string) => string): Promise<F01
 
   /** Run a Claude Code agent headless; it must leave proposal.json in its run folder. */
   async function agent(name: "intake" | "ba", model: string, run: string) {
-    await sh(`claude (${name})`, "claude", [
-      "-p",
-      "--agent",
-      name,
-      "--model",
-      model,
-      "--allowedTools",
-      "Read,Write",
-      "--max-turns",
-      "30",
-      "--output-format",
-      "json",
-      AGENT_PROMPT(name, run),
-    ]);
+    await sh(
+      `claude (${name})`,
+      "claude",
+      [
+        "-p",
+        "--agent",
+        name,
+        "--model",
+        model,
+        "--allowedTools",
+        "Read,Write",
+        "--max-turns",
+        "30",
+        "--output-format",
+        "json",
+        AGENT_PROMPT(name, run),
+      ],
+      // The agent gets no GitHub or dashboard token: it only reads and writes files in its run folder.
+      { GH_TOKEN: "", GITHUB_TOKEN: "", FACTORY_API_TOKEN: "" },
+    );
     const proposal = `.factory/runs/${run}/proposal.json`;
     if (!existsSync(join(c.repoDir, proposal)))
       throw new Error(`The ${name} agent wrote no ${proposal}.`);

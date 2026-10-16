@@ -4,7 +4,7 @@
 //   factory kit check   --project <dir>
 //   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]
 //   factory eval store  <results file> --url <dashboard>     (token in FACTORY_INGEST_TOKEN)
-//   factory e2e f01     (env: FACTORY_URL, FACTORY_API_TOKEN, GITHUB_TOKEN_E2E; optional E2E_REPO)
+//   factory e2e f01     (env: FACTORY_URL, FACTORY_API_TOKEN, GH_TOKEN, E2E_REPO_DIR; optional E2E_REPO)
 import { execFile } from "node:child_process";
 import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";

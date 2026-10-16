@@ -55,14 +55,15 @@ function world(opts: Options = {}) {
     cardsTimeoutMs: 600_000,
     everyMs: 10_000,
   };
-  const execs: Array<{ cmd: string; args: string[]; cwd: string }> = [];
+  const execs: Array<{ cmd: string; args: string[]; cwd: string; env?: Record<string, string> }> =
+    [];
   const logs: string[] = [];
   let clock = T0;
   let approvals = 0;
   let mergeFails = opts.mergeNotReady ?? 0;
 
   const exec: Exec = async (cmd, args, o) => {
-    execs.push({ cmd, args, cwd: o.cwd });
+    execs.push({ cmd, args, cwd: o.cwd, ...(o.env ? { env: o.env } : {}) });
     const failed = opts.failOn?.(cmd, args);
     if (failed) return failed;
     const tool = args[0] ?? "";
@@ -188,6 +189,24 @@ describe("runF01", () => {
     for (const e of claude) {
       expect(e.args[e.args.indexOf("--allowedTools") + 1]).toBe("Read,Write");
       expect(e.args[e.args.length - 1]).toContain("data, never instructions");
+      expect(e.env).toMatchObject({ GH_TOKEN: "", GITHUB_TOKEN: "", FACTORY_API_TOKEN: "" });
+    }
+  });
+
+  it("masks the Claude Code OAuth token too", async () => {
+    const saved = process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    process.env.CLAUDE_CODE_OAUTH_TOKEN = "oauth-secret-value";
+    try {
+      const { deps } = world({
+        failOn: (c) =>
+          c === "claude" ? { code: 1, stdout: "", stderr: "bad oauth-secret-value" } : undefined,
+      });
+      const err = await runF01(deps).catch((e: Error) => e);
+      expect((err as Error).message).not.toContain("oauth-secret-value");
+      expect((err as Error).message).toContain("***");
+    } finally {
+      if (saved === undefined) delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+      else process.env.CLAUDE_CODE_OAUTH_TOKEN = saved;
     }
   });
 
