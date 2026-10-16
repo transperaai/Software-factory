@@ -3,7 +3,7 @@
 16 Oct 2026. Answers:
 
 - **1a:** install the kit by copying it into `.claude/`. It loads in cloud sessions and in Actions. A plugin marketplace failed in both.
-- **1b:** kit update PRs come from a fan-out workflow using the `transpera-kit-bot` App. Its dry run passed; the live run follows the merge of #27.
+- **1b:** kit update PRs come from a fan-out workflow using the `transpera-kit-bot` App. Releasing 0.2.1 opened transperaai/factory-test-project#11 with green checks, and started the evals.
 - **1c:** run GitHub-triggered agents in Actions. They cost a quarter of what a cloud session does. Use cloud sessions for interactive work.
 - **1d:** 8 at once caused no throttling in either place. The limit is the usage budget, not concurrency.
 
@@ -31,7 +31,12 @@ Two things learned:
   - starts the Evals workflow for affected agents.
 - **Release:** the kit is already at 0.2.0, so this releases 0.2.1, not the planned 0.1.1. The change is real: the `factory-records` skill now says to read records by ID with `get_record`.
 - **Dry run on #27:** passed. The token was minted as `transpera-kit-bot`, the project checked out with it, and installing 0.2.1 changed only the skill and `kit.lock.json`. Nothing was pushed.
-- **Still to see, after you merge #27:** the update PR appears in `factory-test-project`, `kit-check` passes on it, and the lockfile shows 0.2.1. I'll add the result here.
+- **Live run (works):** merging #27 tagged `kit-v0.2.1`. Kit update then ran ([run](https://github.com/transperaai/Software-factory/actions/runs/38866613045)):
+  - `transpera-kit-bot[bot]` opened transperaai/factory-test-project#11, 47s after the merge.
+  - The PR changes only the skill and `kit.lock.json`, which is now on 0.2.1 at `e6bfd29`.
+  - `kit-check` ran on it and passed, so App-token PRs do trigger checks.
+  - The Evals workflow ran for `scribe` and passed ([run](https://github.com/transperaai/Software-factory/actions/runs/38866639033)).
+  - #11 was merged (factory-test-project merges are low-risk under CLAUDE.md).
 
 ## 1c. Cloud sessions versus Actions
 
@@ -52,7 +57,7 @@ Same small Sonnet task in both places (read 3 files, write 5 bullets), n = 14 ea
 | Cost tags | Per environment only (spike 4); child `claude -p` runs can tag | Per job, through `settings` env (S0-6) |
 | Small Haiku call | None seen | One per run, about 1,300 tokens (see follow-ups) |
 
-**Decision (proposed):**
+**Decision (accepted 16 Oct):**
 - **Actions** for agent runs that GitHub triggers or the conductor fans out: labelled issues, PR checks, kit updates, evals and the build line. They are about a quarter of the cost, every run is tagged, and secrets stay in GitHub.
 - **Cloud sessions** for interactive work with you: build sessions like this one, and anything that needs back and forth or your connectors.
 - **Cheaper cloud sessions:** trim the cloud environment's connectors and tools for agent work. The ~70k-token start-up is most of a cloud run's cost.
@@ -72,12 +77,12 @@ The same task at 2, then 4, then 8 at once, in both places at the same time. The
 - **Overage is off** (`overageStatus: rejected`, `out_of_credits`). Hitting the limit is a hard stop, not a bill.
 - **The meter can be read by code.** Every run reports `five_hour` and `seven_day` utilization, in Actions output and in cloud session events.
 
-**Decision (proposed):** start the conductor at **8 parallel agent runs in Actions**, below GitHub's limit on concurrent jobs (20 on the Free plan). Add a budget guard instead of a lower cap: the conductor reads `rate_limit_event` from each run, and stops starting new runs above 80% of the 5-hour window, or when the 7-day window is ahead of pace for the week. Raise the limit from live data in F-05.
+**Decision (accepted 16 Oct):** start the conductor at **8 parallel agent runs in Actions**, below GitHub's limit on concurrent jobs (20 on the Free plan). Add a budget guard instead of a lower cap: the conductor reads `rate_limit_event` from each run, and stops starting new runs above 80% of the 5-hour window, or when the 7-day window is ahead of pace for the week. Raise the limit from live data in F-05.
 
 Caveats: small tasks (about 40k tokens each), one round per step. Long coding runs will load the meter far faster, and the guard matters more than the cap.
 
 ## Follow-ups
 
-- **Haiku:** the small Haiku call in Actions goes against the no-Haiku rule. Your call: route it to Sonnet with `ANTHROPIC_DEFAULT_HAIKU_MODEL` in the agent runs' `settings` env, or accept it as Claude Code's own background call.
+- **Haiku (done):** the small Haiku call in Actions went against the no-Haiku rule. `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-sonnet-5-5` is now set in the agent runs' `settings` env (transperaai/factory-test-project#10). The next `mcp-check` run used Sonnet only. The eval runner still needs the same setting, in a small PR.
 - **OAuth token secret:** the first S0-6 runs failed because `CLAUDE_CODE_OAUTH_TOKEN` was saved with a line break. Paste it on one line when you renew it.
 - **The scribe's PR step** first failed with "GitHub Actions is not permitted to create or approve pull requests" until Actions was allowed to create PRs in the repo settings, as far as the logs show. Note this in the project bootstrap (F-12).
