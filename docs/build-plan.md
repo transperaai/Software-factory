@@ -4,7 +4,7 @@ Oct 15, 2026 · @Austin Smith
 
 ## How we build it
 
-We build the factory the way it will build client work: one thin end-to-end slice first, then one stage at a time, with a demo check at the end of each slice.
+We build the factory the way it will build client work: one thin end-to-end slice first (F-01), then one stage at a time, with a demo check at the end of each slice. From F-02 on, slices are thick: each one leaves its stage usable for real project work (Austin, 16 Oct), because thin slices drew out the build. Each slice is built in as few runs as possible: one build run, one review and one fix round by default, and at most three parallel streams where the work truly splits.
 
 - **Tracer bullet first.** Slice F-01 runs a single requirement from a dropped-in source to an approved record on the dashboard. It's thin, but every layer is real: git records, index, dashboard, approval and trace check.
 - **One stage per slice after that.** Each slice adds one phase of the life cycle (discovery, stories, build, test, release, operate) and its agents, scripts and dashboard screen.
@@ -106,11 +106,11 @@ Agents run as Claude Code sessions, started by you or by GitHub Actions on event
 
 ## Risks and mitigations
 
-The biggest risk is building too much factory before it has done any real work; every slice is kept thin and demoed to stop that.
+The biggest risk is building too much factory before it has done any real work; every slice ends at a demo of real use to stop that.
 
 | Risk | What it would look like | Mitigation |
 | --- | --- | --- |
-| Over-building | Months of factory, no client value | Thin slices, demo check per slice, first real project can start after F-07 |
+| Over-building | Months of factory, no client value | One stage per slice, each usable for real work as soon as it lands; demo check per slice; first real project can start after F-07 |
 | Agent quality | Agents produce plausible but wrong requirements or code | Evals written with each agent; human approval gates stay; learning loop only after F-10 |
 | Cost | Opus-heavy roles burn the budget | Cost ledger from Stage 0; token meter per slice; roles move to Sonnet when evals show equal quality |
 | Platform limits | Claude Code cloud or Actions can't run an agent the way the spec assumes | Stage 0 spikes answer this before any slice depends on it |
