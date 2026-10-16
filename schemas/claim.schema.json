@@ -63,7 +63,21 @@
         "fact",
         "opinion",
         "ask",
-        "assumption"
+        "assumption",
+        "measure"
+      ]
+    },
+    "trust": {
+      "enum": [
+        "strong",
+        "medium",
+        "unverified"
+      ]
+    },
+    "quote": {
+      "enum": [
+        "verbatim",
+        "paraphrase"
       ]
     },
     "confirmation": {
@@ -128,6 +142,8 @@
           "words",
           "location",
           "claim_type",
+          "trust",
+          "quote",
           "confirmation",
           "links"
         ],

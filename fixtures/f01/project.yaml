@@ -1,0 +1,12 @@
+key: E2E
+name: Factory end-to-end project
+client: Acme Logistics (sample)
+profile: lite
+mode: handover
+region: au
+security_level: L1
+adapter: vercel
+kit: kit-v0.3.0
+approvers:
+  - stakeholder: SH-00
+    gate: discovery

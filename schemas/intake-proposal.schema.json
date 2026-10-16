@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:intake-proposal",
+  "title": "Intake proposal",
+  "description": "Claims the intake agent found in one source. The record writer turns each into a CLM record.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "claims"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "pattern": "^SRC-\\d{2,}$"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "words",
+          "location",
+          "claim_type",
+          "trust",
+          "quote",
+          "said_by"
+        ],
+        "properties": {
+          "words": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim_type": {
+            "enum": [
+              "fact",
+              "opinion",
+              "ask",
+              "assumption",
+              "measure"
+            ]
+          },
+          "trust": {
+            "enum": [
+              "strong",
+              "medium",
+              "unverified"
+            ]
+          },
+          "quote": {
+            "enum": [
+              "verbatim",
+              "paraphrase"
+            ]
+          },
+          "said_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^SH-\\d{2,}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "flags": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "unlabelled_speaker",
+                "unclear_author",
+                "new_person",
+                "conflict",
+                "suspicious_content",
+                "sensitive_personal",
+                "unreadable",
+                "term_candidate",
+                "rule_candidate"
+              ]
+            }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -81,6 +81,8 @@ export const RECORDS: RecordSpec[] = [
         },
       },
       raw_file: text,
+      // SHA-256 of the raw file, so the sorter can refuse an exact duplicate.
+      sha256: { type: "string", pattern: "^[0-9a-f]{64}$" },
       supplied_by: { $ref: "#/$defs/ref_SH" },
     },
     required: ["source_type", "date", "participants", "raw_file"],
@@ -96,10 +98,14 @@ export const RECORDS: RecordSpec[] = [
     fields: {
       words: text,
       location: text,
-      claim_type: { enum: ["fact", "opinion", "ask", "assumption"] },
+      claim_type: { enum: ["fact", "opinion", "ask", "assumption", "measure"] },
+      // Trust follows the source type (design doc, "Ingestion and attribution").
+      trust: { enum: ["strong", "medium", "unverified"] },
+      // verbatim: copied exactly from a transcript; paraphrase: notes and documents.
+      quote: { enum: ["verbatim", "paraphrase"] },
       confirmation: { enum: ["pending", "confirmed", "rejected"] },
     },
-    required: ["words", "location", "claim_type", "confirmation"],
+    required: ["words", "location", "claim_type", "trust", "quote", "confirmation"],
     always: ["words", "location", "claim_type", "confirmation", "from_source"],
     links: {
       from_source: { targets: ["SRC"], required: true },

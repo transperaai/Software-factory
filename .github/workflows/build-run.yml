@@ -1,0 +1,149 @@
+# Runs one Sonnet build of a stream plan (docs/f-01-plan.md, "How we build it"; spike 2's two-run pattern).
+# Opus has already written the plan file. This job builds it on the stream branch and opens a PR into the base.
+# 1. claude-code-action runs Sonnet on the plan. It edits files only; it does not commit or push.
+# 2. The repo's own checks run. Their result goes in the PR; a failure opens the PR as a draft for review.
+# 3. Changes are committed and pushed with the transpera-kit-bot App token, so CI runs on the PR.
+# Secrets: CLAUDE_CODE_OAUTH_TOKEN and OTEL_INGEST_TOKEN (agent step), KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (PR step).
+# At most 8 runs at once (spike 1): GitHub has no N-slot concurrency, so the launcher starts at most 7 streams.
+name: Build run
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: Plan file, e.g. plans/F-01-S1.md
+        required: true
+      branch:
+        description: Stream branch, e.g. f01/s1-records
+        required: true
+      base:
+        description: Branch the PR targets
+        required: true
+        default: f01
+      slice:
+        description: Cost tag, e.g. F-01-S1
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-run-${{ inputs.branch }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PLAN: ${{ inputs.plan }}
+      BRANCH: ${{ inputs.branch }}
+      BASE: ${{ inputs.base }}
+      SLICE: ${{ inputs.slice }}
+    steps:
+      - name: Check inputs
+        run: |
+          [[ "$PLAN" =~ ^plans/[A-Za-z0-9._-]+\.md$ ]] || { echo "::error::Bad plan path: $PLAN"; exit 1; }
+          [[ "$BRANCH" =~ ^f[0-9]+/[a-z0-9-]+$ ]] || { echo "::error::Bad branch: $BRANCH"; exit 1; }
+          [[ "$BASE" =~ ^[a-z0-9/_-]+$ && "$BASE" != "main" ]] || { echo "::error::Bad base: $BASE"; exit 1; }
+          [[ "$SLICE" =~ ^[A-Z0-9-]+$ ]] || { echo "::error::Bad slice: $SLICE"; exit 1; }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.base }}
+          fetch-depth: 0
+      - name: Start from the stream branch if it exists (a fix round)
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+            git fetch origin "$BRANCH" && git switch "$BRANCH"
+          else
+            git switch -c "$BRANCH"
+          fi
+          [[ -f "$PLAN" ]] || { echo "::error::$PLAN is not on $BASE or $BRANCH"; exit 1; }
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the plan (Sonnet)
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          claude_args: >-
+            --model sonnet --max-turns 120
+            --allowedTools "Read,Write,Edit,MultiEdit,Glob,Grep,Bash(pnpm *),Bash(node *),Bash(npx *),Bash(cd *),Bash(ls *),Bash(cat *),Bash(mkdir *),Bash(mv *),Bash(cp *),Bash(rm *),Bash(git status*),Bash(git diff*),Bash(git log*),Bash(git mv *)"
+          settings: |
+            {
+              "env": {
+                "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-sonnet-5-5",
+                "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+                "OTEL_LOGS_EXPORTER": "otlp",
+                "OTEL_METRICS_EXPORTER": "otlp",
+                "OTEL_EXPORTER_OTLP_PROTOCOL": "http/json",
+                "OTEL_LOGS_EXPORT_INTERVAL": "2000",
+                "OTEL_METRIC_EXPORT_INTERVAL": "10000",
+                "OTEL_EXPORTER_OTLP_ENDPOINT": "https://transpera-factory.vercel.app/api/otel",
+                "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Bearer ${{ secrets.OTEL_INGEST_TOKEN }}",
+                "OTEL_RESOURCE_ATTRIBUTES": "factory.project=Software-factory,factory.client=transpera,factory.agent=coder-build,factory.slice=${{ inputs.slice }}"
+              }
+            }
+          prompt: |
+            You are the builder in a two-run hand-off: Opus wrote the plan, you build it exactly.
+            1. Read CLAUDE.md, then the plan at ${{ inputs.plan }}. If it has a "Review notes" section, this is a
+               fix round: do what the notes say.
+            2. Read only the files and doc sections the plan's Read list names. Use grep to find sections.
+            3. Build what the plan says: the files it names, the tests it names, nothing more. Write tests first.
+            4. Run the checks the plan names (at least the changed packages' lint, typecheck and test) until they pass.
+            5. If the plan is wrong or unclear, don't guess: stop and say what is wrong in your final reply.
+            Do not commit, push, or edit the plan file or anything under .github/workflows/ unless the plan says so.
+            Finish with a short summary: files changed, tests added, checks run and their results, open questions.
+
+      - name: Run the repo's checks
+        id: checks
+        continue-on-error: true
+        run: |
+          pnpm exec turbo run lint typecheck test 2>&1 | tail -60 | tee checks.log
+          exit "${PIPESTATUS[0]}"
+
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ secrets.KIT_BOT_APP_ID }}
+          private-key: ${{ secrets.KIT_BOT_PRIVATE_KEY }}
+      - name: Commit, push and open the PR
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          CHECKS: ${{ steps.checks.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$(git status --porcelain -- . ':!checks.log')" ]]; then
+            echo "::warning::The build changed nothing."
+            exit 0
+          fi
+          git config user.name "transpera-kit-bot[bot]"
+          git config user.email "transpera-kit-bot[bot]@users.noreply.github.com"
+          git add -A -- . ':!checks.log'
+          git commit -m "Build $SLICE from $PLAN" -m "Sonnet build run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          # Checkout left a read-only GITHUB_TOKEN header in git config; swap it for the App token only now,
+          # after the agent step, so the agent never had push rights.
+          git config --unset-all http.https://github.com/.extraheader || true
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push -u origin "$BRANCH"
+          {
+            echo "Sonnet build of \`$PLAN\` ($SLICE). Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "Repo checks (lint, typecheck, test): **$CHECKS**"
+            echo
+            echo '```text'
+            tail -30 checks.log
+            echo '```'
+          } > pr-body.md
+          if [[ -n "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')" ]]; then
+            gh pr comment "$BRANCH" --body-file pr-body.md
+          else
+            draft=(); [[ "$CHECKS" == "success" ]] || draft=(--draft)
+            gh pr create --base "$BASE" --head "$BRANCH" --title "$SLICE: $(head -1 "$PLAN" | sed 's/^# *//')" --body-file pr-body.md "${draft[@]}"
+          fi

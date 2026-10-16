@@ -1,14 +1,15 @@
 # F-01 Plan: the factory's tracer bullet
 
-Oct 16, 2026 · Draft for Austin's approval
+Oct 16, 2026 · Approved 16 Oct, with all six recommendations
 
 ## Status
 
 | State | Items |
 | --- | --- |
-| Waiting on you | Approve this plan, and answer the decisions in D1 to D6 |
+| Waiting on you | Your yes on the C0 PR (it changes schemas and adds a workflow); your steps 1 to 6 below |
 | Blocked on you | OTel variables in the cloud environment (A6 step 3). Still missing on 16 Oct: `env` shows no `OTEL_*` variables, so build sessions still don't report to the ledger |
-| Next | C0 contracts PR, then streams S1 to S7 in parallel |
+| In progress | C0 contracts |
+| Next | Plans for S1 to S7, then the streams in parallel once C0 is on `main` |
 
 ## Goal and demo check
 
@@ -37,11 +38,11 @@ Every stream reads `CLAUDE.md`, this plan, and its own plan file. Then only thes
 | `design/README.md`, `design/dashboard/` Overview and Thread explorer | Structure only | S7 |
 | `schemas/README.md`, `evals/README.md` | Whole file (short) | S1, S5 |
 
-## Decisions for you
+## Decisions
 
-Each has a recommendation. The contracts below assume the recommendation.
+All six recommendations accepted by Austin, 16 Oct.
 
-| # | Question | Recommendation | Why |
+| # | Question | Decision | Why |
 | --- | --- | --- | --- |
 | D1 | Claims must be confirmed before they become evidence, but the F-01 steps skip confirmation. Add it? | **Yes: one "Confirm claims from SRC-001" card** between intake and the BA agent | Keeps the rule "you confirm before anything becomes evidence", and matches the BA agent's spec trigger ("claims confirmed after a source"). Unknown and unlabelled speakers stay in F-02 |
 | D2 | Who merges an agent's records PR in a project repo? | **The workflow merges it** after its own checks pass, using the App token | Drafts aren't approvals; the APR record is the gate. Branch protection and auto-merge aren't available on private repos on GitHub Free. The PR stays as the audit trail |
@@ -57,7 +58,8 @@ Spike 2 and spike 1 decisions, applied to F-01:
 1. **Opus plans.** I write one plan file per stream, `plans/F-01-S<n>.md` (files, functions, tests by name, done check), in this session.
 2. **Sonnet builds, in a separate run.** `build-run.yml` (workflow_dispatch: plan path, branch) runs `claude-code-action` with `--model sonnet`, on branch `f01/s<n>-<name>`, and opens a PR into `f01`. No Haiku (`ANTHROPIC_DEFAULT_HAIKU_MODEL`). OTel tags: `factory.project=Software-factory, factory.agent=coder-build, factory.slice=F-01-S<n>`. The allowlist lets it run compound test commands (spike 2's 11 denials).
 3. **Opus reviews** each PR here. A fix round is a new Sonnet run with my review notes appended to the plan file.
-4. **At most 8 runs at once.** `build-run.yml` uses a concurrency group with 8 slots; I start at most 7 streams together, leaving room for an eval run.
+4. **At most 8 runs at once.** GitHub has no N-slot concurrency, so I start at most 7 build runs together, leaving room for an eval run. Each stream branch has its own concurrency group.
+5. `build-run.yml` must be on `main` before it can be started, so C0 merges to `main` first; `f01` is cut from `main` after that.
 
 ## Contracts (fixed here, built in C0)
 
@@ -82,7 +84,7 @@ Approving sets the target's `status: approved` and `approval: APR-…` in the sa
 
 You need a stakeholder record: C0 adds `SH-00` (Austin Smith, delivery lead, Transpera) to the sample projects.
 
-**K3. Agent proposals.** Agents never write `records/`. Each writes one JSON file, `.factory/runs/<run-id>/proposal.json`; the record writer allocates IDs and writes Markdown. JSON Schemas live in `schemas/proposals/`.
+**K3. Agent proposals.** Agents never write `records/`. Each writes one JSON file, `.factory/runs/<run-id>/proposal.json`; the record writer allocates IDs and writes Markdown. JSON Schemas: `schemas/intake-proposal.schema.json` and `schemas/ba-proposal.schema.json`, generated with the record schemas.
 
 - Intake: `{source: "SRC-001", claims: [{words, location, claim_type, trust, quote, said_by: "SH-01" | null, flags: []}]}`.
 - BA: `{brs: [{title, value, priority, owner, evidence: ["CLM-…"]}], parked: [{ask, reason, question, evidence: []}]}`. Parked asks go in the run summary in F-01; they become records in F-02.
@@ -97,7 +99,7 @@ You need a stakeholder record: C0 adds `SH-00` (Austin Smith, delivery lead, Tra
 
 | Table | Columns | Notes |
 | --- | --- | --- |
-| `records` (extended) | + `version int`, `source_path`, `deleted_at` | Existing table from spike 3 |
+| `records` (extended) | + `version int`, `deleted_at` | Existing table from spike 3; `path` already holds the file path |
 | `record_links` | `project, from_id, link_type, to_id, to_version` | PK on all but version. Reverse links are a query, never stored twice |
 | `index_syncs` | `project, commit_sha, synced_at, record_count, ok, findings jsonb` | One row per sync; `findings` holds trace checker output |
 | `id_counters` | `project, prefix, last int` | Allocation is `UPDATE … SET last = greatest(last, $max_in_tree) + n RETURNING` |
@@ -145,7 +147,7 @@ So: C0 first (about half a day). Then **S1 to S7 start together: 7 runs, under t
 
 | Stream | Main files | Tests (all `vitest`, PGlite for DB) |
 | --- | --- | --- |
-| C0 | `packages/schemas/src/definitions.ts`, `schemas/proposals/*.json`, `packages/db/migrations/0003_index.sql`, `packages/db/src/schema.ts`, `packages/records/src/types.ts`, `fixtures/f01/`, `.github/workflows/build-run.yml` | Schemas regenerate clean; migration applies on PGlite; fixtures pass the schema check |
+| C0 | `packages/schemas/src/{definitions,proposals}.ts`, `schemas/*-proposal.schema.json`, `packages/db/migrations/0003_index.sql`, `packages/db/src/schema.ts`, `packages/records/src/{contracts,ids}.ts`, `fixtures/f01/`, `.github/workflows/build-run.yml` | Schemas regenerate clean; migration applies on PGlite; fixtures pass the schema check |
 | S1 | `packages/records/src/{io,ids,writer,validate,trace,approve}.ts`, `kit/hooks/validate-records.mjs` | Round-trip read and write; writer rejects a non-verbatim claim and a BR citing a pending claim; validator catches a dead link and a reused ID; trace checker on a fixture repo; approval builder output passes the APR schema; hook blocks a bad record |
 | S2 | `packages/records/src/sorter/*.ts`, `kit/tools/intake-sort.mjs` | Each format parses to the same turns; a duplicate upload is refused; raw file byte-identical after the move; alias match; unmatched speaker left without SH; re-run changes nothing |
 | S3 | `packages/db/src/{index-sync,ids,query,cards}.ts`, `apps/dashboard/app/api/{index,ids}/…` | Sync replaces and deletes; reverse links; parallel allocation gives no duplicates; 401 without token; cards from fixture data |
@@ -157,14 +159,30 @@ So: C0 first (about half a day). Then **S1 to S7 start together: 7 runs, under t
 
 ## What you need to do
 
-1. **OTel variables** in the cloud environment (A6 step 3, listed in the spike 4 write-up). Still missing.
-2. **App permissions:** give `transpera-kit-bot` Actions (write) and Workflows (write), and install it on `factory-e2e` (D3).
-3. **Secrets** (I'll tell you exactly where when C0 is ready):
-   - Vercel, sensitive: App ID and private key; `INDEX_TOKEN`; `FACTORY_API_TOKEN`.
-   - `factory-test-project` and `factory-e2e`: App ID and private key; `INDEX_TOKEN`.
-   - Software-factory: `FACTORY_API_TOKEN`.
-4. **Create `transperaai/factory-e2e`** (private, empty) if you agree to D3.
-5. **The demo:** drop the sample transcript in the inbox, confirm the claims, approve the BR, and walk the thread.
+None of these block C0. Step 1 is worth doing now; the rest are needed before S6's live run and S8.
+
+1. **Cost reporting for cloud sessions.** claude.ai/code → this session's environment → Edit → Environment variables. Add the five lines below, then save. No headers or token variable: the proxy adds the token.
+   ```text
+   OTEL_LOGS_EXPORTER=otlp
+   OTEL_METRICS_EXPORTER=otlp
+   OTEL_EXPORTER_OTLP_PROTOCOL=http/json
+   OTEL_EXPORTER_OTLP_ENDPOINT=https://transpera-factory.vercel.app/api/otel
+   OTEL_RESOURCE_ATTRIBUTES=factory.client=transpera,factory.agent=build-session
+   ```
+2. **Create `transperaai/factory-e2e`.** Private, with a README so it has a `main` branch.
+3. **App permissions.** Org settings → Developer settings → GitHub Apps → `transpera-kit-bot` → Permissions & events: Actions and Workflows to Read and write, then save. Org settings → GitHub Apps (installed) → `transpera-kit-bot` → Configure: accept the new permissions and add `factory-e2e`. Note the App ID; if the private key `.pem` is lost, generate a new one on the App page.
+4. **Two new tokens.** Run `openssl rand -hex 32` twice: one is `INDEX_TOKEN`, the other `FACTORY_API_TOKEN`. Keep them in your password manager, not in chat.
+5. **Vercel** (project `transpera-factory` → Settings → Environment Variables; Sensitive on; Production and Preview): `KIT_BOT_APP_ID`, `KIT_BOT_PRIVATE_KEY` (the whole `.pem`), `INDEX_TOKEN`, `FACTORY_API_TOKEN`.
+6. **GitHub secrets** (repo → Settings → Secrets and variables → Actions):
+
+   | Repo | Secrets |
+   | --- | --- |
+   | `factory-test-project` | `KIT_BOT_APP_ID`, `KIT_BOT_PRIVATE_KEY`, `INDEX_TOKEN` |
+   | `factory-e2e` | Those three, plus `CLAUDE_CODE_OAUTH_TOKEN`, `FACTORY_MCP_TOKEN`, `OTEL_INGEST_TOKEN` (same values as `factory-test-project`, each on one line) |
+   | `Software-factory` | `FACTORY_API_TOKEN` |
+
+7. **Tell me when 1 to 6 are done.** I check variable names only, never values.
+8. **The demo:** drop the sample transcript in the inbox, confirm the claims, approve the BR, and walk the thread.
 
 ## Risks
 
