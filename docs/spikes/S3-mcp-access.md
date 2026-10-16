@@ -46,7 +46,7 @@ Actions cost breakdown (from the run's own JSON report, list-price equivalent): 
 
 ## Follow-ups
 
-- **Haiku background calls.** Set the background model to Sonnet in the agent runs (for example `ANTHROPIC_DEFAULT_HAIKU_MODEL`), and check in spike 4 whether it shows in the ledger. Needs your call on whether the rule covers this.
+- **Haiku background calls (done).** They do show in the ledger (spike 4). Agent runs now route them to Sonnet with `ANTHROPIC_DEFAULT_HAIKU_MODEL` (spike 1, follow-ups).
 - **Separate tokens.** `/api/records` reuses `OTEL_INGEST_TOKEN`. Give the index its own token before F-01, so a leaked telemetry token can't write records.
 - **Per-project scope.** Any holder of `MCP_TOKEN` can read every project. Fine for one project; F-01 or F-02 should scope tokens to a project.
 - **Cost of the cloud check** was not captured, because this session had no telemetry then. Spike 4 covers cloud costs.
