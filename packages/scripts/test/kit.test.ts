@@ -137,8 +137,8 @@ describe("installKit", () => {
     const project = temp();
     installKit(kit, project, source);
 
-    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(true);
     expect(existsSync(join(project, ".github/workflows/index-sync.yml"))).toBe(true);
+    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(false);
     expect(read(project, ".mcp.json")).toBe(read(kit, "kit/mcp.json"));
     expect(existsSync(join(project, ".claude/agents/intake/spec.md"))).toBe(false);
     expect(Object.keys(readLock(project)!.files)).toContain(".mcp.json");
@@ -148,8 +148,21 @@ describe("installKit", () => {
     const kit = kitRoot();
     const project = temp();
     installKit(kit, project, source);
-    writeFileSync(join(project, ".github/workflows/ba.yml"), "edited\n");
+    writeFileSync(join(project, ".github/workflows/index-sync.yml"), "edited\n");
     expect(() => installKit(kit, project, source)).toThrow(KitDeviationError);
+  });
+
+  it("removes an installed intake.yml when updating to 0.4.0", () => {
+    const kit = kitRoot();
+    const project = temp();
+    writeFileSync(join(kit, "kit/workflows/intake.yml"), "name: intake\n");
+    installKit(kit, project, source);
+    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(true);
+    rmSync(join(kit, "kit/workflows/intake.yml"));
+    const result = installKit(kit, project, { ...source, ref: "kit-v0.4.0" });
+    expect(readManifest(kit).version).toBe("0.4.0");
+    expect(result.removed).toEqual([".github/workflows/intake.yml"]);
+    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(false);
   });
 });
 
