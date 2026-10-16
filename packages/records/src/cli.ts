@@ -1,5 +1,7 @@
 // Entry point for kit/tools/records.mjs, run in a project as: node .factory/tools/records.mjs <command>
 //   write intake|ba <proposal.json> [--date YYYY-MM-DD]
+//   approve confirm|approve <ID>[,<ID>...] --decision approved|rejected|changes_requested
+//     [--versions <ID>@<n>[,...]] [--comment "<text>"] [--date YYYY-MM-DD]
 //   validate
 //   trace [--json]
 //   allocate <PREFIX> <count>
@@ -7,13 +9,14 @@
 import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { allocateIds } from "./allocate";
+import { recordApproval } from "./approve";
 import type { TraceFinding } from "./contracts";
 import { traceCheck } from "./trace";
 import { validateProject } from "./validate";
 import { ProposalRejected, writeBa, writeIntake } from "./writer";
 
 const USAGE =
-  "usage: records.mjs write intake|ba <proposal.json> [--date YYYY-MM-DD] | validate | trace [--json] | allocate <PREFIX> <count>";
+  'usage: records.mjs write intake|ba <proposal.json> [--date YYYY-MM-DD] | approve confirm|approve <ID>[,<ID>...] --decision approved|rejected|changes_requested [--versions <ID>@<n>[,...]] [--comment "<text>"] [--date YYYY-MM-DD] | validate | trace [--json] | allocate <PREFIX> <count>';
 
 function fail(message: string): never {
   console.error(message);
@@ -62,6 +65,29 @@ async function main(): Promise<void> {
       kind === "intake"
         ? await writeIntake(dir, proposal, opts)
         : await writeBa(dir, proposal, opts);
+    console.log(written.join("\n"));
+  } else if (command === "approve") {
+    const [kind, ids] = args;
+    if ((kind !== "confirm" && kind !== "approve") || !ids) fail(USAGE);
+    const flag = (name: string) => {
+      const at = args.indexOf(name);
+      return at >= 0 ? args[at + 1] : undefined;
+    };
+    const decision = flag("--decision");
+    if (decision !== "approved" && decision !== "rejected" && decision !== "changes_requested")
+      fail("--decision must be approved, rejected or changes_requested");
+    const date = flag("--date") ?? new Date().toISOString().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail("--date must be YYYY-MM-DD");
+    const versions = flag("--versions");
+    const written = await recordApproval(dir, {
+      allocate,
+      date,
+      kind,
+      targets: ids.split(",").filter(Boolean),
+      decision,
+      versions: versions ? versions.split(",").filter(Boolean) : undefined,
+      comment: flag("--comment"),
+    });
     console.log(written.join("\n"));
   } else fail(USAGE);
 }

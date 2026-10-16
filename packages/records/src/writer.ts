@@ -71,7 +71,9 @@ export async function writeIntake(
       return;
     }
     const line = /^L(\d+)$/.exec(claim.location);
-    const haystack = line ? lines[Number(line[1]) - 1] : text;
+    // text.md lines carry the original file's line number as an `L<n>` prefix; blank lines are left out,
+    // so match the prefix rather than the row index.
+    const haystack = line ? lines.find((l) => l.startsWith(`L${line[1]} `)) : text;
     if (haystack === undefined || !squash(haystack).includes(squash(claim.words)))
       problems.push(
         `${at}: the words are not at ${claim.location} in ${proposal.source} (quote is verbatim)`,
