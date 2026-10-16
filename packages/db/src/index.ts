@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 export * from "./schema";
 export * from "./ledger";
 export * from "./evals";
+export * from "./records";
 
 export type DbStatus =
   | { state: "connected"; latencyMs: number }
