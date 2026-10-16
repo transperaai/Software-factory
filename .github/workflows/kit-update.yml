@@ -1,0 +1,181 @@
+# Opens a kit update PR in every project repo listed in kit/projects.json when a new kit version is tagged.
+# PRs are opened with the transpera-kit-bot GitHub App token, so the project's own checks run on them
+# (PRs opened with GITHUB_TOKEN don't trigger workflows). Also starts the Evals workflow for the
+# agents the release affects. On a PR that changes this file or the project list, it runs as a dry
+# run: it mints the token and installs the kit, but pushes nothing.
+# Secrets: KIT_BOT_APP_ID, KIT_BOT_PRIVATE_KEY.
+name: Kit update
+
+on:
+  workflow_run:
+    workflows: ["Kit release"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Kit tag to roll out, e.g. kit-v0.2.1
+        required: true
+  pull_request:
+    paths: [".github/workflows/kit-update.yml", "kit/projects.json"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit-update
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.plan.outputs.tag }}
+      dry_run: ${{ steps.plan.outputs.dry_run }}
+      projects: ${{ steps.plan.outputs.projects }}
+      agents: ${{ steps.plan.outputs.agents }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Work out the tag, projects and affected agents
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_REF: ${{ inputs.ref }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          git fetch -q --tags origin
+          dry_run=false
+          case "$EVENT" in
+            workflow_dispatch) tag="$INPUT_REF" ;;
+            # A dry run installs this PR's own, unreleased kit, so it shows a real diff.
+            pull_request) tag=HEAD; dry_run=true ;;
+            *) tag="kit-v$(node -p "require('./kit/kit.json').version")" ;;
+          esac
+          if [[ "$dry_run" == false ]] && { [[ ! "$tag" =~ ^kit-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; }; then
+            echo "::error::No kit tag '$tag'."
+            exit 1
+          fi
+          # After Kit release, roll out only if that run tagged this commit (a kit change without a
+          # version bump releases nothing).
+          if [[ "$EVENT" == workflow_run && "$(git rev-parse "$tag^{commit}")" != "$HEAD_SHA" ]]; then
+            echo "No new kit version on this commit ($tag is older). Nothing to roll out."
+            echo "projects=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Agents to evaluate: those whose files changed since the previous tag. A change to a skill,
+          # hook or schema can affect any agent, so it selects every agent that has evals.
+          prev=$(git tag --list 'kit-v*' --sort=-v:refname | grep -A1 -x "$tag" | sed -n 2p || true)
+          agents="[]"
+          if [[ -n "$prev" && "$dry_run" == false ]]; then
+            changed=$(git diff --name-only "$prev" "$tag" -- kit schemas)
+            if grep -qE '^(kit/(skills|hooks|tools)/|schemas/)' <<<"$changed"; then
+              agents=$(find evals -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | jq -Rnc '[inputs]')
+            else
+              agents=$( { grep -oP '^kit/agents/\K[a-z0-9-]+(?=\.md$)' <<<"$changed" || true; } |
+                while read -r a; do if [[ -d "evals/$a" ]]; then echo "$a"; fi; done | jq -Rnc '[inputs]')
+            fi
+          fi
+          projects=$(jq -c '.projects' kit/projects.json)
+          echo "Tag $tag (previous ${prev:-none}), dry run $dry_run, projects $projects, evals for $agents"
+          {
+            echo "tag=$tag"
+            echo "dry_run=$dry_run"
+            echo "projects=$projects"
+            echo "agents=$agents"
+          } >> "$GITHUB_OUTPUT"
+
+  evals:
+    needs: plan
+    if: needs.plan.outputs.agents != '[]' && needs.plan.outputs.agents != ''
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    strategy:
+      matrix:
+        agent: ${{ fromJSON(needs.plan.outputs.agents) }}
+    steps:
+      - name: Start the Evals workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AGENT: ${{ matrix.agent }}
+        run: gh workflow run evals.yml --repo "$GITHUB_REPOSITORY" --ref main -f agent="$AGENT"
+
+  update:
+    needs: plan
+    if: needs.plan.outputs.projects != '[]' && needs.plan.outputs.projects != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.plan.outputs.projects) }}
+    env:
+      TAG: ${{ needs.plan.outputs.tag }}
+      DRY_RUN: ${{ needs.plan.outputs.dry_run }}
+      PROJECT: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git fetch -q --tags origin
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec turbo run build --filter=@factory/scripts
+      - name: Project repo name
+        id: repo
+        run: echo "name=${PROJECT#*/}" >> "$GITHUB_OUTPUT"
+      - name: Token for the project repo only
+        id: token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.KIT_BOT_APP_ID }}
+          private-key: ${{ secrets.KIT_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ steps.repo.outputs.name }}
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.project }}
+          token: ${{ steps.token.outputs.token }}
+          path: project
+      - name: Install the kit
+        run: node packages/scripts/dist/cli.js kit install --project project --kit . --ref "$TAG"
+      - name: Open or update the PR
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          APP_SLUG: ${{ steps.token.outputs.app-slug }}
+        working-directory: project
+        run: |
+          set -euo pipefail
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "$PROJECT is already on $TAG."
+            exit 0
+          fi
+          git status --short
+          if [[ "$DRY_RUN" == true ]]; then
+            echo "Dry run: would open a PR in $PROJECT for $TAG."
+            exit 0
+          fi
+          bot_id=$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+          branch="kit/update-$TAG"
+          git switch -c "$branch"
+          git add -A
+          git commit -q -m "Kit update to $TAG"
+          # The branch belongs to this workflow, so a re-run replaces it.
+          git push -q --force -u origin "$branch"
+          body="Updates the factory kit to \`$TAG\` (${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/$TAG). Opened by ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. The kit's evals for affected agents run in Software-factory's Evals workflow. Merge once the checks are green and you approve."
+          if [[ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')" ]]; then
+            gh pr comment "$branch" --body "Updated by a re-run. $body"
+          else
+            gh pr create --title "Kit update to $TAG" --body "$body" --head "$branch" --base main
+          fi
