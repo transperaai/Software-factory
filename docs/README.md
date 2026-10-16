@@ -8,6 +8,7 @@ Start here. Don't read the docs end to end: find the sections the current slice 
 | --- | --- |
 | `build-plan.md` | Build order: decisions, Stage 0, F-01 tracer bullet, F-02 to F-12 table, where everything runs, risks |
 | `stage-0-plan.md` | Stage 0 running status, repo layout, items S0-1 to S0-7, spikes 1 to 5, Austin's steps A1 to A7 |
+| `f-01-plan.md` | F-01 plan: decisions, contracts between streams, streams S1 to S8, files, tests, risks |
 | `spikes/` | One write-up per spike: what we tried, what happened, the decision |
 
 ## design-doc.md

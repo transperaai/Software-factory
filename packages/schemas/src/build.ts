@@ -8,6 +8,7 @@ import {
   type LinkSpec,
   type RecordSpec,
 } from "./definitions.ts";
+import { buildBaProposalSchema, buildIntakeProposalSchema } from "./proposals.ts";
 
 export const SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema";
 
@@ -164,6 +165,8 @@ export function buildAll(): Record<string, Json> {
   for (const spec of RECORDS) files[schemaFileName(spec.type)] = buildRecordSchema(spec);
   files[schemaFileName("project")] = buildProjectSchema();
   files["index.json"] = buildIndex();
+  files["intake-proposal.schema.json"] = buildIntakeProposalSchema();
+  files["ba-proposal.schema.json"] = buildBaProposalSchema();
   return files;
 }
 

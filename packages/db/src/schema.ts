@@ -132,7 +132,61 @@ export const records = pgTable(
     header: jsonb("header").notNull(),
     body: text("body").notNull().default(""),
     commitSha: text("commit_sha").notNull().default(""),
+    // F-01 index (plan K5). version is the header's version; deleted_at is set when a sync no longer finds the file.
+    version: integer("version").notNull().default(1),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.project, t.recordId] })],
+  (t) => [
+    primaryKey({ columns: [t.project, t.recordId] }),
+    index("records_project_type_status_idx").on(t.project, t.type, t.status),
+  ],
+);
+
+// F-01 index (docs/f-01-plan.md, K5). Rebuilt from git by index sync; git stays the record.
+
+/**
+ * One row per link, stored as written: on the downstream record, pointing upstream.
+ * Reverse links are a query on to_id, never stored twice. to_version is set for versioned refs (BR-01@2).
+ */
+export const recordLinks = pgTable(
+  "record_links",
+  {
+    project: text("project").notNull(),
+    fromId: text("from_id").notNull(),
+    linkType: text("link_type").notNull(),
+    toId: text("to_id").notNull(),
+    toVersion: integer("to_version"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.project, t.fromId, t.linkType, t.toId] }),
+    index("record_links_to_idx").on(t.project, t.toId),
+  ],
+);
+
+/** One row per index sync: which commit, how many records, and the trace checker's findings. */
+export const indexSyncs = pgTable(
+  "index_syncs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    project: text("project").notNull(),
+    commitSha: text("commit_sha").notNull(),
+    syncedAt: timestamp("synced_at", { withTimezone: true }).notNull().defaultNow(),
+    recordCount: integer("record_count").notNull(),
+    ok: boolean("ok").notNull(),
+    // TraceFinding[] from @factory/records.
+    findings: jsonb("findings").notNull().default([]),
+  },
+  (t) => [index("index_syncs_project_synced_idx").on(t.project, t.syncedAt)],
+);
+
+/** The last ID handed out per project and prefix, so parallel agent runs never get the same ID. */
+export const idCounters = pgTable(
+  "id_counters",
+  {
+    project: text("project").notNull(),
+    prefix: text("prefix").notNull(),
+    last: integer("last").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.project, t.prefix] })],
 );

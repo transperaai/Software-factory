@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:factory:schema:ba-proposal",
+  "title": "BA proposal",
+  "description": "Business requirements the BA agent drafted from confirmed claims, plus asks it parked. The record writer turns each BR into a BR record in review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brs",
+    "parked"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "pattern": "^SRC-\\d{2,}$"
+    },
+    "brs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "value",
+          "priority",
+          "owner",
+          "evidence"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could",
+              "wont"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "pattern": "^SH-\\d{2,}$"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^CLM-\\d{2,}$"
+            }
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "parked": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ask",
+          "reason",
+          "question"
+        ],
+        "properties": {
+          "ask": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^CLM-\\d{2,}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}
