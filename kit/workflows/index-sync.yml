@@ -1,0 +1,52 @@
+# Sends every record file, the commit SHA and the trace findings to the factory dashboard's index.
+# Runs on a push to main that touches records/, or by hand.
+# Secrets: INDEX_TOKEN.
+name: Index sync
+
+on:
+  push:
+    branches: [main]
+    paths: ["records/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: index-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Trace findings
+        # Findings are data for the index, so a non-zero exit alone doesn't stop the sync.
+        run: node .factory/tools/records.mjs trace --json > "$RUNNER_TEMP/findings.json" || [[ -s "$RUNNER_TEMP/findings.json" ]]
+      - name: Send the records
+        env:
+          FACTORY_URL: ${{ vars.FACTORY_URL || 'https://transpera-factory.vercel.app' }}
+          INDEX_TOKEN: ${{ secrets.INDEX_TOKEN }}
+          FACTORY_PROJECT: ${{ github.event.repository.name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          # Only record files are sent, not sources' text.md or raw transcripts.
+          # One jq run per file, so input_filename is that file's path.
+          find records -type f \( \( -name '*.md' -not -path 'records/sources/*' \) -o -path 'records/sources/*/meta.yaml' \) -print0 |
+            sort -z |
+            xargs -0 -r -n1 jq -Rs '{path: input_filename, content: .}' |
+            jq -s '.' > "$RUNNER_TEMP/files.json"
+          jq -n --arg project "$FACTORY_PROJECT" --arg sha "$COMMIT_SHA" \
+            --slurpfile files "$RUNNER_TEMP/files.json" --slurpfile findings "$RUNNER_TEMP/findings.json" \
+            '{project: $project, commitSha: $sha, files: $files[0], findings: $findings[0]}' > "$RUNNER_TEMP/body.json"
+          status=$(curl -sS -o "$RUNNER_TEMP/response.txt" -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $INDEX_TOKEN" -H 'Content-Type: application/json' \
+            --data-binary "@$RUNNER_TEMP/body.json" "$FACTORY_URL/api/index/sync")
+          echo "HTTP $status $(cat "$RUNNER_TEMP/response.txt")"
+          [[ "$status" == 200 ]]

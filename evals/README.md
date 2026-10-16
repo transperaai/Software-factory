@@ -31,8 +31,20 @@ rules:                              # the case passes when every rule passes
     in: reply                       # reply | files (record files written, one per line) | {file: <path>}
     pattern: SH-01
     flags: i
-  - rule: judge                     # Opus as the judge: interface only until F-01; always fails for now
+  - rule: judge                     # Opus scores a file against the rubric; needs --judge opus, fails without it
+    file: .factory/runs/r1/proposal.json
     rubric: ...
 ```
+
+Rules for the JSON proposals of the intake and BA agents (paths are in the workspace; `input` is the run's `input.json`):
+
+| Rule | Passes when |
+| --- | --- |
+| `json_schema { file, schema }` | the file passes `schemas/<schema>.schema.json` (for example `intake-proposal`) |
+| `claims_match { file, expected: [{ words, said_by }], min_recall }` | enough expected claims are found: a proposed claim's `words` contains the expected words (case-insensitive, whitespace-normalised) and `said_by` matches. Detail lists misses |
+| `no_invented { file, input }` | every `verbatim` claim's words appear in the input's `text`. No tolerance |
+| `evidence_subset { file, input }` | every BR evidence ID is a claim ID in the input |
+
+Run a judged suite with `--judge opus`: `node packages/scripts/dist/cli.js eval run --agent ba --cases evals/ba/ --judge opus`.
 
 Score is the share of rules passed. A case passes only when all rules pass and the agent reported no error.
