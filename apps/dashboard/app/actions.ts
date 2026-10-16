@@ -18,14 +18,30 @@ function decision(form: FormData) {
   return d;
 }
 
+function version(v: unknown): number {
+  const n = Number(v);
+  if (!/^\d+$/.test(String(v)) || n < 1) throw new Error("Bad version.");
+  return n;
+}
+
 /** Confirm or reject the ticked claims. Unticked claims stay pending. */
 export async function confirmClaimsAction(form: FormData) {
   await requireAllowed();
-  const targets = form.getAll("claim").map(String);
-  if (targets.length === 0) return;
+  const claims = form.getAll("claim").map((v) => {
+    const [id = "", ver = ""] = String(v).split("@");
+    if (!/^CLM-\d+$/.test(id)) throw new Error("Bad claim.");
+    return [id, version(ver)] as const;
+  });
+  if (claims.length === 0) return;
   const p = project(form);
   await recordDecision(
-    { project: p, kind: "confirm", targets, decision: decision(form) },
+    {
+      project: p,
+      kind: "confirm",
+      targets: claims.map(([id]) => id),
+      versions: Object.fromEntries(claims),
+      decision: decision(form),
+    },
     approvalDeps(p),
   );
   revalidatePath("/");
@@ -35,11 +51,13 @@ export async function approveAction(form: FormData) {
   await requireAllowed();
   const p = project(form);
   const comment = String(form.get("comment") ?? "").trim();
+  const record = String(form.get("record"));
   await recordDecision(
     {
       project: p,
       kind: "approve",
-      targets: [String(form.get("record"))],
+      targets: [record],
+      versions: { [record]: version(form.get("version")) },
       decision: decision(form),
       ...(comment ? { comment } : {}),
     },

@@ -83,4 +83,49 @@ describe("recordDecision", () => {
     ).rejects.toThrow("No record BR-99");
     expect(github.commitFiles).not.toHaveBeenCalled();
   });
+
+  it("refuses a version the user did not see, before allocate or GitHub", async () => {
+    const { deps, github, allocate } = setup();
+    await expect(
+      recordDecision(
+        {
+          project: "acme",
+          kind: "approve",
+          targets: ["BR-01"],
+          decision: "approved",
+          versions: { "BR-01": 2 },
+        },
+        deps,
+      ),
+    ).rejects.toThrow("BR-01 changed since you saw it (v2, now v1)");
+    expect(allocate).not.toHaveBeenCalled();
+    expect(github.commitFiles).not.toHaveBeenCalled();
+  });
+
+  it("refuses an approve target that is not waiting for approval", async () => {
+    const { deps, github } = setup();
+    const real = deps.queries.getRecord.bind(deps.queries);
+    deps.queries.getRecord = async (p, id) => {
+      const r = await real(p, id);
+      return r && { ...r, status: "approved" };
+    };
+    await expect(
+      recordDecision(
+        { project: "acme", kind: "approve", targets: ["BR-01"], decision: "approved" },
+        deps,
+      ),
+    ).rejects.toThrow("BR-01 is not waiting for approval.");
+    expect(github.commitFiles).not.toHaveBeenCalled();
+  });
+
+  it("refuses to confirm a claim that is not pending", async () => {
+    const { deps, github } = setup();
+    await expect(
+      recordDecision(
+        { project: "acme", kind: "confirm", targets: ["CLM-0001"], decision: "approved" },
+        deps,
+      ),
+    ).rejects.toThrow("CLM-0001 is not pending confirmation.");
+    expect(github.commitFiles).not.toHaveBeenCalled();
+  });
 });

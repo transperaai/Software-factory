@@ -71,4 +71,21 @@ describe("e2e routes", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ apr: "APR-0002" });
   });
+
+  it("refuses an act call for a version the user did not see", async () => {
+    github.commitFiles.mockClear();
+    const act = new Request("http://x/a", {
+      method: "POST",
+      headers: { authorization: "Bearer test-token" },
+      body: JSON.stringify({
+        project: "factory-e2e",
+        kind: "approve",
+        targets: ["BR-01"],
+        decision: "approved",
+        versions: { "BR-01": 2 },
+      }),
+    });
+    expect((await actRoute(act, deps)).status).toBe(500);
+    expect(github.commitFiles).not.toHaveBeenCalled();
+  });
 });

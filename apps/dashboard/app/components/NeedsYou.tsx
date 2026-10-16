@@ -29,8 +29,13 @@ export function NeedsYou({
                     {c.claims.map((cl) => (
                       <li key={cl.id}>
                         <label>
-                          <input type="checkbox" name="claim" value={cl.id} defaultChecked /> “
-                          {cl.words}” — {cl.speaker}
+                          <input
+                            type="checkbox"
+                            name="claim"
+                            value={`${cl.id}@${cl.version}`}
+                            defaultChecked
+                          />{" "}
+                          “{cl.words}” — {cl.speaker}
                         </label>
                       </li>
                     ))}
@@ -50,6 +55,7 @@ export function NeedsYou({
                 <form action={approve}>
                   <input type="hidden" name="project" value={c.project} />
                   <input type="hidden" name="record" value={c.record} />
+                  <input type="hidden" name="version" value={c.version} />
                   <h3>
                     Approve {c.record} v{c.version}: {c.title} ({c.project})
                   </h3>

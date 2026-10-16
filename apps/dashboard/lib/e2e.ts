@@ -90,6 +90,13 @@ export async function actRoute(req: Request, deps: E2eDeps = e2eDeps) {
         kind: b.kind === "confirm" ? "confirm" : "approve",
         targets: Array.isArray(b.targets) ? b.targets.map(String) : [],
         decision: b.decision === "approved" ? "approved" : "rejected",
+        ...(b.versions && typeof b.versions === "object"
+          ? {
+              versions: Object.fromEntries(
+                Object.entries(b.versions).filter(([, v]) => typeof v === "number"),
+              ) as Record<string, number>,
+            }
+          : {}),
         ...(typeof b.comment === "string" ? { comment: b.comment } : {}),
       },
       deps.approval(E2E_PROJECT),

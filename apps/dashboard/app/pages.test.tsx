@@ -71,6 +71,9 @@ describe("rendering", () => {
     expect(html).toContain("We lose two hours a day re-keying orders.");
     expect(html).toContain("Approve");
     expect(html).toContain('href="/thread/acme/BR-01"');
+    expect(html).toContain('name="version"');
+    expect(html).toContain('value="1"');
+    expect(html).toContain('value="CLM-0002@1"');
   });
 
   it("renders the BR table and the thread with its quotes", async () => {

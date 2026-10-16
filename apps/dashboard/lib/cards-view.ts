@@ -1,6 +1,6 @@
 import type { Card, IndexQueries, IndexedRecord } from "@factory/records";
 
-export type ClaimView = { id: string; words: string; speaker: string };
+export type ClaimView = { id: string; words: string; speaker: string; version: number };
 
 export type NeedsYouItem =
   | {
@@ -32,11 +32,12 @@ async function speakerName(q: IndexQueries, project: string, claim: IndexedRecor
 
 async function claimView(q: IndexQueries, project: string, id: string): Promise<ClaimView> {
   const claim = await q.getRecord(project, id);
-  if (!claim) return { id, words: "(missing)", speaker: "(unknown)" };
+  if (!claim) return { id, words: "(missing)", speaker: "(unknown)", version: 0 };
   return {
     id,
     words: str(claim.header.words) || claim.title,
     speaker: await speakerName(q, project, claim),
+    version: claim.version ?? 0,
   };
 }
 

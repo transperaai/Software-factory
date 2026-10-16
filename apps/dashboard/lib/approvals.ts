@@ -9,6 +9,8 @@ export type Decision = {
   targets: string[];
   decision: "approved" | "rejected" | "changes_requested";
   comment?: string;
+  /** The version of each target the user saw; a different current version refuses the decision. */
+  versions?: Record<string, number>;
 };
 
 export type ApprovalDeps = {
@@ -26,6 +28,15 @@ export async function recordDecision(d: Decision, deps: ApprovalDeps): Promise<s
   for (const id of d.targets) {
     const r = await queries.getRecord(d.project, id);
     if (!r) throw new Error(`No record ${id} in ${d.project}.`);
+    const seen = d.versions?.[id];
+    if (seen !== undefined && seen !== r.version)
+      throw new Error(
+        `${id} changed since you saw it (v${seen}, now v${r.version}). Reload and decide again.`,
+      );
+    if (d.kind === "approve" && (r.status !== "review" || r.header.approval))
+      throw new Error(`${id} is not waiting for approval.`);
+    if (d.kind === "confirm" && r.header.confirmation !== "pending")
+      throw new Error(`${id} is not pending confirmation.`);
     records.set(id, { path: r.path, header: r.header, body: r.body });
   }
 
@@ -41,7 +52,7 @@ export async function recordDecision(d: Decision, deps: ApprovalDeps): Promise<s
     targets: d.targets,
     decision: d.decision,
     approver: AUSTIN,
-    role: "Delivery lead",
+    role: "delivery lead",
     date: deps.now().toISOString().slice(0, 10),
     ...(d.comment ? { comment: d.comment } : {}),
   });
