@@ -1,6 +1,6 @@
 # Spike 4: token telemetry
 
-16 Oct 2026. Answer, so far: yes, as far as I can see. A tagged cloud run reached the ledger with exactly the run's own token counts, and the slice ID was on every row. Two results still need you to read the dashboard: a cloud run that exported straight to the dashboard, and the S0-6 Action. A finding: this build session itself is not reporting, because the cloud environment has no OTel exporter variables.
+16 Oct 2026. Answer: yes. Every tagged run reached the ledger with its exact totals and the slice ID on every row: an Actions run, a cloud run through a relay, and a cloud run exporting straight to the dashboard. You confirmed the dashboard rows. A finding: this build session itself was not reporting, because the cloud environment has no OTel exporter variables.
 
 ## Question
 
@@ -46,24 +46,26 @@ Both carry `factory.slice=ISSUE-2`. No log line shows an export error. The logs 
 - **A child run shares its parent's `session.id`.** Every run here reported this session's ID. Don't use `session.id` to tell runs apart; use the tags or the request IDs.
 - **Haiku shows up in Actions.** Claude Code makes one small Haiku call per run (about 1,300 tokens, $0.00014) even with `--model sonnet`. My cloud runs made none. Spike 3 noted the same.
 
-## To confirm when you sign in (exit check 4)
+## Dashboard check (exit check 4)
 
-On the home page, "Cost ledger, last 7 days", 16 Oct, project `factory-test-project`, client `transpera`:
+You signed in and read the 16 Oct rows for `factory-test-project`. Every amount matched the runs' own reports, to the cent:
 
-| Agent | Model | Expected |
-| --- | --- | --- |
-| `scribe` | `claude-sonnet-5-5` | $0.0321 |
-| `scribe` | `claude-haiku-5-5` | $0.0003, if Haiku calls are exported |
-| `spike4-cloud` | `claude-sonnet-5-5` | $0.0487 |
-| `spike4-direct` | `claude-sonnet-5-5` | $0.0527 |
-| `spike4-settings` | any | No row (test 3 exported nothing) |
+| Agent | Model | Runs' own reports | Dashboard |
+| --- | --- | --- | --- |
+| `scribe` | `claude-sonnet-5-5` | $0.0321 | $0.0321 |
+| `scribe` | `claude-haiku-5-5` | $0.0003 | $0.0003 |
+| `spike4-cloud` | `claude-sonnet-5-5` | $0.0487 | $0.0487 |
+| `spike4-direct` | `claude-sonnet-5-5` | $0.0527 | $0.0527 |
+| `spike4-settings` | any | no row | no row |
 
-The page should also show no line saying requests arrived without a full set of tags. If the `scribe` and `spike4-direct` rows match within 5%, the spike passes.
+- **No untagged requests:** the page showed no untagged line.
+- **Direct export works:** a cloud session exports through the proxy straight to the dashboard (test 2).
+- **Haiku is counted:** Claude Code's Haiku background call is exported and lands in the ledger.
 
 ## Decision (proposed)
 
 How the launcher sets tags:
-- **Actions:** in the action's `settings` env, per job, as `agent-run.yml` does now. Project and client come from the repo, the agent from the job, and the slice from the issue or slice ID. Proven for the run itself; the ledger side is waiting on your check.
+- **Actions:** in the action's `settings` env, per job, as `agent-run.yml` does now. Project and client come from the repo, the agent from the job, and the slice from the issue or slice ID. Proven: the S0-6 run's ledger rows match its own report.
 - **Agent runs started from a cloud session:** the launcher starts `claude -p` with the exporter variables and tags in the child's environment. Test 1 proved this.
 - **Interactive cloud sessions (like this one):** environment variables are set per cloud environment, not per session or repo, so they can't carry a project or slice. Set the exporter variables plus `factory.client=transpera,factory.agent=build-session` in the environment. Leave project and slice to a later step: a kit SessionStart hook that sends the session ID, repo and branch to the dashboard, so the ingest can fill them in. That hook belongs in F-09 (cost tracking), not Stage 0.
 - **Not project settings.** Test 3 shows Claude Code ignores OTel variables there.
