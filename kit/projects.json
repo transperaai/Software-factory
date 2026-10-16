@@ -1,0 +1,4 @@
+{
+  "$comment": "Project repos that get a kit update PR when a new kit version is tagged. Read by .github/workflows/kit-update.yml.",
+  "projects": ["transperaai/factory-test-project"]
+}
