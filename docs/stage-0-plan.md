@@ -4,15 +4,15 @@ Oct 15, 2026 · Approved 15 Oct
 
 ## Status
 
-Updated 15 Oct, 09:40 UTC.
+Updated 16 Oct.
 
 | State | Items |
 | --- | --- |
-| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7) and Hobby check (passed, see `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Production: https://transpera-factory.vercel.app |
-| Waiting on your merge | Hobby check write-up |
+| Done | Plan approved (#2). Design doc fixes (#1). **S0-1** monorepo, bare dashboard, CI (#3), Vercel framework fix (#7), Hobby check passed (#8, `docs/spikes/S0-1-hobby-check.md`). **S0-2** record schemas (#4). **S0-5** kit skeleton (#5), released as `kit-v0.1.0`. Running status (#6). Docs map and lean-context rules (#9). A1 Vercel, A2 Neon, A3 OAuth app. Production: https://transpera-factory.vercel.app |
+| Waiting on your merge | **S0-3** dashboard sign-in and Neon. After merging, log in on production to check it |
 | In progress | Nothing |
-| Blocked on you | **A2** Neon and **A3** GitHub OAuth app, for S0-3 |
-| Next | Wave 2: S0-3 dashboard login and Neon |
+| Blocked on you | Nothing |
+| Next | Wave 3: S0-4 cost ledger, S0-7 eval harness, spike 5 preview databases |
 
 ## Goal and exit check
 
