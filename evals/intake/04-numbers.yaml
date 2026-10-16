@@ -1,0 +1,44 @@
+id: intake-numbers
+description: Numbers and units are copied exactly, never rounded or converted.
+setup:
+  .factory/runs/r1/input.json: |
+    {
+      "agent": "intake",
+      "project": "acme-ops-portal",
+      "profile": "client",
+      "source": {
+        "id": "SRC-01",
+        "source_type": "transcript",
+        "date": "2026-10-02",
+        "text_path": "records/sources/SRC-01/text.md",
+        "trust": "strong"
+      },
+      "participants": [
+        { "label": "Austin Smith", "stakeholder": "SH-00" },
+        { "label": "Sarah Kim", "stakeholder": "SH-01" },
+        { "label": "Tom Reyes", "stakeholder": "SH-02" }
+      ],
+      "text": "L1 [00:00:20] Sarah Kim: Each missed pickup costs us a $250 credit.\nL2 [00:00:40] Sarah Kim: The pickup window is 4-hour.\nL3 [00:01:00] Tom Reyes: Maybe 1 in 10 requests is urgent."
+    }
+input: |
+  Run intake. The run folder is .factory/runs/r1
+rules:
+  - rule: json_schema
+    file: .factory/runs/r1/proposal.json
+    schema: intake-proposal
+  - rule: no_invented
+    file: .factory/runs/r1/proposal.json
+    input: .factory/runs/r1/input.json
+  - rule: regex
+    in: { file: .factory/runs/r1/proposal.json }
+    pattern: '"quote":\s*"paraphrase"'
+    match: false
+  - rule: claims_match
+    file: .factory/runs/r1/proposal.json
+    expected:
+      - words: $250
+        said_by: SH-01
+      - words: 4-hour
+        said_by: SH-01
+      - words: 1 in 10
+        said_by: SH-02

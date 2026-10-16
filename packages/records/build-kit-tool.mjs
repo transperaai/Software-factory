@@ -1,17 +1,22 @@
 /* global process, console, URL */
-// Builds the kit tools in kit/tools/: each one bundled with its dependencies, so a project can run
-// it with plain `node` and no factory repo. `--check` fails if a committed file is stale.
+// Builds kit/tools/records.mjs (the records CLI), kit/tools/intake-sort.mjs (the intake sorter) and
+// kit/hooks/validate-records.mjs (the PostToolUse hook):
+// each bundled with its dependencies, so a project runs them with plain `node` and no factory repo.
+// `--check` fails if a committed file is stale.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
-// One entry per tool. S1 adds its own (records.mjs) next to this one.
-const TOOLS = [{ entry: "src/sorter/cli.ts", out: "intake-sort.mjs" }];
-
+const targets = [
+  { entry: "src/cli.ts", out: "kit/tools/records.mjs" },
+  { entry: "src/hook.ts", out: "kit/hooks/validate-records.mjs" },
+  { entry: "src/sorter/cli.ts", out: "kit/tools/intake-sort.mjs" },
+];
 const check = process.argv.includes("--check");
 let stale = false;
-for (const { entry, out } of TOOLS) {
-  const outfile = fileURLToPath(new URL(`../../kit/tools/${out}`, import.meta.url));
+
+for (const { entry, out } of targets) {
+  const outfile = fileURLToPath(new URL(`../../${out}`, import.meta.url));
   const result = await build({
     entryPoints: [fileURLToPath(new URL(entry, import.meta.url))],
     bundle: true,
@@ -21,7 +26,7 @@ for (const { entry, out } of TOOLS) {
     minify: true,
     legalComments: "none",
     write: false,
-    // yaml is CommonJS-friendly; an ESM bundle needs a real `require` for any CommonJS inside.
+    // Ajv and yaml are CommonJS; an ESM bundle needs a real `require` for them.
     banner: {
       js: [
         `// Built from packages/records/${entry} by \`pnpm --filter @factory/records build:kit-tool\`. Do not edit.`,
@@ -38,16 +43,12 @@ for (const { entry, out } of TOOLS) {
       // missing counts as stale
     }
     if (current !== code) {
-      console.error(
-        `kit/tools/${out} is stale. Run: pnpm --filter @factory/records build:kit-tool`,
-      );
+      console.error(`${out} is stale. Run: pnpm --filter @factory/records build:kit-tool`);
       stale = true;
-    } else {
-      console.log(`kit/tools/${out} is up to date.`);
-    }
+    } else console.log(`${out} is up to date.`);
   } else {
     writeFileSync(outfile, code);
-    console.log(`Wrote kit/tools/${out} (${Math.round(code.length / 1024)} KB).`);
+    console.log(`Wrote ${out} (${Math.round(code.length / 1024)} KB).`);
   }
 }
 if (stale) process.exit(1);

@@ -1,0 +1,25 @@
+# Checks the records on every PR that touches them: schemas, links and the trace rules.
+name: Records check
+
+on:
+  pull_request:
+    paths: ["records/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: records-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node .factory/tools/records.mjs validate
+      - run: node .factory/tools/records.mjs trace
