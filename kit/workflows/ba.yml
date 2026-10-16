@@ -52,6 +52,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
+          # The dashboard and the e2e start this workflow as the kit App; the action refuses bot runs otherwise.
+          allowed_bots: transpera-kit-bot
           claude_args: >-
             --agent ba --model opus --allowedTools "Read,Write,mcp__factory__get_record" --max-turns 30
           settings: |

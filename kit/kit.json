@@ -1,6 +1,6 @@
 {
   "name": "transpera-kit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "install": [
     { "from": "kit/agents", "to": ".claude/agents", "match": "^[^/]+\\.md$" },
     { "from": "kit/skills", "to": ".claude/skills" },
