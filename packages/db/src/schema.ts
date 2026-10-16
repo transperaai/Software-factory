@@ -117,3 +117,22 @@ export const evalResults = pgTable(
   },
   (t) => [primaryKey({ columns: [t.runId, t.caseId] })],
 );
+
+// Record index (spike 3; the real index sync is F-01). One row per record file in a project repo.
+// Git stays the record: this is a copy for agents to query by ID, rebuilt from the repo.
+export const records = pgTable(
+  "records",
+  {
+    project: text("project").notNull(),
+    recordId: text("record_id").notNull(),
+    type: text("type").notNull(),
+    title: text("title").notNull().default(""),
+    status: text("status").notNull().default(""),
+    path: text("path").notNull(),
+    header: jsonb("header").notNull(),
+    body: text("body").notNull().default(""),
+    commitSha: text("commit_sha").notNull().default(""),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.project, t.recordId] })],
+);
