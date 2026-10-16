@@ -1,6 +1,6 @@
 # Spike 5: preview databases
 
-Status: **tests 1, 2, 3, 4 and 6 passed**; test 5 (branch limit) waits on Austin's go-ahead.
+Status: **done.** All six tests run; adopted.
 
 ## Question
 
@@ -32,7 +32,7 @@ The first live run showed `cache hit, replaying logs`: Vercel's Turbo remote cac
 | 2 | Throwaway migration on the branch applies there and not on production (reverted before merge) | **Pass** (16 Oct, `19364fc`, reverted). `spike5_probe` on `preview/stage0/spike-5`, not on `main` |
 | 3 | First push of a brand-new git branch gets its variables on the first build | **Pass** (16 Oct, `spike5/first-build`, `a5697b4`). First build logged `migrating (preview branch ep-frosty-hat-a7uqxfs4)`, `up to date`; the Turbo cache hit came after the migration, as #14 intended |
 | 4 | Closing a throwaway PR deletes its Neon branch; deleting a branch with no PR does too | **Pass** (16 Oct). Closing #13 deleted `preview/stage0/spike-5` in about 1 s; the auto-delete of its git branch then found nothing and passed. Closing throwaway #16 deleted `preview/spike5/cleanup-test` |
-| 5 | At the 10-branch limit, a new preview fails or falls back, and never migrates production | Pending |
+| 5 | At the 10-branch limit, a new preview fails or falls back, and never migrates production | **Pass** (16 Oct, `spike5/limit-test`, `d4c6d8b`). With 10 branches (7 compute-less dummies), the preview failed before building: `BUILD_FAILED: Resource provisioning failed`. No Neon branch, no build, no fallback to production. Dummies deleted after |
 | 6 | CU-hours used during the spike | **0.39 CU-hours** for the whole project this period (limit 100). Each preview branch used about 80 s of compute |
 
 ## Decision
@@ -43,4 +43,4 @@ Also learned:
 
 - Neon marks the production branch undeletable ("vercel production branch"), a second safety net under the cleanup's `preview/` filter.
 - Branches from PRs merged before the cleanup existed (`preview/stage0/migrate-uncached`) stay until Vercel's retention removes them, or until they are deleted by hand.
-- Test 5 (what happens at the 10-branch limit) is still open. The guard means a fallback can't migrate production, but a fallback preview would talk to production at runtime.
+- At the branch limit a preview fails to deploy rather than falling back to production. A failed preview with "Resource provisioning failed" means: delete stale `preview/` branches in Neon, then redeploy.
