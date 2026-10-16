@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -17,7 +17,12 @@ beforeEach(() => {
   cpSync(join(repo, "fixtures/f01"), dir, { recursive: true });
 });
 
-const sort = () => sortInbox(dir, INBOX, localDeps(), { date: "2026-10-16", runId: "r1" });
+const sort = () =>
+  sortInbox(dir, INBOX, localDeps(), {
+    project: "E2E",
+    date: "2026-10-16",
+    runId: "r1",
+  });
 
 describe("sortInbox", () => {
   it("creates SRC-001 with a valid meta.yaml", async () => {
@@ -95,10 +100,71 @@ describe("sortInbox", () => {
       join(dir, "inbox/again.txt"),
     );
     const err = await sortInbox(dir, "inbox/again.txt", localDeps(), {
+      project: "E2E",
       date: "2026-10-16",
       runId: "r2",
     }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(DuplicateSourceError);
     expect((err as Error).message).toContain("SRC-001");
+  });
+
+  it("allocates and bundles under the given project name", async () => {
+    const calls: { project: string }[] = [];
+    const deps = {
+      ...localDeps(),
+      allocate: async (o: { project: string }) => {
+        calls.push(o);
+        return ["SRC-007"];
+      },
+    };
+    await sortInbox(dir, INBOX, deps, { project: "factory-e2e", date: "2026-10-16", runId: "r3" });
+    expect(calls[0]?.project).toBe("factory-e2e");
+    const input = JSON.parse(
+      readFileSync(join(dir, ".factory/runs/r3/input.json"), "utf8"),
+    ) as IntakeInput;
+    expect(input.project).toBe("factory-e2e");
+    expect(input.source.id).toBe("SRC-007");
+  });
+
+  it("reads the date from a dashboard upload name", async () => {
+    for (const [n, want] of [
+      ["20261016-101500-kickoff-2026-10-02.txt", "2026-10-02"],
+      ["20261016-101500-notes.txt", "2026-10-16"],
+    ] as const) {
+      const d2 = mkdtempSync(join(tmpdir(), "sorter-"));
+      cpSync(join(repo, "fixtures/f01"), d2, { recursive: true });
+      writeFileSync(join(d2, "inbox", n), "Sarah Kim: hello\n");
+      await sortInbox(d2, `inbox/${n}`, localDeps(), {
+        project: "E2E",
+        date: "2026-01-01",
+        runId: "r",
+      });
+      const meta = parseYaml(readFileSync(join(d2, "records/sources/SRC-001/meta.yaml"), "utf8"));
+      expect(meta.date).toBe(want);
+    }
+  });
+
+  it("does not use WEBVTT as a title", async () => {
+    writeFileSync(
+      join(dir, "inbox/call.vtt"),
+      "WEBVTT\n\n00:00:01.000 --> 00:00:04.000\n<v Sarah Kim>Hello there.\n",
+    );
+    await sortInbox(dir, "inbox/call.vtt", localDeps(), {
+      project: "E2E",
+      date: "2026-10-16",
+      runId: "r5",
+    });
+    const meta = parseYaml(readFileSync(join(dir, "records/sources/SRC-001/meta.yaml"), "utf8"));
+    expect(meta.title).not.toBe("WEBVTT");
+  });
+
+  it("refuses a path outside inbox/", async () => {
+    const err = await sortInbox(dir, "records/stakeholders/SH-01.md", localDeps(), {
+      project: "E2E",
+      date: "2026-10-16",
+      runId: "r6",
+    }).catch((e: unknown) => e);
+    expect((err as Error).message).toContain("records/stakeholders/SH-01.md");
+    expect(existsSync(join(dir, "records/stakeholders/SH-01.md"))).toBe(true);
   });
 });

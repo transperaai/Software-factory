@@ -1,4 +1,4 @@
-import { RecordValidator, findRecordFiles } from "@factory/schemas";
+import { RecordValidator } from "@factory/schemas";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -23,9 +23,15 @@ describe("kit/tools/intake-sort.mjs", () => {
     expect(out.trim()).toBe("SRC-001");
     expect(existsSync(join(dir, ".factory/runs/test/input.json"))).toBe(true);
     const validator = new RecordValidator(join(repo, "schemas"));
-    const failed = findRecordFiles(join(dir, "records"))
-      .map((f) => validator.validateFile(f))
-      .filter((r) => !r.ok);
-    expect(failed).toEqual([]);
+    // switch to S1's validateProject(dir) once S1 is merged
+    const files = [
+      "records/sources/SRC-001/meta.yaml",
+      "records/stakeholders/SH-00.md",
+      "records/stakeholders/SH-01.md",
+      "records/stakeholders/SH-02.md",
+    ];
+    const results = files.map((f) => validator.validateFile(join(dir, f)));
+    expect(results).toHaveLength(4);
+    expect(results.every((r) => r.ok)).toBe(true);
   });
 });

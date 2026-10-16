@@ -2,9 +2,9 @@
 // clean numbered text, and the intake agent's input bundle.
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, isAbsolute, join, relative, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { RUN_DIR, type IntakeInput, type RecordHeader } from "../contracts";
+import { INBOX_DIR, RUN_DIR, type IntakeInput, type RecordHeader } from "../contracts";
 import type { Deps } from "./deps";
 import { matchSpeakers, type StakeholderLike } from "./match";
 import { parseTranscript, type Turn } from "./parse";
@@ -33,13 +33,20 @@ export function renderText(turns: Turn[]): string {
   );
 }
 
-function dateFromName(name: string): string | undefined {
+function findDate(name: string): string | undefined {
   const m = /(?<!\d)(\d{4})-?(\d{2})-?(\d{2})(?!\d)/.exec(name);
   if (!m) return undefined;
   const [, y, mo, d] = m;
   return Number(mo) >= 1 && Number(mo) <= 12 && Number(d) >= 1 && Number(d) <= 31
     ? `${y}-${mo}-${d}`
     : undefined;
+}
+
+// Dashboard uploads are named <yyyymmdd-hhmmss>-<name>: prefer a date in the name, then the stamp.
+function dateFromName(name: string): string | undefined {
+  const stamp = /^\d{8}-\d{6}-/.exec(name);
+  if (!stamp) return findDate(name);
+  return findDate(name.slice(stamp[0].length)) ?? findDate(stamp[0].slice(0, 8));
 }
 
 // meta.yaml is plain YAML: reuse the record serializer for key order, then drop the fences.
@@ -52,9 +59,13 @@ export async function sortInbox(
   dir: string,
   inboxPath: string,
   deps: Deps,
-  opts: { date: string; runId: string },
+  opts: { project: string; date: string; runId: string },
 ): Promise<{ source: string; files: string[] }> {
   const file = resolve(dir, inboxPath);
+  const rel = relative(resolve(dir, INBOX_DIR), file);
+  if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) {
+    throw new Error(`${inboxPath} is not inside ${INBOX_DIR}/.`);
+  }
   const name = basename(file);
   if (statSync(file).size > MAX_SOURCE_BYTES) {
     throw new Error(`${name} is over the 1 MB limit for a source file.`);
@@ -71,10 +82,9 @@ export async function sortInbox(
   }
 
   const project = parseYaml(readFileSync(join(dir, "project.yaml"), "utf8")) as {
-    key: string;
     profile: string;
   };
-  const [src] = await deps.allocate({ project: project.key, prefix: "SRC", count: 1, dir });
+  const [src] = await deps.allocate({ project: opts.project, prefix: "SRC", count: 1, dir });
   if (!src) throw new Error("No SRC ID was allocated.");
 
   const stakeholders: StakeholderLike[] = [...records.values()]
@@ -97,7 +107,7 @@ export async function sortInbox(
     raw
       .toString("utf8")
       .split(/\r?\n/)
-      .find((l) => l.trim() !== "")
+      .find((l) => l.trim() !== "" && l.trim().toUpperCase() !== "WEBVTT")
       ?.trim() || name;
   const header: RecordHeader = {
     id: src,
@@ -118,7 +128,7 @@ export async function sortInbox(
 
   const input: IntakeInput = {
     agent: "intake",
-    project: project.key,
+    project: opts.project,
     profile: project.profile,
     source: {
       id: src,

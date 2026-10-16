@@ -23,18 +23,23 @@ async function main(args: string[]): Promise<void> {
     key: string;
     profile: string;
   };
+  const projectName = process.env.FACTORY_PROJECT ?? project.key;
   const runId = flag(args, "run");
   if (!runId) throw new Error("Missing --run <id>.");
 
   if (args[0] === "sort" && args[1]) {
     const date = new Date().toISOString().slice(0, 10);
-    const { source } = await sortInbox(dir, args[1], localDeps(online), { date, runId });
+    const { source } = await sortInbox(dir, args[1], localDeps(online), {
+      project: projectName,
+      date,
+      runId,
+    });
     console.log(source);
   } else if (args[0] === "bundle" && args[1] === "ba") {
     const source = flag(args, "source");
     if (!source) throw new Error("Missing --source <SRC>.");
     const input = await buildBaInput({
-      project: process.env.FACTORY_PROJECT ?? project.key,
+      project: projectName,
       profile: project.profile,
       source,
       ...(online ? online : { dir }),
