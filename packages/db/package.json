@@ -15,6 +15,7 @@
     "migrate:deploy": "node scripts/migrate.mjs"
   },
   "dependencies": {
+    "@factory/records": "workspace:*",
     "@neondatabase/serverless": "^1.2.0",
     "drizzle-orm": "^0.45.4"
   },
