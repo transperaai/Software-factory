@@ -1,7 +1,15 @@
 // Installs the kit into a project at a pinned version and records it in kit.lock.json.
 // Safe to re-run: installing the same kit twice changes nothing the second time.
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, relative } from "node:path";
 
 export const LOCKFILE = "kit.lock.json";
@@ -56,6 +64,11 @@ export function plannedFiles(kitRoot: string, manifest: KitManifest): Map<string
   for (const rule of manifest.install) {
     const fromDir = join(kitRoot, rule.from);
     if (!existsSync(fromDir)) continue;
+    // A single-file rule installs that file at `to`.
+    if (statSync(fromDir).isFile()) {
+      planned.set(rule.to, fromDir);
+      continue;
+    }
     const pattern = rule.match ? new RegExp(rule.match) : undefined;
     for (const file of walk(fromDir)) {
       const rel = toPosix(relative(fromDir, file));

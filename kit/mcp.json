@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "factory": {
+      "type": "http",
+      "url": "https://transpera-factory.vercel.app/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${FACTORY_MCP_TOKEN}",
+        "X-Factory-Agent": "${FACTORY_AGENT}"
+      }
+    }
+  }
+}

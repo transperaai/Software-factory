@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -123,6 +124,42 @@ describe("installKit", () => {
     writeFileSync(join(project, ".claude/agents/scribe.md"), "edited\n");
     expect(() => installKit(kit, project, source)).toThrow(KitDeviationError);
     expect(read(project, ".claude/agents/scribe.md")).toBe("edited\n");
+  });
+
+  it("installs workflows and .mcp.json, and never a spec file as an agent", () => {
+    const kit = kitRoot();
+    mkdirSync(join(kit, "kit/agents/intake"), { recursive: true });
+    writeFileSync(join(kit, "kit/agents/intake/spec.md"), "spec\n");
+    const project = temp();
+    installKit(kit, project, source);
+
+    expect(existsSync(join(project, ".github/workflows/intake.yml"))).toBe(true);
+    expect(existsSync(join(project, ".github/workflows/index-sync.yml"))).toBe(true);
+    expect(read(project, ".mcp.json")).toBe(read(kit, "kit/mcp.json"));
+    expect(existsSync(join(project, ".claude/agents/intake/spec.md"))).toBe(false);
+    expect(Object.keys(readLock(project)!.files)).toContain(".mcp.json");
+  });
+
+  it("refuses to overwrite a workflow the project has edited", () => {
+    const kit = kitRoot();
+    const project = temp();
+    installKit(kit, project, source);
+    writeFileSync(join(project, ".github/workflows/ba.yml"), "edited\n");
+    expect(() => installKit(kit, project, source)).toThrow(KitDeviationError);
+  });
+});
+
+describe("kit workflows", () => {
+  const dir = join(repoRoot, "kit/workflows");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".yml"));
+
+  it("never give the App token or its key to a claude-code-action step", () => {
+    for (const file of files) {
+      const steps = readFileSync(join(dir, file), "utf8").split(/^ {6}- /m);
+      for (const step of steps.filter((s) => s.includes("anthropics/claude-code-action"))) {
+        expect(step, file).not.toMatch(/KIT_BOT_|steps\.app\.outputs|app-token|GH_TOKEN/);
+      }
+    }
   });
 });
 
