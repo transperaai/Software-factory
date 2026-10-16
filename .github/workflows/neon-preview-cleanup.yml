@@ -1,0 +1,43 @@
+# Deletes a preview's Neon branch (preview/<git branch>) when its PR closes or its git branch is
+# deleted, instead of waiting ~30 days for Vercel's retention to remove it (spike 5).
+# Both triggers run this file from main, so a PR can't change what runs with the key.
+# Needs: variable NEON_PROJECT_ID, and secret NEON_API_KEY in the `neon-cleanup` environment
+# (limited to main). Only names starting with preview/ are ever deleted, never the default branch.
+name: Neon preview cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+  delete:
+
+permissions: {}
+
+jobs:
+  delete-branch:
+    # Same-repo PRs only, and only deleted branches (not tags).
+    if: >-
+      (github.event_name == 'pull_request_target' &&
+       github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'delete' && github.event.ref_type == 'branch')
+    runs-on: ubuntu-latest
+    environment: neon-cleanup
+    steps:
+      - name: Delete the Neon branch if it exists
+        env:
+          GIT_BRANCH: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.event.ref }}
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          set -euo pipefail
+          name="preview/${GIT_BRANCH}"
+          api="https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches"
+          auth=(-H "Authorization: Bearer ${NEON_API_KEY}" -H "Accept: application/json")
+          id=$(curl -fsS "${auth[@]}" "$api" |
+            jq -r --arg n "$name" '.branches[] | select(.name == $n and (.default != true) and (.primary != true)) | .id')
+          if [[ -z "$id" ]]; then
+            echo "No Neon branch named $name; nothing to delete."
+            exit 0
+          fi
+          [[ "$name" == preview/* ]] || { echo "::error::Refusing to delete $name"; exit 1; }
+          curl -fsS -X DELETE "${auth[@]}" "$api/$id" > /dev/null
+          echo "Deleted Neon branch $name ($id)."
