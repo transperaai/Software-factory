@@ -86,7 +86,18 @@ importers:
         specifier: ^0.31.11
         version: 0.31.11
 
-  packages/records: {}
+  packages/records:
+    dependencies:
+      '@factory/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+    devDependencies:
+      esbuild:
+        specifier: 0.25.12
+        version: 0.25.12
 
   packages/schemas:
     dependencies:
