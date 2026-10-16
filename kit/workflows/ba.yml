@@ -2,7 +2,7 @@
 # records, and merges them to main (docs/f-01-plan.md, K3, K4, K9, D2). The dashboard starts it with
 # workflow_dispatch on main once the claims are confirmed.
 # The agent has no App token and no push rights; the token is minted after it has finished.
-# Secrets: CLAUDE_CODE_OAUTH_TOKEN, FACTORY_MCP_TOKEN, OTEL_INGEST_TOKEN (agent step), INDEX_TOKEN (bundle and write steps, never the agent step),
+# Secrets: CLAUDE_CODE_OAUTH_TOKEN, FACTORY_MCP_TOKEN, OTEL_INGEST_TOKEN (agent step), INDEX_TOKEN (write step only, never the agent step),
 # KIT_BOT_APP_ID and KIT_BOT_PRIVATE_KEY (PR step).
 name: BA
 
@@ -42,9 +42,9 @@ jobs:
         with:
           node-version: 22
 
+      # Offline, from this main checkout: it already holds the confirmation commit, while the index may not
+      # have synced it yet (index-sync is a separate run). Git is the record (K4 allows either).
       - name: Bundle the confirmed claims
-        env:
-          INDEX_TOKEN: ${{ secrets.INDEX_TOKEN }}
         run: node .factory/tools/intake-sort.mjs bundle ba --source "$SOURCE" --run "$RUN"
 
       - name: Propose requirements (Opus)
