@@ -21,6 +21,8 @@ If anything here conflicts with those docs, the docs win. If the docs need to ch
 - **Full auto, no stops for Austin.** Claude plans, builds, merges and moves to the next slice without waiting for approval, acceptance or a yes in chat. Austin gets a short summary after each slice and can step in any time.
 - **Work one slice at a time, in build-plan order.** Start the next slice once the previous one's demo check passes and is merged.
 - **Thick slices, real end to end.** Since F-02 (Austin, 16 Oct): a slice leaves its stage usable for real work, not just a proven chain. Build the whole stage in one slice (all its records, agent skills, checks and views), with no layer mocked unless the plan says so. Stay thin only where real use doesn't need it yet, and say so in the plan.
+- **Few build runs per slice.** Split a slice into streams only where work truly runs in parallel, and keep it to three or fewer. Prefer one build run, one review and one fix round. F-01's ten streams, each with its own run, review and CI cycle, are what made it slow.
+- **Only `main` deploys.** Vercel skips every other branch (`apps/dashboard/vercel.json`), so the 100-a-day deploy limit is never hit. PRs are gated on CI `check`, not a preview.
 - **Input and approvals happen in Claude Code** (D8, `docs/f-01-plan.md`). The dashboard is view-only.
 - **Every slice ends at its demo check.** Run the written check, then post a short summary: what was built, the check result, decisions made and any doc changes.
 - **Claude merges when CI is green.** No approval needed, in either repo. Never merge on red CI. Every merge to `main` deploys to production.
