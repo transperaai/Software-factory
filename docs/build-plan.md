@@ -4,11 +4,11 @@ Oct 15, 2026 · @Austin Smith
 
 ## How we build it
 
-We build the factory the way it will build client work: one thin end-to-end slice first, then one stage at a time, with a demo you approve at the end of each slice.
+We build the factory the way it will build client work: one thin end-to-end slice first, then one stage at a time, with a demo check at the end of each slice.
 
 - **Tracer bullet first.** Slice F-01 runs a single requirement from a dropped-in source to an approved record on the dashboard. It's thin, but every layer is real: git records, index, dashboard, approval and trace check.
 - **One stage per slice after that.** Each slice adds one phase of the life cycle (discovery, stories, build, test, release, operate) and its agents, scripts and dashboard screen.
-- **A demo checkpoint per slice.** Each ends with a short demo against a written check. Nothing moves on until you accept it.
+- **A demo checkpoint per slice.** Each ends with an automated run of its written check and a short summary to you. The build runs full auto: no waiting for your approval, acceptance or merge yes.
 - **The factory starts building itself.** Early slices are built by Claude Code with you steering. From F-05, when the build loop exists, the factory's own conductor, coder and reviewers build the remaining slices, so we test the factory on itself.
 - **Agents get evals before they get work.** Each agent's evals from its spec are written in the same slice as the agent, so quality is measured from day one.
 - **Built only when needed.** Boilerplates, modules and the design kit grow when a slice needs them, not ahead of time.
@@ -110,7 +110,7 @@ The biggest risk is building too much factory before it has done any real work; 
 
 | Risk | What it would look like | Mitigation |
 | --- | --- | --- |
-| Over-building | Months of factory, no client value | Thin slices, demo per slice, first real project can start after F-07 |
+| Over-building | Months of factory, no client value | Thin slices, demo check per slice, first real project can start after F-07 |
 | Agent quality | Agents produce plausible but wrong requirements or code | Evals written with each agent; human approval gates stay; learning loop only after F-10 |
 | Cost | Opus-heavy roles burn the budget | Cost ledger from Stage 0; token meter per slice; roles move to Sonnet when evals show equal quality |
 | Platform limits | Claude Code cloud or Actions can't run an agent the way the spec assumes | Stage 0 spikes answer this before any slice depends on it |
