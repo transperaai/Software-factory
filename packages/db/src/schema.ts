@@ -1,13 +1,17 @@
 import {
   bigint,
+  boolean,
   date,
   index,
+  integer,
   jsonb,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 // Cost ledger (S0-4). See docs/stage-0-plan.md, S0-4, and design-doc "8. Cost tracking".
@@ -71,3 +75,45 @@ export const otelMetricBatches = pgTable("otel_metric_batches", {
   receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
   payload: jsonb("payload").notNull(),
 });
+
+// Eval harness (S0-7). See docs/stage-0-plan.md, S0-7.
+
+/** One run of an agent's eval suite. The runner makes the ID, so storing a results file twice adds nothing. */
+export const evalRuns = pgTable(
+  "eval_runs",
+  {
+    id: uuid("id").primaryKey(),
+    agent: text("agent").notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }).notNull(),
+    // Where the run came from: kit version, the factory commit it ran against, and what started it.
+    kitVersion: text("kit_version").notNull(),
+    gitSha: text("git_sha").notNull(),
+    trigger: text("trigger").notNull(),
+    casesTotal: integer("cases_total").notNull(),
+    casesPassed: integer("cases_passed").notNull(),
+    costUsd: numeric("cost_usd", { precision: 14, scale: 6 }).notNull(),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("eval_runs_agent_started_idx").on(t.agent, t.startedAt)],
+);
+
+/** One scored case within a run. `rules` holds each rule's outcome. */
+export const evalResults = pgTable(
+  "eval_results",
+  {
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => evalRuns.id, { onDelete: "cascade" }),
+    caseId: text("case_id").notNull(),
+    passed: boolean("passed").notNull(),
+    score: numeric("score", { precision: 5, scale: 4 }).notNull(),
+    rules: jsonb("rules").notNull(),
+    reply: text("reply").notNull().default(""),
+    error: text("error"),
+    model: text("model").notNull().default(""),
+    costUsd: numeric("cost_usd", { precision: 14, scale: 6 }).notNull().default("0"),
+    durationMs: integer("duration_ms").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.runId, t.caseId] })],
+);
