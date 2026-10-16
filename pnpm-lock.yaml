@@ -50,6 +50,9 @@ importers:
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@electric-sql/pglite@0.5.10)(@neondatabase/serverless@1.2.0)
       mcp-handler:
         specifier: ^2.3.0
         version: 2.3.0(@modelcontextprotocol/server@2.3.1)(next@16.4.1(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))

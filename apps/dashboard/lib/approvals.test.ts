@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
+import { parseRecord } from "@factory/records";
 import { recordDecision } from "@/lib/approvals";
 import type { ApprovalDeps } from "@/lib/approvals";
+import { buildApproval as realBuildApproval } from "@/lib/deps";
 import type { BuildApproval } from "@/lib/deps";
 import { fakeQueries } from "@/lib/fake-index";
 
@@ -116,6 +118,30 @@ describe("recordDecision", () => {
       ),
     ).rejects.toThrow("BR-01 is not waiting for approval.");
     expect(github.commitFiles).not.toHaveBeenCalled();
+  });
+
+  it("writes a real APR and the approved BR with the S1 builder", async () => {
+    const { deps, github } = setup();
+    await recordDecision(
+      {
+        project: "acme",
+        kind: "approve",
+        targets: ["BR-01"],
+        decision: "approved",
+        versions: { "BR-01": 1 },
+      },
+      { ...deps, buildApproval: realBuildApproval },
+    );
+    expect(github.commitFiles).toHaveBeenCalledTimes(1);
+    const { files } = (github.commitFiles.mock.calls[0] as unknown[])[0] as {
+      files: { path: string; content: string }[];
+    };
+    const parsed = files.map((f) => parseRecord(f.content).header);
+    const apr = parsed.find((h) => h.type === "approval")!;
+    expect(apr).toMatchObject({ id: "APR-0002", approver: "SH-00", role: "delivery lead" });
+    expect(apr.links?.approves).toEqual(["BR-01@1"]);
+    const br = parsed.find((h) => h.id === "BR-01")!;
+    expect(br).toMatchObject({ status: "approved", approval: "APR-0002", version: 1 });
   });
 
   it("refuses to confirm a claim that is not pending", async () => {
