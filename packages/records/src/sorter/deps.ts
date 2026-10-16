@@ -1,19 +1,10 @@
-// Local copy of the S1 signatures the sorter calls (packages/records/src/{io,allocate}.ts).
-// The CLI passes in the real functions; tests pass offline ones.
-import type { RecordHeader } from "../contracts";
-
-export type ProjectRecord = { path: string; header: RecordHeader; body: string };
+// The sorter's injection seam: the S1 functions it calls. The CLI passes the real ones; tests
+// can pass fakes (e.g. an allocator that records its argument).
+import type { AllocateOptions } from "../allocate";
+import type { ProjectFiles, serializeRecord } from "../io";
 
 export type Deps = {
-  readProject(dir: string): {
-    records: Map<string, ProjectRecord>;
-    duplicates: unknown[];
-  };
-  serializeRecord(header: RecordHeader, body: string): string;
-  allocate(opts: {
-    project: string;
-    prefix: string;
-    count: number;
-    dir: string;
-  }): Promise<string[]>;
+  readProject(dir: string): Pick<ProjectFiles, "records">;
+  serializeRecord: typeof serializeRecord;
+  allocate(opts: AllocateOptions): Promise<string[]>;
 };

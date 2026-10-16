@@ -5,9 +5,11 @@ import { parse as parseYaml } from "yaml";
 import { RecordValidator } from "@factory/schemas";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { IntakeInput } from "../contracts";
-import { localDeps } from "./local-deps";
+import { allocateIds } from "../allocate";
+import { readProject, serializeRecord } from "../io";
 import { DuplicateSourceError, sortInbox } from "./sort";
 
+const realDeps = { readProject, serializeRecord, allocate: allocateIds };
 const repo = new URL("../../../../", import.meta.url).pathname;
 const INBOX = "inbox/kickoff-2026-10-02.txt";
 let dir: string;
@@ -18,7 +20,7 @@ beforeEach(() => {
 });
 
 const sort = () =>
-  sortInbox(dir, INBOX, localDeps(), {
+  sortInbox(dir, INBOX, realDeps, {
     project: "E2E",
     date: "2026-10-16",
     runId: "r1",
@@ -99,7 +101,7 @@ describe("sortInbox", () => {
       join(dir, "records/sources/SRC-001/kickoff-2026-10-02.txt"),
       join(dir, "inbox/again.txt"),
     );
-    const err = await sortInbox(dir, "inbox/again.txt", localDeps(), {
+    const err = await sortInbox(dir, "inbox/again.txt", realDeps, {
       project: "E2E",
       date: "2026-10-16",
       runId: "r2",
@@ -111,7 +113,7 @@ describe("sortInbox", () => {
   it("allocates and bundles under the given project name", async () => {
     const calls: { project: string }[] = [];
     const deps = {
-      ...localDeps(),
+      ...realDeps,
       allocate: async (o: { project: string }) => {
         calls.push(o);
         return ["SRC-007"];
@@ -134,7 +136,7 @@ describe("sortInbox", () => {
       const d2 = mkdtempSync(join(tmpdir(), "sorter-"));
       cpSync(join(repo, "fixtures/f01"), d2, { recursive: true });
       writeFileSync(join(d2, "inbox", n), "Sarah Kim: hello\n");
-      await sortInbox(d2, `inbox/${n}`, localDeps(), {
+      await sortInbox(d2, `inbox/${n}`, realDeps, {
         project: "E2E",
         date: "2026-01-01",
         runId: "r",
@@ -149,7 +151,7 @@ describe("sortInbox", () => {
       join(dir, "inbox/call.vtt"),
       "WEBVTT\n\n00:00:01.000 --> 00:00:04.000\n<v Sarah Kim>Hello there.\n",
     );
-    await sortInbox(dir, "inbox/call.vtt", localDeps(), {
+    await sortInbox(dir, "inbox/call.vtt", realDeps, {
       project: "E2E",
       date: "2026-10-16",
       runId: "r5",
@@ -159,7 +161,7 @@ describe("sortInbox", () => {
   });
 
   it("refuses a path outside inbox/", async () => {
-    const err = await sortInbox(dir, "records/stakeholders/SH-01.md", localDeps(), {
+    const err = await sortInbox(dir, "records/stakeholders/SH-01.md", realDeps, {
       project: "E2E",
       date: "2026-10-16",
       runId: "r6",

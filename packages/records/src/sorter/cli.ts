@@ -5,8 +5,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
+import { allocateIds } from "../allocate";
 import { buildBaInput, writeBaInput } from "../bundles/ba";
-import { localDeps } from "./local-deps";
+import { readProject, serializeRecord } from "../io";
 import { sortInbox } from "./sort";
 
 function flag(args: string[], name: string): string | undefined {
@@ -24,12 +25,17 @@ async function main(args: string[]): Promise<void> {
     profile: string;
   };
   const projectName = process.env.FACTORY_PROJECT ?? project.key;
+  const deps = {
+    readProject,
+    serializeRecord,
+    allocate: (o: Parameters<typeof allocateIds>[0]) => allocateIds({ ...o, ...(online ?? {}) }),
+  };
   const runId = flag(args, "run");
   if (!runId) throw new Error("Missing --run <id>.");
 
   if (args[0] === "sort" && args[1]) {
     const date = new Date().toISOString().slice(0, 10);
-    const { source } = await sortInbox(dir, args[1], localDeps(online), {
+    const { source } = await sortInbox(dir, args[1], deps, {
       project: projectName,
       date,
       runId,
