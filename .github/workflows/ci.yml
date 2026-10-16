@@ -14,9 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Lint the kit workflows
-        uses: docker://rhysd/actionlint:1.7.7
-        with:
-          args: -color kit/workflows/*.yml
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
+          ./actionlint -color kit/workflows/*.yml
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

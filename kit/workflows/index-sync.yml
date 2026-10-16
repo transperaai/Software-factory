@@ -36,8 +36,9 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          # Only record files are sent, not sources' text.md or raw transcripts.
           # One jq run per file, so input_filename is that file's path.
-          find records -type f \( -name '*.md' -o -path 'records/sources/*/meta.yaml' \) -print0 |
+          find records -type f \( \( -name '*.md' -not -path 'records/sources/*' \) -o -path 'records/sources/*/meta.yaml' \) -print0 |
             sort -z |
             xargs -0 -r -n1 jq -Rs '{path: input_filename, content: .}' |
             jq -s '.' > "$RUNNER_TEMP/files.json"

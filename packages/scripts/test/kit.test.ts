@@ -161,6 +161,15 @@ describe("kit workflows", () => {
       }
     }
   });
+
+  it("mint the App token after the agent step", () => {
+    for (const file of files) {
+      const text = readFileSync(join(dir, file), "utf8");
+      const mint = text.indexOf("actions/create-github-app-token");
+      if (mint < 0 || !text.includes("anthropics/claude-code-action")) continue;
+      expect(mint, file).toBeGreaterThan(text.indexOf("anthropics/claude-code-action"));
+    }
+  });
 });
 
 describe("checkKit", () => {
