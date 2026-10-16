@@ -19,8 +19,8 @@ function parseIds(body: unknown): AllocateIdsRequest {
     throw new IndexApiError("prefix must be capital letters, such as CLM");
   if (!Number.isInteger(b.count) || b.count! < 1 || b.count! > 200)
     throw new IndexApiError("count must be a whole number from 1 to 200");
-  if (!Number.isInteger(b.maxInTree) || b.maxInTree! < 0)
-    throw new IndexApiError("maxInTree must be a whole number, 0 or more");
+  if (!Number.isInteger(b.maxInTree) || b.maxInTree! < 0 || b.maxInTree! > 1_000_000)
+    throw new IndexApiError("maxInTree must be a whole number from 0 to 1000000");
   return b as AllocateIdsRequest;
 }
 
@@ -44,7 +44,9 @@ function makeHandler<In, Out>(
   run: (db: Db, input: In) => Promise<Out>,
 ) {
   return async (req: Request): Promise<Response> => {
-    if (!authorized(req.headers.get("authorization"), deps.token())) {
+    const token = deps.token();
+    if (!token) return json(503, { error: "index token not configured" });
+    if (!authorized(req.headers.get("authorization"), token)) {
       return json(401, { error: "unauthorized" });
     }
     let input: In;

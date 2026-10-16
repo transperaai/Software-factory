@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createIndexQueries } from "@factory/db";
 import type { Db } from "@factory/db";
@@ -49,6 +52,18 @@ describe("parseSyncPush", () => {
     expect(byId["SRC-001"]).toMatchObject({ type: "source", body: "", title: "Kickoff" });
   });
 
+  it("skips non-meta files under a source folder", () => {
+    const res = parseSyncPush(
+      push([
+        ...files,
+        { path: "records/sources/SRC-001/text.md", content: "L1 Sarah: hi" },
+        { path: "records/sources/SRC-001/kickoff.md", content: "no header" },
+      ]),
+    );
+    const inFolder = res.records.filter((r) => r.path.startsWith("records/sources/SRC-001/"));
+    expect(inFolder.map((r) => r.recordId)).toEqual(["SRC-001"]);
+  });
+
   it("refuses paths outside records/ and files over the caps", () => {
     expect(error(push([{ path: "docs/x.md", content: CLAIM }]))).toMatch(/files\[0\]\.path/);
     expect(error(push([{ path: "records/../x.md", content: CLAIM }]))).toMatch(/files\[0\]\.path/);
@@ -88,7 +103,7 @@ describe("index routes", () => {
 
   it("503 when no token or database is configured", async () => {
     const none = makeIndexHandlers({ token: () => undefined, db: () => ({ db }) });
-    expect((await none.ids(post("ids", {}))).status).toBe(401);
+    expect((await none.ids(post("ids", {}))).status).toBe(503);
     const noDb = makeIndexHandlers({ token: () => "test-token", db: () => undefined });
     const body = { project: "p", prefix: "BR", count: 1, maxInTree: 0 };
     expect((await noDb.ids(post("ids", body))).status).toBe(503);
@@ -104,6 +119,60 @@ describe("index routes", () => {
     const { records } = await q.json();
     expect(records.map((r: { id: string }) => r.id)).toEqual(["CLM-0001"]);
     expect(await createIndexQueries(db).latestSync("p")).toMatchObject({ ok: true });
+  });
+
+  it("traces the fixture plus claims, a BR and an APR", async () => {
+    const root = fileURLToPath(new URL("../../../../fixtures/f01/", import.meta.url));
+    const walk = (dir: string): string[] =>
+      readdirSync(join(root, dir), { withFileTypes: true }).flatMap((e) =>
+        e.isDirectory()
+          ? walk(`${dir}/${e.name}`)
+          : e.name.endsWith(".md")
+            ? [`${dir}/${e.name}`]
+            : [],
+      );
+    const fixture = walk("records").map((path) => ({
+      path,
+      content: readFileSync(join(root, path), "utf8"),
+    }));
+    const claim = (n: number, who: string, confirmation: string) => ({
+      path: `records/claims/CLM-000${n}.md`,
+      content: `---\nid: CLM-000${n}\ntype: claim\ntitle: Claim ${n}\nstatus: draft\nversion: 1\ncreated_by: agent:intake\nconfirmation: ${confirmation}\nlinks:\n  from_source: [SRC-001]\n  said_by: [${who}]\n---\n\nClaim ${n}.\n`,
+    });
+    const br = {
+      path: "records/business-requirements/BR-01.md",
+      content:
+        "---\nid: BR-01\ntype: business_requirement\ntitle: Report\nstatus: review\nversion: 1\ncreated_by: agent:ba\nlinks:\n  evidence: [CLM-0001@1, CLM-0002@1]\n---\n",
+    };
+    const apr = {
+      path: "records/approvals/APR-01.md",
+      content:
+        "---\nid: APR-01\ntype: approval\ntitle: Approve report\nstatus: approved\nversion: 1\ncreated_by: human:austin\nlinks:\n  approves: [BR-01@1]\n---\n",
+    };
+    const res = await h.sync(
+      post("index/sync", {
+        project: "p",
+        commitSha: "abc",
+        files: [
+          ...fixture,
+          files[1],
+          claim(1, "SH-01", "confirmed"),
+          claim(2, "SH-02", "confirmed"),
+          claim(3, "SH-01", "pending"),
+          br,
+          apr,
+        ],
+        findings: [],
+      }),
+    );
+    expect(res.status).toBe(200);
+    const q = createIndexQueries(db);
+    type N = { id: string; children: N[] } | undefined;
+    const ids = (n: N): string[] => (n ? [n.id, ...n.children.flatMap(ids)] : []);
+    const up = ids(await q.traceUp("p", "BR-01"));
+    for (const id of ["CLM-0001", "CLM-0002", "SRC-001", "SH-01", "SH-02"])
+      expect(up).toContain(id);
+    expect(ids(await q.traceDown("p", "CLM-0001"))).toContain("BR-01");
   });
 
   it("allocates IDs", async () => {
@@ -123,6 +192,9 @@ describe("index routes", () => {
     expect(await bad("sync", { project: "Bad Name", files: [] })).toMatch(/project/);
     expect(await bad("ids", { project: "p", prefix: "CLM", count: 0, maxInTree: 0 })).toMatch(
       /count/,
+    );
+    expect(await bad("ids", { project: "p", prefix: "CLM", count: 1, maxInTree: 2e9 })).toMatch(
+      /maxInTree/,
     );
     expect(await bad("query", { project: "p", type: 5 })).toMatch(/type/);
     const notJson = new Request("http://localhost/api/ids", {

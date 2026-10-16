@@ -16,6 +16,7 @@ export type SyncPush = {
 const PROJECT = /^[a-z0-9][a-z0-9-]{0,62}$/;
 const MD_PATH = /^records\/[A-Za-z0-9_./-]+\.md$/;
 const META_PATH = /^records\/sources\/[A-Za-z0-9_-]+\/meta\.yaml$/;
+const SOURCE_FOLDER = /^records\/sources\/[A-Za-z0-9_-]+\//;
 const MAX_FILES = 2_000;
 const MAX_FILE_BYTES = 200_000;
 
@@ -90,7 +91,8 @@ export function parseSyncPush(body: unknown): SyncPush {
   const md = parseRecordsPush({
     project: b.project,
     commitSha,
-    files: files.filter((f) => !isMeta(f)),
+    // Under records/sources/<SRC>/ only meta.yaml is a record; text.md and raw transcripts are skipped.
+    files: files.filter((f) => !isMeta(f) && !SOURCE_FOLDER.test(f.path as string)),
   });
   const records: SyncRecord[] = md.map((row) => ({
     ...row,
