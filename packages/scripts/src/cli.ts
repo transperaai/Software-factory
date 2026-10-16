@@ -4,10 +4,11 @@
 //   factory kit check   --project <dir>
 //   factory eval run    --agent <name> --cases evals/<agent>/ [--out <file>] [--trigger <label>] [--judge opus]
 //   factory eval store  <results file> --url <dashboard>     (token in FACTORY_INGEST_TOKEN)
-//   factory e2e f01     (env: FACTORY_URL, FACTORY_API_TOKEN, GITHUB_TOKEN_E2E; optional E2E_REPO)
+//   factory e2e f01     (env: FACTORY_URL, FACTORY_API_TOKEN, GH_TOKEN, E2E_REPO_DIR; optional E2E_REPO)
+import { execFile } from "node:child_process";
 import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { parseArgs } from "node:util";
+import { parseArgs, promisify } from "node:util";
 import { CaseError, loadCases } from "./eval/cases.ts";
 import { DEFAULT_TIMEOUTS, formatSummary, runF01 } from "./e2e/f01.ts";
 import { opusJudge } from "./eval/judge.ts";
@@ -15,6 +16,8 @@ import { runEval, storeRun } from "./eval/run.ts";
 import type { EvalRunFile } from "./eval/run.ts";
 import { KitDeviationError, checkKit, installKit } from "./kit/install.ts";
 import { checkoutRef } from "./kit/source.ts";
+
+const execFileAsync = promisify(execFile);
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
@@ -125,20 +128,38 @@ if (group === "kit" && command === "install") {
     result.stored ? `Stored run ${run.id}.` : `Run ${run.id} was already stored; nothing changed.`,
   );
 } else if (group === "e2e" && command === "f01") {
-  const { FACTORY_URL, FACTORY_API_TOKEN, GITHUB_TOKEN_E2E, E2E_REPO } = process.env;
-  if (!FACTORY_URL || !FACTORY_API_TOKEN || !GITHUB_TOKEN_E2E)
-    fail("Set FACTORY_URL, FACTORY_API_TOKEN and GITHUB_TOKEN_E2E.");
+  const { FACTORY_URL, FACTORY_API_TOKEN, GH_TOKEN, E2E_REPO, E2E_REPO_DIR } = process.env;
+  if (!FACTORY_URL || !FACTORY_API_TOKEN || !GH_TOKEN || !E2E_REPO_DIR)
+    fail("Set FACTORY_URL, FACTORY_API_TOKEN, GH_TOKEN and E2E_REPO_DIR.");
   try {
     const result = await runF01({
       fetch,
+      exec: async (cmd, args, opts) => {
+        try {
+          const { stdout, stderr } = await execFileAsync(cmd, args, {
+            cwd: opts.cwd,
+            env: { ...process.env, ...opts.env },
+            maxBuffer: 64 * 1024 * 1024,
+          });
+          return { code: 0, stdout, stderr };
+        } catch (err) {
+          const e = err as { code?: unknown; stdout?: string; stderr?: string; message: string };
+          return {
+            code: typeof e.code === "number" ? e.code : 1,
+            stdout: e.stdout ?? "",
+            stderr: e.stderr || e.message,
+          };
+        }
+      },
       sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
       now: () => Date.now(),
       config: {
         ...DEFAULT_TIMEOUTS,
         factoryUrl: FACTORY_URL.replace(/\/+$/, ""),
         apiToken: FACTORY_API_TOKEN,
-        githubToken: GITHUB_TOKEN_E2E,
+        githubToken: GH_TOKEN,
         repo: E2E_REPO ?? "transperaai/factory-e2e",
+        repoDir: resolve(E2E_REPO_DIR),
         transcriptPath: resolve("fixtures/f01/inbox/kickoff-2026-10-02.txt"),
       },
     });

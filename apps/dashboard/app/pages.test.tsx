@@ -19,7 +19,6 @@ vi.mock("@/auth", () => ({
 
 import { NeedsYou } from "@/app/components/NeedsYou";
 import { BrTable, ThreadDetail } from "@/app/components/Thread";
-import { confirmClaimsAction, uploadAction } from "@/app/actions";
 import { loadNeedsYou } from "@/lib/cards-view";
 import { fakeQueries } from "@/lib/fake-index";
 import { requireAllowed } from "@/lib/session";
@@ -44,36 +43,23 @@ describe("sign-in checks", () => {
     authState.session = { githubId: "318214427" };
     await expect(requireAllowed()).resolves.toBeTruthy();
   });
-
-  it("makes server actions refuse signed-out and wrong-account callers", async () => {
-    const form = new FormData();
-    form.set("project", "acme");
-    form.append("claim", "CLM-0002");
-    form.set("decision", "approved");
-    await expect(confirmClaimsAction(form)).rejects.toThrow("REDIRECT /signin");
-    authState.session = { githubId: "999" };
-    await expect(uploadAction(form)).rejects.toThrow("REDIRECT /signin");
-  });
 });
 
 describe("rendering", () => {
   const q = fakeQueries();
-  const noop = () => {};
 
-  it("renders the Needs you cards", async () => {
-    const html = renderToStaticMarkup(
-      <NeedsYou items={await loadNeedsYou(q)} confirmClaims={noop} approve={noop} />,
-    );
+  it("renders the Needs you cards as text with no forms", async () => {
+    const html = renderToStaticMarkup(<NeedsYou items={await loadNeedsYou(q)} />);
     expect(html).toContain("Drivers want a mobile app.");
-    expect(html).toContain('checked=""');
-    expect(html).toContain("Confirm");
+    expect(html).toContain("tell Claude in your project session");
+    expect(html).toContain("Confirm claims from");
     expect(html).toContain("Saves two hours a day");
     expect(html).toContain("We lose two hours a day re-keying orders.");
-    expect(html).toContain("Approve");
+    expect(html).toContain("Approve BR-01 v1");
     expect(html).toContain('href="/thread/acme/BR-01"');
-    expect(html).toContain('name="version"');
-    expect(html).toContain('value="1"');
-    expect(html).toContain('value="CLM-0002@1"');
+    expect(html).not.toContain("<form");
+    expect(html).not.toContain("<button");
+    expect(html).not.toContain("<input");
   });
 
   it("renders the BR table and the thread with its quotes", async () => {

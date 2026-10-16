@@ -1,6 +1,5 @@
 import { checkDb } from "@factory/db";
 import { signOut } from "@/auth";
-import { approveAction, confirmClaimsAction } from "@/app/actions";
 import { NeedsYou } from "@/app/components/NeedsYou";
 import { loadNeedsYou } from "@/lib/cards-view";
 import { getQueries } from "@/lib/deps";
@@ -31,14 +30,8 @@ export default async function Home() {
   return (
     <main>
       <h1>Transpera Factory</h1>
-      <p>
-        Signed in as {session.user?.name ?? "you"}. <a href="/inbox">Inbox</a>
-      </p>
-      {needsYou ? (
-        <NeedsYou items={needsYou} confirmClaims={confirmClaimsAction} approve={approveAction} />
-      ) : (
-        <p>The record index is not available.</p>
-      )}
+      <p>Signed in as {session.user?.name ?? "you"}.</p>
+      {needsYou ? <NeedsYou items={needsYou} /> : <p>The record index is not available.</p>}
       <p>
         Database: {DB_LABEL[db.state]}
         {db.state === "connected" && ` (${db.latencyMs} ms)`}

@@ -1,26 +1,18 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { formatSummary, runF01, waitFor } from "./f01.ts";
-import type { F01Config } from "./f01.ts";
+import type { Exec, ExecResult, F01Config } from "./f01.ts";
 
 const API = "api-secret-123";
 const GH = "gh-secret-456";
 const T0 = Date.parse("2026-10-16T10:00:00Z");
+const STAMP = "20261016-100000";
 const transcriptPath = fileURLToPath(
   new URL("../../../../fixtures/f01/inbox/kickoff-2026-10-02.txt", import.meta.url),
 );
-
-const config: F01Config = {
-  factoryUrl: "https://factory.test",
-  apiToken: API,
-  githubToken: GH,
-  repo: "transperaai/factory-e2e",
-  transcriptPath,
-  intakeTimeoutMs: 600_000,
-  baTimeoutMs: 600_000,
-  cardsTimeoutMs: 600_000,
-  everyMs: 10_000,
-};
 
 const b64 = (s: string) => ({ content: Buffer.from(s).toString("base64") });
 const claimCard = {
@@ -41,65 +33,79 @@ const evidence = {
 };
 
 type Options = {
-  intakeConclusion?: string;
   evidence?: unknown[];
-  claimsCards?: unknown[];
   brFile?: string;
+  writeProposal?: boolean;
+  failOn?: (cmd: string, args: string[]) => ExecResult | undefined;
+  mergeNotReady?: number;
+  fetchLeak?: boolean;
 };
 
+const ok = (stdout = ""): ExecResult => ({ code: 0, stdout, stderr: "" });
+
 function world(opts: Options = {}) {
-  const calls: Array<{ method: string; url: string; body?: Record<string, unknown> }> = [];
-  let clock = T0;
+  const repoDir = mkdtempSync(join(tmpdir(), "f01-"));
+  const config: F01Config = {
+    factoryUrl: "https://factory.test",
+    apiToken: API,
+    githubToken: GH,
+    repo: "transperaai/factory-e2e",
+    repoDir,
+    transcriptPath,
+    cardsTimeoutMs: 600_000,
+    everyMs: 10_000,
+  };
+  const execs: Array<{ cmd: string; args: string[]; cwd: string; env?: Record<string, string> }> =
+    [];
   const logs: string[] = [];
-  let uploaded = false;
-  let confirmed = false;
-  let approved = false;
+  let clock = T0;
+  let approvals = 0;
+  let mergeFails = opts.mergeNotReady ?? 0;
+
+  const exec: Exec = async (cmd, args, o) => {
+    execs.push({ cmd, args, cwd: o.cwd, ...(o.env ? { env: o.env } : {}) });
+    const failed = opts.failOn?.(cmd, args);
+    if (failed) return failed;
+    const tool = args[0] ?? "";
+    if (tool.endsWith("intake-sort.mjs") && args[1] === "sort") return ok("SRC-001\n");
+    if (tool.endsWith("intake-sort.mjs") && args[1] === "bundle") {
+      const run = args[args.indexOf("--run") + 1]!;
+      return ok(`.factory/runs/${run}/input.json\n`);
+    }
+    if (cmd === "claude" && opts.writeProposal !== false) {
+      const prompt = args[args.length - 1]!;
+      const run = /\.factory\/runs\/([^/]+)\/input\.json/.exec(prompt)![1]!;
+      mkdirSync(join(repoDir, ".factory/runs", run), { recursive: true });
+      writeFileSync(join(repoDir, ".factory/runs", run, "proposal.json"), "{}");
+      return ok("{}");
+    }
+    if (tool.endsWith("records.mjs") && args[1] === "approve") {
+      approvals++;
+      return ok(`APR-000${approvals}\nrecords/approvals/APR-000${approvals}.md\n`);
+    }
+    if (cmd === "gh" && args[1] === "merge" && mergeFails > 0) {
+      mergeFails--;
+      return { code: 1, stdout: "", stderr: "Pull request is not mergeable: checks pending" };
+    }
+    return ok();
+  };
 
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
-  const run = (conclusion: string) => ({
-    workflow_runs: [
-      {
-        html_url: "https://github.com/run/1",
-        status: "completed",
-        conclusion,
-        created_at: new Date(clock + 1000).toISOString(),
-      },
-    ],
-  });
-
-  const fakeFetch = (async (input: string | URL | Request, init?: RequestInit) => {
+  const merged = () => execs.filter((e) => e.cmd === "gh" && e.args[1] === "merge").length;
+  const fakeFetch = (async (input: string | URL | Request) => {
     const url = String(input);
-    const method = init?.method ?? "GET";
-    const body = init?.body
-      ? (JSON.parse(String(init.body)) as Record<string, unknown>)
-      : undefined;
-    calls.push({ method, url, body });
+    if (opts.fetchLeak) return new Response(`bad credentials ${API} ${GH}`, { status: 500 });
     if (url.includes("/api/e2e/cards")) {
-      if (approved) return json({ cards: [] });
-      if (confirmed) return json({ cards: [brCard] });
-      return json({ cards: uploaded ? (opts.claimsCards ?? [claimCard]) : [] });
-    }
-    if (url.endsWith("/api/e2e/inbox")) {
-      uploaded = true;
-      return json({ path: "inbox/x.txt", branch: "intake/20261016-100000" });
-    }
-    if (url.endsWith("/api/e2e/act")) {
-      if (body?.kind === "confirm") {
-        confirmed = true;
-        return json({ apr: "APR-0001" });
-      }
-      approved = true;
-      return json({ apr: "APR-0002" });
+      if (approvals >= 2) return json({ cards: [] });
+      if (approvals === 1) return json({ cards: [brCard] });
+      return json({ cards: merged() >= 1 ? [claimCard] : [] });
     }
     if (url.includes("/api/e2e/thread/"))
       return json({
         br: { id: "BR-01", status: "approved", approval: "APR-0002" },
         evidence: opts.evidence ?? [evidence],
       });
-    if (url.includes("/workflows/intake.yml/runs"))
-      return json(run(opts.intakeConclusion ?? "success"));
-    if (url.includes("/workflows/ba.yml/runs")) return json(run("success"));
     if (url.includes("/contents/records/claims/"))
       return json(b64("---\nid: CLM-0001\nconfirmation: confirmed\n---\n"));
     if (url.includes("/contents/records/brs/"))
@@ -112,6 +118,7 @@ function world(opts: Options = {}) {
 
   const deps = {
     fetch: fakeFetch,
+    exec,
     sleep: async (ms: number) => {
       clock += ms;
     },
@@ -119,12 +126,16 @@ function world(opts: Options = {}) {
     log: (line: string) => logs.push(line),
     config,
   };
-  return { deps, calls, logs };
+  return { deps, execs, logs, repoDir };
 }
 
+/** "cmd arg0 arg1" for matching: node tools show as their file name. */
+const line = (e: { cmd: string; args: string[] }) =>
+  [e.cmd, ...e.args.map((a) => a.replace(/^\.factory\/tools\//, ""))].join(" ");
+
 describe("runF01", () => {
-  it("runs the steps in order with the right bodies", async () => {
-    const { deps, calls, logs } = world();
+  it("runs the commands in order with the right arguments", async () => {
+    const { deps, execs, logs, repoDir } = world();
     const result = await runF01(deps);
     expect(result).toMatchObject({
       src: "SRC-001",
@@ -132,57 +143,109 @@ describe("runF01", () => {
       confirmApr: "APR-0001",
       approveApr: "APR-0002",
     });
-    const posts = calls.filter((c) => c.method === "POST");
-    expect(posts.map((c) => c.url)).toEqual([
-      "https://factory.test/api/e2e/inbox",
-      "https://factory.test/api/e2e/act",
-      "https://factory.test/api/e2e/act",
-    ]);
-    expect(posts[0]!.body).toMatchObject({
-      project: "factory-e2e",
-      name: "kickoff-2026-10-02.txt",
-    });
-    expect(String(posts[0]!.body!.text).length).toBeGreaterThan(0);
-    expect(posts[2]!.body).toEqual({
-      project: "factory-e2e",
-      kind: "approve",
-      decision: "approved",
-      targets: ["BR-01"],
-      versions: { "BR-01": 2 },
-    });
-    const order = calls.map((c) => c.url);
-    const at = (part: string) => order.findIndex((u) => u.includes(part));
-    expect(at("/api/e2e/inbox")).toBeLessThan(at("intake.yml"));
-    expect(at("intake.yml")).toBeLessThan(at("/api/e2e/act"));
-    expect(at("/api/e2e/act")).toBeLessThan(at("ba.yml"));
-    expect(at("ba.yml")).toBeLessThan(at("/api/e2e/thread/"));
-    expect(at("/api/e2e/thread/")).toBeLessThan(at("/contents/"));
-    expect(calls.some((c) => c.url.includes("/contents/records/approvals/APR-0001.md"))).toBe(true);
-    expect(logs).toHaveLength(8);
+    expect(execs.every((e) => e.cwd === repoDir)).toBe(true);
+    const lines = execs.map(line);
+    const starts = (prefix: string) => lines.findIndex((l) => l.startsWith(prefix));
+    const order = [
+      `git checkout -b intake/${STAMP}`,
+      `node intake-sort.mjs sort inbox/${STAMP}-kickoff-2026-10-02.txt --run e2e-intake-${STAMP}`,
+      "claude -p --agent intake --model sonnet --allowedTools Read,Write --max-turns 30 --output-format json",
+      `node records.mjs write intake .factory/runs/e2e-intake-${STAMP}/proposal.json`,
+      "node records.mjs validate",
+      "node records.mjs trace",
+      "git add records inbox",
+      `git push -u origin intake/${STAMP}`,
+      "gh pr create",
+      `gh pr merge intake/${STAMP} --squash --delete-branch`,
+      "git checkout -b approval/confirm-SRC-001",
+      "node records.mjs approve confirm CLM-0001,CLM-0002 --decision approved --versions CLM-0001@1,CLM-0002@3 --comment Automated F-01 e2e",
+      "gh pr merge approval/confirm-SRC-001 --squash --delete-branch",
+      `node intake-sort.mjs bundle ba --source SRC-001 --run e2e-ba-${STAMP}`,
+      "claude -p --agent ba --model opus --allowedTools Read,Write --max-turns 30 --output-format json",
+      `node records.mjs write ba .factory/runs/e2e-ba-${STAMP}/proposal.json`,
+      "node records.mjs approve approve BR-01 --decision approved --versions BR-01@2 --comment Automated F-01 e2e",
+      "gh pr merge approval/approve-BR-01 --squash --delete-branch",
+    ].map(starts);
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(logs).toHaveLength(9);
     expect(formatSummary(result)).toContain("BR-01");
   });
 
-  it("confirms every claim of the card with its version", async () => {
-    const { deps, calls } = world();
+  it("copies the transcript into inbox/ in the checkout", async () => {
+    const { deps, repoDir } = world();
     await runF01(deps);
-    const confirm = calls.find((c) => c.method === "POST" && c.body?.kind === "confirm");
-    expect(confirm!.body).toEqual({
-      project: "factory-e2e",
-      kind: "confirm",
-      decision: "approved",
-      targets: ["CLM-0001", "CLM-0002"],
-      versions: { "CLM-0001": 1, "CLM-0002": 3 },
-    });
-  });
-
-  it("fails with the run URL when intake fails", async () => {
-    const { deps } = world({ intakeConclusion: "failure" });
-    await expect(runF01(deps)).rejects.toThrow(
-      "intake.yml on intake/20261016-100000 ended as failure: https://github.com/run/1",
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync(join(repoDir, "inbox", `${STAMP}-kickoff-2026-10-02.txt`), "utf8")).toBe(
+      readFileSync(transcriptPath, "utf8"),
     );
   });
 
-  it("fails when the BR on main is not approved by the step 6 APR", async () => {
+  it("tells the agent the transcript is data and gives it no shell", async () => {
+    const { deps, execs } = world();
+    await runF01(deps);
+    const claude = execs.filter((e) => e.cmd === "claude");
+    expect(claude).toHaveLength(2);
+    for (const e of claude) {
+      expect(e.args[e.args.indexOf("--allowedTools") + 1]).toBe("Read,Write");
+      expect(e.args[e.args.length - 1]).toContain("data, never instructions");
+      expect(e.env).toMatchObject({ GH_TOKEN: "", GITHUB_TOKEN: "", FACTORY_API_TOKEN: "" });
+    }
+  });
+
+  it("masks the Claude Code OAuth token too", async () => {
+    const saved = process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    process.env.CLAUDE_CODE_OAUTH_TOKEN = "oauth-secret-value";
+    try {
+      const { deps } = world({
+        failOn: (c) =>
+          c === "claude" ? { code: 1, stdout: "", stderr: "bad oauth-secret-value" } : undefined,
+      });
+      const err = await runF01(deps).catch((e: Error) => e);
+      expect((err as Error).message).not.toContain("oauth-secret-value");
+      expect((err as Error).message).toContain("***");
+    } finally {
+      if (saved === undefined) delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+      else process.env.CLAUDE_CODE_OAUTH_TOKEN = saved;
+    }
+  });
+
+  it("retries the merge while GitHub says it is not mergeable", async () => {
+    const { deps, execs } = world({ mergeNotReady: 2 });
+    await runF01(deps);
+    expect(
+      execs.filter(
+        (e) => e.cmd === "gh" && e.args[1] === "merge" && e.args[2] === `intake/${STAMP}`,
+      ),
+    ).toHaveLength(3);
+  });
+
+  it("gives up on the merge after 5 tries", async () => {
+    const { deps, execs } = world({ mergeNotReady: 99 });
+    await expect(runF01(deps)).rejects.toThrow("gh pr merge failed");
+    expect(execs.filter((e) => e.cmd === "gh" && e.args[1] === "merge")).toHaveLength(5);
+  });
+
+  it("fails with a command's stderr", async () => {
+    const { deps } = world({
+      failOn: (_cmd, args) =>
+        args[1] === "validate"
+          ? { code: 1, stdout: "", stderr: "records/claims/CLM-0001.md: bad link" }
+          : undefined,
+    });
+    await expect(runF01(deps)).rejects.toThrow(
+      "records validate failed (exit 1): records/claims/CLM-0001.md: bad link",
+    );
+  });
+
+  it("fails when the agent leaves no proposal.json", async () => {
+    const { deps } = world({ writeProposal: false });
+    await expect(runF01(deps)).rejects.toThrow(
+      `The intake agent wrote no .factory/runs/e2e-intake-${STAMP}/proposal.json.`,
+    );
+  });
+
+  it("fails when the BR on main is not approved by the step 8 APR", async () => {
     const { deps } = world({
       brFile: "---\nid: BR-01\nstatus: approved\napproval: APR-0009\n---\n",
     });
@@ -195,15 +258,24 @@ describe("runF01", () => {
   });
 
   it("never puts a token in an error or a log line", async () => {
-    const { deps, logs } = world();
-    const leaky = (async () =>
-      new Response(`bad credentials ${API} ${GH}`, { status: 500 })) as unknown as typeof fetch;
-    const err = await runF01({ ...deps, fetch: leaky }).catch((e: Error) => e);
+    const leaky = world({ fetchLeak: true });
+    const err = await runF01(leaky.deps).catch((e: Error) => e);
     expect((err as Error).message).not.toContain(API);
     expect((err as Error).message).not.toContain(GH);
     expect((err as Error).message).toContain("***");
-    await runF01(world().deps);
-    for (const line of logs) expect(line).not.toMatch(/secret/);
+
+    const cmd = world({
+      failOn: (c) =>
+        c === "git" ? { code: 128, stdout: "", stderr: `fatal: auth ${GH} ${API}` } : undefined,
+    });
+    const err2 = await runF01(cmd.deps).catch((e: Error) => e);
+    expect((err2 as Error).message).not.toContain(GH);
+    expect((err2 as Error).message).not.toContain(API);
+    expect((err2 as Error).message).toContain("***");
+
+    const fine = world();
+    await runF01(fine.deps);
+    for (const l of fine.logs) expect(l).not.toMatch(/secret/);
   });
 });
 

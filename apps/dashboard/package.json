@@ -14,8 +14,6 @@
     "@factory/db": "workspace:*",
     "@factory/records": "workspace:*",
     "@modelcontextprotocol/server": "^2.3.1",
-    "@octokit/auth-app": "^8.3.1",
-    "@octokit/rest": "^22.0.1",
     "drizzle-orm": "^0.45.4",
     "mcp-handler": "^2.3.0",
     "next": "^16.4.1",
