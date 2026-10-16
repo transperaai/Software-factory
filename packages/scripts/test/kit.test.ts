@@ -102,7 +102,11 @@ describe("installKit", () => {
 
     const settings = JSON.parse(read(project, ".claude/settings.json"));
     expect(settings.permissions).toEqual(own.permissions);
-    expect(settings.hooks.PostToolUse).toEqual(own.hooks.PostToolUse);
+    expect(settings.hooks.PostToolUse).toHaveLength(2);
+    expect(settings.hooks.PostToolUse[0]).toEqual(own.hooks.PostToolUse[0]);
+    expect(JSON.stringify(settings.hooks.PostToolUse[1])).toContain(
+      ".claude/hooks/factory/validate-records.mjs",
+    );
     expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
@@ -185,7 +189,10 @@ describe("checkKit", () => {
     expect(result.ok).toBe(false);
     expect(result.modified).toEqual([".claude/agents/scribe.md"]);
     expect(result.missing).toEqual([".claude/skills/factory-records/SKILL.md"]);
-    expect(result.settings).toEqual([".claude/hooks/factory/guard-writes.mjs"]);
+    expect(result.settings).toEqual([
+      ".claude/hooks/factory/guard-writes.mjs",
+      ".claude/hooks/factory/validate-records.mjs",
+    ]);
   });
 
   it("fails when there is no lockfile", () => {
